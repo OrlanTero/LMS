@@ -1,0 +1,39 @@
+<div class="three-input-container">
+    <div class="input-button close-btn-item">
+        <div class="icon">
+            <?= UseIcon("close") ?>
+        </div>
+    </div>
+    <div class="main-inputs">
+        <div class="input-item">
+            <div class="form-group tooltip">
+                <div class="tooltiptext">
+                    <span>Column</span>
+                </div>
+                <div class="error-container">
+                    <?= CreateComboBox("column", "Column", []) ?>
+                </div>
+            </div>
+        </div>
+        <div class="input-item">
+            <div class="form-group tooltip">
+                <div class="tooltiptext">
+                    <span>Operator</span>
+                </div>
+                <div class="error-container">
+                    <input type="text" name="operator" placeholder="Operator" value="=">
+                </div>
+            </div>
+        </div>
+        <div class="input-item">
+            <div class="form-group tooltip">
+                <div class="tooltiptext">
+                    <span>Value</span>
+                </div>
+                <div class="error-container">
+                    <input type="text" name="value" placeholder="Value">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

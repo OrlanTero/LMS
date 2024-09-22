@@ -1,0 +1,229 @@
+<?php
+global $APPLICATION;
+
+$data = json_decode($_POST['data'], true);
+$options = json_decode($_POST['options'], true);
+
+
+?>
+<div class="main-popup-container">
+    <div class="popup-background"></div>
+    <div class="popup-content">
+        <div class="main-popup-content filter-container-popup">
+            <div class="popup-top">
+                <div class="headline">
+                    <h1>Filter Table</h1>
+                </div>
+                <div class="paragraph">
+                    <p>Specify selection of data</p>
+                </div>
+
+                <div class="floating-button">
+                    <div class="close-popup popup-button">
+                        <?= UseIcon('close') ?>
+                    </div>
+                </div>
+            </div>
+            <form action="" class="form-control">
+                <div class="popup-bot" style="min-height: 450px !important;">
+                    <div class="group-control">
+                        <div class="group-item filter-dates">
+                            <div class="main">
+                                <div class="right">
+                                    <p>Filter Between Dates</p>
+                                </div>
+                                <div class="float-right flex">
+                                        <div class="check"  style="display: flex;justify-content: center;align-content: center;align-items: center;font-size: 12px">
+                                        <?= CreateCheckbox() ?>
+                                        <span>Specify Column</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="main-content">
+                                <div class="form-group-container flex">
+                                    <div class="form-group tooltip">
+                                        <div class="tooltiptext">
+                                            <span>From</span>
+                                        </div>
+                                        <label for="">From Date</label>
+                                        <div class="error-container">
+                                            <input type="date" name="from_date" placeholder="From Date" >
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group tooltip">
+                                        <div class="tooltiptext">
+                                            <span>To</span>
+                                        </div>
+                                        <label for="">To Date</label>
+                                        <div class="error-container">
+                                            <input type="date" name="to_date" placeholder="To Date" >
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group tooltip col-item hide-component">
+                                    <div class="tooltiptext">
+                                        <span>Column Name</span>
+                                    </div>
+                                    <div class="error-container">
+                                        <input type="text" name="date_column" placeholder="Column" >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="group-item filter-column">
+                            <div class="main">
+                                <div class="right">
+                                    <p>Filter By Column</p>
+                                </div>
+                                <div class="float-right">
+                                    <div class="circle-icon add-new-filter-column">
+                                        <div class="icon">
+                                            <?= UseIcon('plus-thin') ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="main-content">
+                                <div class="three-input-container">
+                                    <div class="input-button close-btn-item">
+                                        <div class="icon">
+                                            <?= UseIcon("close") ?>
+                                        </div>
+                                    </div>
+                                    <div class="main-inputs">
+                                        <div class="input-item">
+                                            <div class="form-group tooltip">
+                                                <div class="tooltiptext">
+                                                    <span>Column</span>
+                                                </div>
+                                                <div class="error-container">
+                                                    <?= CreateComboBox("column", "Column", []) ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="input-item">
+                                            <div class="form-group tooltip">
+                                                <div class="tooltiptext">
+                                                    <span>Operator</span>
+                                                </div>
+                                                <div class="error-container">
+                                                    <input type="text" name="operator" placeholder="Operator" value="=">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="input-item">
+                                            <div class="form-group tooltip">
+                                                <div class="tooltiptext">
+                                                    <span>Value</span>
+                                                </div>
+                                                <div class="error-container">
+                                                    <input type="text" name="value" placeholder="Value">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+<!--                        <div class="group-item">-->
+<!--                            <div class="main">-->
+<!--                                <div class="right">-->
+<!--                                    <p>Filter By Selection</p>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                            <div class="main-content">-->
+<!--                                    <div class="three-input-container">-->
+<!--                                        <div class="input-button close-btn-item">-->
+<!--                                            <div class="icon">-->
+<!--                                                --><?php //= UseIcon("close") ?>
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                        <div class="main-inputs">-->
+<!--                                        <div class="input-item">-->
+<!--                                            <div class="form-group tooltip">-->
+<!--                                                <div class="tooltiptext">-->
+<!--                                                    <span>Column</span>-->
+<!--                                                </div>-->
+<!--                                                <div class="error-container">-->
+<!--                                                    --><?php //= CreateComboBox("column_1", "Column 1", []) ?>
+<!--                                                </div>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                        <div class="input-item">-->
+<!--                                            <div class="form-group tooltip">-->
+<!--                                                <div class="tooltiptext">-->
+<!--                                                    <span>Operator</span>-->
+<!--                                                </div>-->
+<!--                                                <div class="error-container">-->
+<!--                                                    <input type="text" name="operator_1" placeholder="Operator" value="==">-->
+<!--                                                </div>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                        <div class="input-item">-->
+<!--                                            <div class="form-group tooltip">-->
+<!--                                                <div class="tooltiptext">-->
+<!--                                                    <span>Value</span>-->
+<!--                                                </div>-->
+<!--                                                <div class="error-container">-->
+<!--                                                    --><?php //= CreateComboBox("column_1", "Column 1", []) ?>
+<!--                                                </div>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+                        <div class="group-item filter-options">
+                            <div class="main">
+                                <div class="right">
+                                    <p>Filter Options</p>
+                                </div>
+                            </div>
+                            <div class="main-content">
+                                <div class="form-group-container flex">
+                                    <div class="form-group tooltip">
+                                        <div class="tooltiptext">
+                                            <span>Limit</span>
+                                        </div>
+                                        <div class="error-container">
+                                            <input type="number" name="limit" placeholder="Limit">
+                                        </div>
+                                    </div>
+                                    <div class="form-group tooltip">
+                                        <div class="tooltiptext">
+                                            <span>Order By</span>
+                                        </div>
+                                        <div class="error-container">
+                                            <?= CreateComboBox("order_by", "Order By", []) ?>
+                                        </div>
+                                    </div>
+                                    <div class="input-item">
+                                        <div class="form-group tooltip">
+                                            <div class="tooltiptext">
+                                                <span>Asc/Desc</span>
+                                            </div>
+                                            <div class="error-container">
+                                                <?= CreateComboBox("order", "Asc/Desc", ["Ascending", "Descending"]) ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="popup-footer">
+                    <div class="form-group-container submit-group">
+                        <div class="form-group filled-green">
+                            <input type="submit" value="Apply Filter">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

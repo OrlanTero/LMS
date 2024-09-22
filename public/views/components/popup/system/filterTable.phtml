@@ -1,0 +1,23 @@
+<?php
+
+global $APPLICATION;
+
+$data = json_decode($_POST['data'], true);
+$options = json_decode($_POST['options'], true);
+$tableData = json_decode($_POST['tableData'], true);
+
+$header = $tableData['header'];
+$body = $tableData['body'];
+
+global ${$header}, ${$body};
+
+$control = $APPLICATION->FUNCTIONS->{$options['control']};
+$RECORDS = $control->filterTableRecord($data);
+
+//echo $RECORDS;
+$ID = $options['id'];
+//
+//?>
+<?= CreateTable(${$header}, ${$body}, $RECORDS, $ID) ?>
+
+
