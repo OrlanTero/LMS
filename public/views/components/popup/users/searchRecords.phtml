@@ -1,0 +1,17 @@
+<?php
+
+global $APPLICATION, $USER_HEADER_BODY;
+
+$control = $APPLICATION->FUNCTIONS->USER_CONTROL;
+$search = $_POST['search'];
+$filter = json_decode($_POST['filter'], true);
+
+$RECORDS = $control->searchRecords($search,true, ['user_type' => 3]);
+
+?>
+
+<?= CreateTable([
+    "content" => $USER_HEADER_BODY,
+    "data" => $RECORDS,
+    "id" => "user_id"
+]) ?>

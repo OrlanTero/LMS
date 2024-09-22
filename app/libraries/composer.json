@@ -1,0 +1,6 @@
+{
+    "require": {
+        "klein/klein": "^2.1",
+        "phpmailer/phpmailer": "^6.9"
+    }
+}

@@ -1,0 +1,13 @@
+<?php
+
+global $APPLICATION, $USER_HEADER_BODY;
+
+$control = $APPLICATION->FUNCTIONS->USER_CONTROL;
+$RECORDS = $control->filterRecords(['user_type' => 3],true);
+?>
+
+<?= CreateTable([
+    "content" => $USER_HEADER_BODY,
+    "data" => $RECORDS,
+    "id" => "user_id"
+]) ?>

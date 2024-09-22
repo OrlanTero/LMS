@@ -1,0 +1,527 @@
+<?php
+global $SESSION, $USER_TYPES;
+
+$STAFF = array(
+    [
+        "text" => "Home",
+        "path" => '/',
+        "icon" => UseIcon("chart-bar-thin")
+    ],
+      [
+        "text" => "Patients",
+        "path" => '/patients',
+        "icon" => UseIcon("face-mask-thin"),
+        "sub-content" => [
+            [
+                "text" => "Search Patients",
+                "path" => '/patients/search_patients',
+                "icon" => UseIcon("book-bookmark-thin")
+            ],
+            [
+                "text" => "Evaluations",
+                "path" => '/patients/evaluations',
+                "icon" => UseIcon("eye-thin")
+            ],
+            [
+                "text" => "Color Vision Eval",
+                "path" => '/patients/color_vision_evaluations',
+                "icon" => UseIcon("eye-thin")
+            ],
+            [
+                "text" => "Dry Eyes Eval",
+                "path" => '/patients/dry_eyes_evaluations',
+                "icon" => UseIcon("eye-thin")
+            ],
+        ]
+    ],
+    [
+        "text" => "Point of Sales",
+        "path" => '/pos',
+        "icon" => UseIcon("fingerprint-thin"),
+        "sub-content" => [
+            [
+                "text" => "Point of Sales",
+                "path" => '/pos/point_of_sales',
+                "icon" => UseIcon("money-thin")
+            ],
+            [
+                "text" => "Orders",
+                "path" => '/pos/orders',
+                "icon" => UseIcon("shopping-cart-thin")
+            ],
+            [
+                "text" => "Lab Orders",
+                "path" => '/pos/lab_orders',
+                "icon" => UseIcon("person-thin")
+            ],
+            [
+                "text" => "Delivery",
+                "path" => '/pos/order_delivery',
+                "icon" => UseIcon("truck-thin")
+            ],
+            [
+                "text" => "Payments",
+                "path" => '/pos/payments',
+                "icon" => UseIcon("coin-thin")
+            ],
+        ]
+    ],
+    [
+        "text" => "Inventory",
+        "path" => '/inventory',
+        "icon" => UseIcon("chart-bar-thin"),
+        "sub-content" => [
+            [
+                "text" => "Products",
+                "path" => '/inventory/products',
+                "icon" => UseIcon("cube-thin")
+            ],
+            [
+                "text" => "Packages",
+                "path" => '/inventory/packages',
+                "icon" => UseIcon("package-thin")
+            ],
+            [
+                "text" => "Product Types",
+                "path" => '/inventory/product_types',
+                "icon" => UseIcon("bounding-box-thin")
+            ],
+            [
+                "text" => "Suppliers",
+                "path" => '/inventory/suppliers',
+                "icon" => UseIcon("house-simple-thin")
+            ],
+            [
+                "text" => "Categories",
+                "path" => '/inventory/categories',
+                "icon" => UseIcon("circle-thin")
+            ],
+        ]
+    ],
+    [
+        "text" => "Schedule",
+        "path" => '/services/schedule',
+        "icon" => UseIcon("faders-horizontal-thin")
+    ],
+);
+
+$ADMIN = array(
+    [
+        "text" => "Home",
+        "path" => '/',
+        "icon" => UseIcon("chart-bar-thin")
+    ],
+    [
+        "text" => "Students",
+        "path" => '/students',
+        "icon" => UseIcon("face-mask-thin"),
+        "sub-content" => [
+            [
+                "text" => "Search Students",
+                "path" => '/patients/search_students',
+                "icon" => UseIcon("book-bookmark-thin")
+            ],
+            [
+                "text" => "Classrooms",
+                "path" => '/patients/classrooms',
+                "icon" => UseIcon("eye-thin")
+            ],
+            [
+                "text" => "Groups",
+                "path" => '/patients/groups',
+                "icon" => UseIcon("eye-thin")
+            ],
+        ]
+    ],
+    [
+        "text" => "Faculty Management",
+        "path" => '/pos',
+        "icon" => UseIcon("money-thin"),
+        "sub-content" => [
+            [
+                "text" => "Point of Sales",
+                "path" => '/pos/point_of_sales',
+                "icon" => UseIcon("money-thin")
+            ],
+            [
+                "text" => "Orders",
+                "path" => '/pos/orders',
+                "icon" => UseIcon("shopping-cart-thin")
+            ],
+            [
+                "text" => "Lab Orders",
+                "path" => '/pos/lab_orders',
+                "icon" => UseIcon("person-thin")
+            ],
+            [
+                "text" => "Delivery",
+                "path" => '/pos/order_delivery',
+                "icon" => UseIcon("truck-thin")
+            ],
+            [
+                "text" => "Payments",
+                "path" => '/pos/payments',
+                "icon" => UseIcon("coin-thin")
+            ],
+            [
+                "text" => "Reports",
+                "path" => '/pos/reports',
+                "icon" => UseIcon("puzzle-piece-thin")
+            ],
+        ]
+    ],
+    [
+        "text" => "Resources",
+        "path" => '/resources',
+        "icon" => UseIcon("cube-thin"),
+        "sub-content" => [
+            [
+                "text" => "Slot 1",
+                "path" => '/inventory/products',
+                "icon" => UseIcon("cube-thin")
+            ],
+            [
+                "text" => "Slot 2",
+                "path" => '/inventory/products',
+                "icon" => UseIcon("cube-thin")
+            ],
+        ]
+    ],
+    [
+        "text" => "Maintenance",
+        "path" => '/maintenance',
+        "icon" => UseIcon("hand-palm-thin"),
+        "sub-content" => [
+            [
+                "text" => "Courses",
+                "path" => '/maintenance/courses',
+                "icon" => UseIcon("circles-four-thin")
+            ],
+            [
+                "text" => "Semesters",
+                "path" => '/maintenance/semesters',
+                "icon" => UseIcon("handshake-thin")
+            ],
+            [
+                "text" => "Classrooms",
+                "path" => '/maintenance/classrooms',
+                "icon" => UseIcon("toggle-right-thin")
+            ],
+            [
+                "text" => "Slot 1",
+                "path" => '/maintenance/slot1',
+                "icon" => UseIcon("toggle-left-thin")
+            ],
+            [
+                "text" => "Slot 1",
+                "path" => '/maintenance/slot2',
+                "icon" => UseIcon("toggle-left-thin")
+            ],
+        ]
+    ],
+    [
+        "text" => "Accounts",
+        "path" => '/accounts',
+        "icon" => UseIcon("users-three-thin"),
+        "sub-content" => [
+            [
+                "text" => "Students",
+                "path" => '/accounts/students',
+                "icon" => UseIcon("users-three-thin")
+            ],
+            [
+                "text" => "Faculty Members",
+                "path" => '/accounts/faculty_members',
+                "icon" => UseIcon("users-three-thin")
+            ]
+        ]
+    ],
+);
+
+$STUDENT = array(
+    [
+        "text" => "Home",
+        "path" => '/',
+        "icon" => UseIcon("chart-bar-thin")
+    ],
+    [
+        "text" => "My Appointments",
+        "path" => '/services/schedule_appointment',
+        "icon" => UseIcon("book-bookmark-thin")
+    ],
+    [
+        "text" => "My Orders",
+        "path" => '/pos/orders',
+        "icon" => UseIcon("shopping-cart-thin")
+    ],
+    [
+        "text" => "My Lab Orders",
+        "path" => '/pos/lab_orders',
+        "icon" => UseIcon("person-thin")
+    ],
+    [
+        "text" => "My Payments",
+        "path" => '/pos/payments',
+        "icon" => UseIcon("money-thin")
+    ],
+    [
+        "text" => "Glasses Try On",
+        "path" => '/tryon/glasses_tryon',
+        "icon" => UseIcon("person-thin")
+    ],
+);
+
+$FACULTY = array(
+    [
+        "text" => "Home",
+        "path" => '/',
+        "icon" => UseIcon("chart-bar-thin")
+    ],
+    [
+        "text" => "Patients",
+        "path" => '/patients',
+        "icon" => UseIcon("face-mask-thin"),
+        "sub-content" => [
+            [
+                "text" => "Search Patients",
+                "path" => '/patients/search_patients',
+                "icon" => UseIcon("book-bookmark-thin")
+            ],
+            [
+                "text" => "Appointments",
+                "path" => '/patients/appointments',
+                "icon" => UseIcon("book-bookmark-thin")
+            ],
+            [
+                "text" => "Evaluations",
+                "path" => '/patients/evaluations',
+                "icon" => UseIcon("eye-thin")
+            ],
+            [
+                "text" => "Color Vision Eval",
+                "path" => '/patients/color_vision_evaluations',
+                "icon" => UseIcon("eye-thin")
+            ],
+            [
+                "text" => "Dry Eyes Eval",
+                "path" => '/patients/dry_eyes_evaluations',
+                "icon" => UseIcon("eye-thin")
+            ],
+        ]
+    ],
+    [
+        "text" => "Schedule",
+        "path" => '/services/schedule',
+        "icon" => UseIcon("faders-horizontal-thin")
+    ],
+    [
+        "text" => "Payments",
+        "path" => '/services/payments',
+        "icon" => UseIcon("coin-thin")
+    ],
+);
+
+$SUPERADMIN = array(
+    [
+        "text" => "Home",
+        "path" => '/',
+        "icon" => UseIcon("chart-bar-thin")
+    ],
+    [
+        "text" => "Students",
+        "path" => '/patients',
+        "icon" => UseIcon("face-mask-thin"),
+        "sub-content" => [
+            [
+                "text" => "Search Students",
+                "path" => '/patients/search_students',
+                "icon" => UseIcon("book-bookmark-thin")
+            ],
+            [
+                "text" => "Classrooms",
+                "path" => '/patients/classrooms',
+                "icon" => UseIcon("eye-thin")
+            ],
+            [
+                "text" => "Groups",
+                "path" => '/patients/groups',
+                "icon" => UseIcon("eye-thin")
+            ],
+        ]
+    ],
+    [
+        "text" => "Faculty Management",
+        "path" => '/pos',
+        "icon" => UseIcon("money-thin"),
+        "sub-content" => [
+            [
+                "text" => "Professors",
+                "path" => '/pos/professors',
+                "icon" => UseIcon("money-thin")
+            ],
+            [
+                "text" => "Staffs",
+                "path" => '/pos/staffs',
+                "icon" => UseIcon("shopping-cart-thin")
+            ],
+            [
+                "text" => "Assignments",
+                "path" => '/pos/assignments',
+                "icon" => UseIcon("person-thin")
+            ],
+            [
+                "text" => "Schedule Manager",
+                "path" => '/pos/schedule_manager',
+                "icon" => UseIcon("truck-thin")
+            ],
+        ]
+    ],
+    [
+        "text" => "Resources",
+        "path" => '/resources',
+        "icon" => UseIcon("cube-thin"),
+        "sub-content" => [
+            [
+                "text" => "Slot 1",
+                "path" => '/inventory/products',
+                "icon" => UseIcon("cube-thin")
+            ],
+            [
+                "text" => "Slot 2",
+                "path" => '/inventory/products',
+                "icon" => UseIcon("cube-thin")
+            ],
+        ]
+    ],
+    [
+        "text" => "Maintenance",
+        "path" => '/maintenance',
+        "icon" => UseIcon("hand-palm-thin"),
+        "sub-content" => [
+            [
+                "text" => "Events",
+                "path" => '/maintenance/events',
+                "icon" => UseIcon("circles-four-thin")
+            ],
+            [
+                "text" => "News & Announcements",
+                "path" => '/maintenance/news_and_announcements',
+                "icon" => UseIcon("circles-four-thin")
+            ],
+            [
+                "text" => "Courses",
+                "path" => '/maintenance/courses',
+                "icon" => UseIcon("circles-four-thin")
+            ],
+            [
+                "text" => "Semesters",
+                "path" => '/maintenance/semesters',
+                "icon" => UseIcon("handshake-thin")
+            ],
+            [
+                "text" => "Classrooms",
+                "path" => '/maintenance/classrooms',
+                "icon" => UseIcon("toggle-right-thin")
+            ],
+            [
+                "text" => "Slot 1",
+                "path" => '/maintenance/slot1',
+                "icon" => UseIcon("toggle-left-thin")
+            ],
+            [
+                "text" => "Slot 1",
+                "path" => '/maintenance/slot2',
+                "icon" => UseIcon("toggle-left-thin")
+            ],
+        ]
+    ],
+    [
+        "text" => "Accounts",
+        "path" => '/accounts',
+        "icon" => UseIcon("users-three-thin"),
+        "sub-content" => [
+            [
+                "text" => "Students",
+                "path" => '/accounts/students',
+                "icon" => UseIcon("users-three-thin")
+            ],
+            [
+                "text" => "Faculty Members",
+                "path" => '/accounts/faculty_members',
+                "icon" => UseIcon("users-three-thin")
+            ],
+            [
+                "text" => "Administrators",
+                "path" => '/accounts/administrators',
+                "icon" => UseIcon("users-three-thin")
+            ],
+        ]
+    ],
+);
+
+$ALL = [$STUDENT, $FACULTY, $ADMIN, $SUPERADMIN];
+$NAVLINKS = $ALL[$SESSION->user_type - 1];
+
+?>
+<nav class="main-navbar" data-session-id="<?= $SESSION->user_id ?>" data-session-type="<?= $SESSION->user_type ?>">
+<!--    <div class="nav-header">-->
+
+<!--    </div>-->
+    <div class="nav-body">
+        <div class="nav-link-items">
+            <?php foreach ($NAVLINKS as $link): ?>
+                <?php
+                if ($this->view_path === "/") {
+                    $match = $this->view_path === $link['path'];
+                } else {
+                    $match = '/' . $this->view_path === $link['path'];
+                }
+                ?>
+                <?php if (isset($link['sub-content'])): ?>
+                    <a>
+                <?php else: ?>
+                    <a href="<?= $link['path'] ?>">
+                <?php endif; ?>
+                    <div class="nav-link <?= $match ? 'active' : '' ?>" data-path="<?= $link['path'] ?>">
+                        <div class="main">
+                            <div class="icon">
+                                    <?= $link['icon'] ?? '' ?>
+                                </div>
+                            <div class="text">
+                                <span>
+                                    <?= $link['text'] ?>
+                                </span>
+                            </div>
+                        </div>
+                        <?php if (isset($link['sub-content'])): ?>
+                            <div class="sub-content" data-path="<?= $link['path'] ?>">
+                                <?php foreach ($link['sub-content'] as $item): ?>
+                                    <?php
+                                        if ($this->view_path === "/") {
+                                            $match = $this->view_path === $item['path'];
+                                        } else {
+                                            $match = '/' . $this->view_path === $item['path'];
+                                        }
+                                    ?>
+                                    <a href="<?= $item['path'] ?>">
+                                        <div class="sub-link <?= $match ? 'active' : '' ?>">
+                                            <div class="icon">
+                                                <?= $item['icon'] ?? '' ?>
+                                            </div>
+                                            <div class="text">
+                                            <span>
+                                                <?= $item['text'] ?>
+                                            </span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                <?php endforeach ?>
+                            </div>
+                        <?php endif ?>
+                    </div>
+                </a>
+            <?php
+            endforeach; ?>
+        </div>
+    </div>
+</nav>

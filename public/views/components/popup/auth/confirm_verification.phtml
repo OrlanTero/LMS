@@ -1,0 +1,80 @@
+<?php
+
+$data = json_decode($_POST['data'], true);
+
+$email_address = $data['email_address'];
+?>
+
+<div class="main-popup-container">
+    <div class="popup-background"></div>
+    <div class="popup-content">
+        <div class="main-popup-content">
+            <div class="popup-top">
+                <div class="headline">
+                    <h1>Email Verification</h1>
+                </div>
+                <div class="paragraph">
+                    <p>We have sent an email, through a registered email on your account. <b><?= $email_address ?></b></p>
+                </div>
+
+                <div class="floating-button">
+                    <div class="close-popup popup-button">
+                        <?= UseIcon('close') ?>
+                    </div>
+                </div>
+            </div>
+            <form action="" class="form-control">
+                <div class="popup-bot auto-size">
+                    <div class="pin-code-container pin-code-editor">
+                        <input type="text" name="pin-code" hidden>
+                        <div class="pin-code-items">
+                            <div class="pin-code-item">
+                                <div class="text"  contenteditable="true">
+
+                                </div>
+                            </div>
+                            <div class="pin-code-item">
+                                <div class="text"  contenteditable="false">
+
+                                </div>
+                            </div>
+                            <div class="pin-code-item">
+                                <div class="text"  contenteditable="false">
+
+                                </div>
+                            </div>
+                            <div class="pin-code-item">
+                                <div class="text"  contenteditable="false">
+
+                                </div>
+                            </div>
+                            <div class="pin-code-item">
+                                <div class="text"  contenteditable="false">
+
+                                </div>
+                            </div>
+                            <div class="pin-code-item">
+                                <div class="text"  contenteditable="false">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="popup-footer">
+                    <div class="form-group-container submit-group">
+                        <div class="form-group">
+                            <div class="link clear-form">
+                                <span>Clear</span>
+                            </div>
+                        </div>
+                        <div class="form-group filled-green">
+                            <input type="submit" value="Verify">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

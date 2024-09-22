@@ -1,0 +1,91 @@
+
+.main-auth-container
+  width: 100%
+  height: 100vh
+  display: flex
+  justify-content: center
+  align-items: center
+  background-image: url("../../../../.././public/assets/media/ui/auth-background.svg")
+  background-repeat: no-repeat
+  background-size: cover
+  background-color: rgba(255,255,255,0.3)
+  background-blend-mode: lighten
+  .submit-group
+    margin-top: 40px !important
+  .auth-container-admin
+    background: #ffffff
+    width: 600px
+    min-height: 90%
+    height: 90%
+    border-radius: 15px
+    box-shadow: $global_boxshadow
+    display: flex
+    justify-content: center
+    .auth-bot
+      padding: 50px
+      .auth-header
+        padding: 10px
+        display: flex
+        justify-content: center
+        align-items: center
+        flex-direction: column
+        margin-bottom: 50px
+        .logo
+          margin: 10px
+          img
+            width: 100px
+            height: auto
+  .auth-container
+    background: #ffffff
+    width: 90%
+    min-height: 90%
+    height: 90%
+    border-radius: 15px
+    box-shadow: $global_boxshadow
+    display: flex
+    .auth-left
+      width: 50%
+      height: 100% !important
+      position: relative
+
+      .background-image
+        position: absolute
+        width: 100%
+        height: 100%
+        left: -3px
+        top: -2px
+        border-top-left-radius: 15px
+        border-bottom-left-radius: 15px
+        border-bottom-right-radius: 100px
+        box-shadow: $global_boxshadow
+
+        img
+          width: 100%
+          height: 100.5%
+          border-top-left-radius: 15px
+          border-bottom-left-radius: 15px
+          border-bottom-right-radius: 100px
+    .auth-right
+      width: 50%
+      .main-form
+        .main-header
+          padding: 80px 20px
+          text-align: center
+          width: 100%
+          h1
+            font-size: 60px
+            color: $textgray
+            text-align: center
+          p
+            font-size: 24px
+            color: $textgray
+
+        .main-content
+          display: flex
+          justify-content: center
+          align-items: center
+        .main-body
+          width: 60%
+          .form-group-container
+            margin: 0 10px !important
+

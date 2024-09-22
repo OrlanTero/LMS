@@ -1,0 +1,35 @@
+<?php
+global $SESSION;
+
+
+?>
+
+
+<div class="second-navbar">
+    <div class="nav-left">
+        <div class="logo-text">
+            <div class="logo">
+                <img src="/public/assets/media/ui/logo.png"/>
+            </div>
+            <div class="text">
+                <img src="/public/assets/media/ui/logo-yangas.png"/>
+            </div>
+        </div>
+    </div>
+    <div class="nav-right">
+        <div class="profile-container-link">
+            <div class="avatar-container">
+                <div class="avatar-frame">
+                    <div class="avatar">
+                        <img src="<?= $SESSION->getPhotoURL()?>" alt="">
+                    </div>
+                </div>
+                <div class="text">
+                    <p><?= $SESSION->displayName ?></p>
+                    <small><?= $SESSION->typeName ?></small>
+                </div>
+            </div>
+            <div class="content"></div>
+        </div>
+    </div>
+</div>

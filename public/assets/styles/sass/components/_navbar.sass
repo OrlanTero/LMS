@@ -1,0 +1,192 @@
+.second-navbar
+  width: 100%
+  height: 60px
+  position: fixed
+  top: 0
+  left: 0
+  background: #ffffff
+  box-shadow: $component_boxshadow
+  display: flex
+  justify-content: space-between
+  z-index: 999 !important
+  .nav-left
+    padding: 10px 50px
+    .logo-text
+      display: flex
+      align-items: center
+      .logo
+        img
+          width: 40px
+          height: auto
+      .text
+        img
+          width: 100px
+          height: auto
+  .nav-right
+    padding-right: 50px
+    display: flex
+    justify-content: center
+    align-items: center
+    .profile-container-link
+      padding: 5px 10px
+      cursor: pointer
+      border-radius: 4px
+      &:hover
+        background: #ffffff
+        box-shadow: $global_boxshadow
+
+      .avatar-container
+        display: flex
+        justify-content: center
+        align-items: center
+        .avatar
+          margin-right: 10px
+          width: 30px
+          height: 30px
+          border-radius: 50%
+          img
+            width: 100%
+            height: 100%
+            border-radius: 50%
+        .text
+          line-height: 15px
+          p
+            font-weight: bold
+          small
+            font-size: 13px
+
+
+.main-navbar
+  width: 250px
+  height: calc(100vh - 60px)
+  position: fixed
+  top: 60px
+  left: 0
+  background: #fff
+  box-shadow: $component_boxshadow
+
+
+  .nav-header
+    padding: 10px
+    min-height: 100px
+    display: flex
+    align-items: center
+
+    .avatar-container
+      display: flex
+      align-items: center
+
+      .avatar-frame
+        margin-right: 20px
+
+        .avatar
+          width: 50px
+          height: 50px
+          border-radius: 50%
+          background: #fff
+
+          img
+            width: 100%
+            height: 100%
+            border-radius: 50%
+
+      .text
+        h3
+          color: #ffffff
+
+        p
+          color: #ffffff
+          font-size: 14px
+
+  .nav-body
+    height: calc(100vh - 150px)
+    overflow-y: auto
+    @extend .custom-scrollbar
+
+    .nav-link-items
+      display: block
+      position: relative
+
+      a
+        text-decoration: none
+        color: #000
+
+      .nav-link
+        &.active
+          .main
+            .icon
+              img, svg
+                fill: $color0
+
+            .text
+              color: $color0
+
+            &::before
+              position: absolute
+              content: ""
+              left: 0
+              top: 0
+              width: 8px
+              height: 100%
+              background: $color0
+              border-top-right-radius: 5px
+              border-bottom-right-radius: 5px
+
+          &:hover:not(.active)
+            .main
+              margin-left: 5px
+        .sub-content
+          display: none
+
+          &.show-active
+            display: block !important
+        .sub-link
+          margin-left: 40px
+          padding: 8px
+          cursor: pointer
+          align-items: center
+          position: relative
+          transition: 0.2s
+          display: flex
+          &.active
+            .icon img,svg
+              fill: #000 !important
+            .text
+              color: #000
+
+          .icon
+            width: 30px
+            height: 30px
+            display: flex
+            align-items: center
+            justify-content: center
+            margin-right: 10px
+
+            img, svg
+              width: 24px
+              height: auto
+              fill: #000
+          &:hover
+            margin-left: 45px
+
+        .main
+          padding: 12px 14px
+          display: flex
+          align-items: center
+          position: relative
+          transition: 0.2s
+          cursor: pointer
+          .icon
+            width: 30px
+            height: 30px
+            display: flex
+            align-items: center
+            justify-content: center
+            margin-right: 10px
+
+            img, svg
+              width: 24px
+              height: auto
+              fill: #000
+
+

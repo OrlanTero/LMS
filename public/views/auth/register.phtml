@@ -1,0 +1,95 @@
+<?php
+
+global $GENDERS;
+
+?>
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="/public/assets/styles/css/styles.css">
+
+</head>
+<body>
+<div class="main-auth-container">
+    <div class="auth-container">
+        <div class="auth-left">
+            <div class="background-image">
+                <img src="/public/assets/media/ui/logo-ui-2.png" alt="">
+            </div>
+        </div>
+        <div class="auth-right">
+            <form action="" class="form-control">
+                <div class="main-form">
+                    <div class="main-header">
+                        <h1>Sign Up!</h1>
+                        <p>Create your Account</p>
+                    </div>
+                    <div class="main-content">
+                        <div class="main-body">
+                            <div class="form-group-container flex">
+                                <div class="form-group">
+                                    <div class="error-container">
+                                        <input type="text" placeholder="Firstname" name="firstname">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="error-container">
+                                        <input type="text" placeholder="Lastname" name="lastname">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group-container">
+                                <div class="form-group">
+                                    <div class="error-container">
+                                        <input type="text" placeholder="Email" name="email">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group-container">
+                                <div class="form-group">
+                                    <div class="error-container">
+                                        <input type="password" placeholder="Password" name="password">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group-container flex">
+                                <div class="form-group">
+                                    <div class="error-container">
+                                        <?= CreateComboBox("gender", "Gender", $GENDERS) ?>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="error-container">
+                                        <input type="date" placeholder="birthdate" name="birthdate">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group-container submit-group">
+                                <div class="form-group">
+                                    <div class="submit-input" >
+                                        <input type="submit" class="medium-width" value="SIGN UP">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="link">
+                                    <span>Already have an Account? <a href="/register">Login Here</a></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
