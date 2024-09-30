@@ -21,7 +21,7 @@ class User extends UserAbstract
         $this->init();
     }
 
-    private function init(): void
+    public function init(): void
     {
         global $ALL_USER_TYPES;
 

@@ -329,49 +329,54 @@ $SUPERADMIN = array(
     ],
     [
         "text" => "Students",
-        "path" => '/patients',
+        "path" => '/students',
         "icon" => UseIcon("face-mask-thin"),
         "sub-content" => [
             [
+                "text" => "Students",
+                "path" => '/students/students',
+                "icon" => UseIcon("book-bookmark-thin")
+            ],
+            [
                 "text" => "Search Students",
-                "path" => '/patients/search_students',
+                "path" => '/students/search_students',
                 "icon" => UseIcon("book-bookmark-thin")
             ],
             [
                 "text" => "Classrooms",
-                "path" => '/patients/classrooms',
+                "path" => '/students/classrooms',
                 "icon" => UseIcon("eye-thin")
             ],
             [
                 "text" => "Groups",
-                "path" => '/patients/groups',
+                "path" => '/students/groups',
                 "icon" => UseIcon("eye-thin")
             ],
         ]
     ],
     [
         "text" => "Faculty Management",
-        "path" => '/pos',
+        "path" => '/faculty',
         "icon" => UseIcon("money-thin"),
         "sub-content" => [
             [
                 "text" => "Professors",
-                "path" => '/pos/professors',
+                "path" => '/faculty/professors',
                 "icon" => UseIcon("money-thin")
             ],
             [
                 "text" => "Staffs",
-                "path" => '/pos/staffs',
+                "path" => '/faculty/staffs',
                 "icon" => UseIcon("shopping-cart-thin")
             ],
             [
                 "text" => "Assignments",
-                "path" => '/pos/assignments',
+                "path" => '/faculty/assignments',
                 "icon" => UseIcon("person-thin")
             ],
             [
                 "text" => "Schedule Manager",
-                "path" => '/pos/schedule_manager',
+                "path" => '/faculty/schedule_manager',
                 "icon" => UseIcon("truck-thin")
             ],
         ]
@@ -399,13 +404,8 @@ $SUPERADMIN = array(
         "icon" => UseIcon("hand-palm-thin"),
         "sub-content" => [
             [
-                "text" => "Events",
-                "path" => '/maintenance/events',
-                "icon" => UseIcon("circles-four-thin")
-            ],
-            [
-                "text" => "News & Announcements",
-                "path" => '/maintenance/news_and_announcements',
+                "text" => "Sections",
+                "path" => '/maintenance/sections',
                 "icon" => UseIcon("circles-four-thin")
             ],
             [
@@ -414,14 +414,34 @@ $SUPERADMIN = array(
                 "icon" => UseIcon("circles-four-thin")
             ],
             [
-                "text" => "Semesters",
-                "path" => '/maintenance/semesters',
-                "icon" => UseIcon("handshake-thin")
+                "text" => "Subjects",
+                "path" => '/maintenance/subjects',
+                "icon" => UseIcon("circles-four-thin")
             ],
             [
                 "text" => "Classrooms",
                 "path" => '/maintenance/classrooms',
                 "icon" => UseIcon("toggle-right-thin")
+            ],
+            [
+                "text" => "Year Levels",
+                "path" => '/maintenance/year_levels',
+                "icon" => UseIcon("handshake-thin")
+            ],
+            [
+                "text" => "Semesters",
+                "path" => '/maintenance/semesters',
+                "icon" => UseIcon("handshake-thin")
+            ],
+            [
+                "text" => "Events",
+                "path" => '/maintenance/events',
+                "icon" => UseIcon("circles-four-thin")
+            ],
+            [
+                "text" => "News & Announcements",
+                "path" => '/maintenance/news_and_announcements',
+                "icon" => UseIcon("circles-four-thin")
             ],
             [
                 "text" => "Slot 1",

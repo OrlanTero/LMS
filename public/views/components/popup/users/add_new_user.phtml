@@ -25,12 +25,25 @@ $user_type = $data['user_type'];
             </div>
             <form action="" class="form-control">
                 <div class="popup-bot">
+                    <?php if ($user_type == 1): ?>
+                        <div class="form-group-container flex">
+                            <div class="form-group tooltip">
+                                <div class="tooltiptext">
+                                    <span>Student No</span>
+                                </div>
+                                <label for=""><span>Student No</span></label>
+                                <div class="error-container">
+                                    <input type="text" name="no" placeholder="Student No" >
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif ?>
                     <div class="form-group-container flex">
                         <div class="form-group tooltip">
                             <div class="tooltiptext">
                                 <span>Email Address</span>
                             </div>
-                            <label for=""><span>Username</span></label>
+                            <label for=""><span>Email Address</span></label>
                             <div class="error-container">
                                 <input type="email" name="email" placeholder="Email Address" >
                             </div>
@@ -58,8 +71,6 @@ $user_type = $data['user_type'];
                                 <input type="text" name="firstname" placeholder="Firstname" >
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group-container flex">
                         <div class="form-group tooltip">
                             <div class="tooltiptext">
                                 <span>Lastname</span>
@@ -70,6 +81,7 @@ $user_type = $data['user_type'];
                             </div>
                         </div>
                     </div>
+
                     <div class="form-group-container flex">
                         <div class="form-group tooltip">
                             <div class="tooltiptext">
@@ -81,6 +93,7 @@ $user_type = $data['user_type'];
                             </div>
                         </div>
                     </div>
+
 
                 </div>
                 <div class="popup-footer">

@@ -73,3 +73,44 @@
       display: none
       &.active
         display: block !important
+
+.data-bordered-container
+  padding: 10px
+  border-radius: 6px
+  border: 1px solid #EBEEEE
+  min-height: 600px
+  background: #ffffff
+  box-shadow: $component_boxshadow
+  margin: 2%
+  .content
+    padding: 20px
+  .content-as-list
+    padding: 10px
+    .list-item-container
+      padding: 10px
+      display: flex
+      justify-content: space-between
+      cursor: pointer
+      border-radius: 6px
+      user-select: none
+      &:hover
+        background: #ebeeee
+      .left
+        color: $textgray
+        p
+          font-size: 20px
+          font-weight: bold
+      .right
+        display: flex
+        justify-content: center
+        align-items: center
+
+.image-container
+  width: 100%
+  padding: 30px
+  display: flex
+  justify-content: center
+  align-items: center
+  img,svg
+    width: 80%
+    height: auto

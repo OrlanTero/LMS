@@ -47,7 +47,7 @@ class Authentication
             $send = $this->SendVerification($user->user_id, $user->email);
 
             if ($send) {
-                return new Response(200, "Successfully Login!", ["users" => $user]);
+                return new Response(200, "Successfully Login!", ["user" => $user]);
             } else {
                 return new Response(203, "Success but Unable to sent Email!");
             }
@@ -89,7 +89,7 @@ class Authentication
             $this->SESSION->apply($user);
             $this->SESSION->start();
 
-            return  new Response(200, "Successfully Login!", ["users" => $user]);
+            return  new Response(200, "Successfully Login!", ["user" => $user]);
         }
 
         return new Response(204, "Login Failed!", ["errors" => ["password"]]);

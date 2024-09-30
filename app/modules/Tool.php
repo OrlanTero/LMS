@@ -207,6 +207,7 @@ function CreateEmployeeAttendanceTable($attendance_group, $employee, $employment
     return $output;
 }
 
+
 function CreateTable($options)
 {
     $headeritems = $options['header'] ?? (isset($options['content']) ? $options['content']['header'] : []);
@@ -319,6 +320,18 @@ function FindColorInTable($index, $mappedColor = [])
     return null;
 }
 
+function CreateSwitch($options) {
+    $name = $options['name'];
+    $type = $options['type'] ?? "round";
+    $value = $options['value'];
+
+    return '
+        <label class="custom-switch">
+          <input type="checkbox" name="'.$name.'" '. ($value ? "checked" : "") .'  >
+          <span class="slider '. ( $type ).'"></span>
+        </label>
+    ';
+}
 
 function CreateComboBox($name, $placeholder, $items, $firstval = false, $initial = null, $disabled = false): string
 {
@@ -568,7 +581,27 @@ function CreateMenuBarHeader($id_name, $headers) {
     return $output;
 }
 
+function CasesToCombo($cases) {
 
+    $texts = array_column($cases, "name");
+    $values = array_column($cases, "value");
+
+    $combo = [];
+
+    $i = 0;
+    foreach ($texts as $text) {
+
+        $combo[] = [
+            "text" => str_replace("_", " ", $text),
+            "value" => $values[$i]
+        ];
+
+        $i++;
+    }
+
+    return $combo;
+
+}
 function ObjectToCombo($keyText, $keyValue,  $objects)
 {
     return array_map(function ($obj) use ($keyText, $keyValue) {

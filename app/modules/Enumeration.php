@@ -86,6 +86,21 @@ enum ActivityLogStatus : int
     case FAILED = 2;
 }
 
+enum YearLevels : int
+{
+    case FIRST_YEAR = 1;
+    case SECOND_YEAR = 2;
+    case THIRD_YEAR = 3;
+    case FOURTH_YEAR = 4;
+}
+
+enum Semesters : int
+{
+    case FIRST_SEMESTER = 1;
+    case SECOND_SEMESTER = 2;
+    case THIRD_SEMESTER = 3;
+}
+
 
 //enum LoanTypes : string
 //{

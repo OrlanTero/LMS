@@ -1,0 +1,95 @@
+<?php
+
+global $APPLICATION, $USER_HEADER_BODY;
+
+$control = $APPLICATION->FUNCTIONS->USER_CONTROL;
+$RECORDS = $control->filterRecords(['user_type' => 3],true);
+
+?>
+
+<?php include "public/views/pages/structures/html_headings.phtml" ?>
+
+<title>Patients</title>
+
+<?php include "public/views/pages/structures/html_heading_closing.phtml" ?>
+
+<?php include "public/views/pages/structures/html_body_open.phtml" ?>
+
+<?php include "public/views/pages/structures/html_opening_parent.phtml" ?>
+
+<div class="left-content">
+
+    <?php include "public/views/pages/structures/html_navbar.phtml" ?>
+
+    <?php include "public/views/pages/structures/html_right_heading.phtml" ?>
+
+</div>
+
+<div class="right-content">
+
+    <div class="right-body">
+        <div class="main-body-content-parent">
+            <div class="main-body-header">
+                <div class="header-nav">
+                    <div class="left">
+                        <div class="title">
+                            <h2>All Semesters</h2>
+                        </div>
+                    </div>
+                    <div class="right"></div>
+                </div>
+            </div>
+            <div class="main-body-body">
+                <div class="data-bordered-container">
+                    <div class="content">
+                        <div class="content-as-list">
+                            <div class="list-item-container">
+                                <div class="left">
+                                    <p>Semester 1</p>
+                                    <small>Enable/Disable First Semester</small>
+                                </div>
+                                <div class="right">
+                                    <?= CreateSwitch([
+                                        "name"  => "semester_1",
+                                        "value" => true
+                                    ]) ?>
+                                </div>
+                            </div>
+                            <div class="list-item-container">
+                                <div class="left">
+                                    <p>Semester 2</p>
+                                    <small>Enable/Disable Second Semester</small>
+                                </div>
+                                <div class="right">
+                                    <?= CreateSwitch([
+                                        "name"  => "semester_2",
+                                        "value" => true
+                                    ]) ?>
+                                </div>
+                            </div>
+                            <div class="list-item-container">
+                                <div class="left">
+                                    <p>Semester 3</p>
+                                    <small>Enable/Disable Third Semester (Optional)</small>
+                                </div>
+                                <div class="right">
+                                    <?= CreateSwitch([
+                                        "name"  => "semester_3",
+                                        "value" => false
+                                    ]) ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <?php include "public/views/pages/structures/html_pipes.phtml" ?>
+
+    <script type="module" src="/public/assets/scripts/pages/superadmin/accounts/accounts.js"></script>
+
+    <?php include "public/views/pages/structures/html_closing_parent.phtml" ?>
+
+    <?php include "public/views/pages/structures/html_body_closing.phtml" ?>

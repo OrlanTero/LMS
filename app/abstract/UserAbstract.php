@@ -7,6 +7,9 @@ use Application\abstract\ModelDefaultFunctions;
 abstract class UserAbstract extends ModelDefaultFunctions
 {
     public $user_id;
+
+    public $no;
+
     public $firstname;
     public $lastname;
 

@@ -176,28 +176,54 @@ class Routes
                     });
                 });
 
-//                $ALL_SAME_FUNCTIONS = [
-//                    [
-//                        "path" => "/users",
-//                        "control" => "USER_CONTROL"
-//                    ],
-//                ];
+                $KLEIN->with("/sections", function () use ($KLEIN, $APPLICATION) {
+                    $KLEIN->respond("POST", "/addRecord", function () use ($APPLICATION) {
+                        return json_encode($APPLICATION->FUNCTIONS->{"SECTION_CONTROL"}->add(json_decode($_POST["data"], true)));
+                    });
+
+                    $KLEIN->respond("POST", "/editRecord", function () use ($APPLICATION) {
+                        return json_encode($APPLICATION->FUNCTIONS->{"SECTION_CONTROL"}->edit(json_decode($_POST["data"], true)));
+                    });
+
+                    $KLEIN->respond("POST", "/removeRecords", function () use ($APPLICATION) {
+                        return json_encode($APPLICATION->FUNCTIONS->{"SECTION_CONTROL"}->removeRecords(json_decode($_POST["data"], true)));
+                    });
+                });
+
+                $ALL_SAME_FUNCTIONS = [
+                    [
+                        "path" => "/courses",
+                        "control" => "COURSE_CONTROL"
+                    ],
+                    [
+                        "path" => "/professors",
+                        "control" => "PROFESSOR_CONTROL"
+                    ],
+                    [
+                        "path" => "/classrooms",
+                        "control" => "CLASSROOM_CONTROL"
+                    ],
+                    [
+                        "path" => "/subjects",
+                        "control" => "SUBJECT_CONTROL"
+                    ],
+                ];
 //
-//                foreach ($ALL_SAME_FUNCTIONS as $FUNCTION) {
-//                    $KLEIN->with($FUNCTION['path'], function () use ($KLEIN, $APPLICATION, $FUNCTION) {
-//                        $KLEIN->respond("POST", "/addRecord", function () use ($APPLICATION, $FUNCTION) {
-//                            return json_encode($APPLICATION->FUNCTIONS->{$FUNCTION['control']}->addRecord(json_decode($_POST["data"], true)));
-//                        });
-//
-//                        $KLEIN->respond("POST", "/editRecord", function () use ($APPLICATION, $FUNCTION) {
-//                            return json_encode($APPLICATION->FUNCTIONS->{$FUNCTION['control']}->editRecord($_POST['id'], json_decode($_POST["data"], true)));
-//                        });
-//
-//                        $KLEIN->respond("POST", "/removeRecords", function () use ($APPLICATION, $FUNCTION) {
-//                            return json_encode($APPLICATION->FUNCTIONS->{$FUNCTION['control']}->removeRecords(json_decode($_POST["data"], true)));
-//                        });
-//                    });
-//                }
+                foreach ($ALL_SAME_FUNCTIONS as $FUNCTION) {
+                    $KLEIN->with($FUNCTION['path'], function () use ($KLEIN, $APPLICATION, $FUNCTION) {
+                        $KLEIN->respond("POST", "/addRecord", function () use ($APPLICATION, $FUNCTION) {
+                            return json_encode($APPLICATION->FUNCTIONS->{$FUNCTION['control']}->addRecord(json_decode($_POST["data"], true)));
+                        });
+
+                        $KLEIN->respond("POST", "/editRecord", function () use ($APPLICATION, $FUNCTION) {
+                            return json_encode($APPLICATION->FUNCTIONS->{$FUNCTION['control']}->editRecord($_POST['id'], json_decode($_POST["data"], true)));
+                        });
+
+                        $KLEIN->respond("POST", "/removeRecords", function () use ($APPLICATION, $FUNCTION) {
+                            return json_encode($APPLICATION->FUNCTIONS->{$FUNCTION['control']}->removeRecords(json_decode($_POST["data"], true)));
+                        });
+                    });
+                }
             });
 
             $this->KLEIN->with("/post", function () use ($KLEIN, $APPLICATION) {

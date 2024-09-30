@@ -21,6 +21,7 @@ function Init() {
         console.log(type_id, data);
 
         TryAuthenticate(type_id, data).then((res) => {
+            console.log(res)
             if (res.code === 200) {
                 const user = res.body.user;
                 ManageEmailVerification( type_id, user.user_id, data);

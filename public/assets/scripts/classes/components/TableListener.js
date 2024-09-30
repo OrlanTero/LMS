@@ -19,8 +19,8 @@ export class TableListener {
         this.toggleIndex = [];
         this.singularSelection = false;
         this.enableSelection = true;
+        this.selectAsObject = false;
         this.toggleColumn = true;
-        this.object = false;
         this.pagination = {
             max: 10,
             current: 1,
@@ -256,6 +256,9 @@ export class TableListener {
     selectItem(id, PRESS_SHIFT, PRESS_CTRL) {
         if (this.enableSelection) {
             for (const item of this.elements.items) {
+                if (item.getAttribute("data-id") == -1) {
+                    return;
+                }
                 if (item.getAttribute("data-id") === id) {
                     const selected = this.selected.includes(id);
                     const checkbox = item.querySelector("input");
@@ -314,6 +317,32 @@ export class TableListener {
         this.listen();
     }
 
+
+    getAsObject(id) {
+        if (Array.isArray(id)) {
+            const all = [];
+
+            for (const ii of id) {
+
+                const obj = this.getAsObject(ii);
+
+                all.push(obj);
+            }
+
+            return  all;
+        }
+
+        const header = this.getHeaderTextLists();
+        const body = this.getBodyTextLists(id);
+
+        return  header.map((head, index) => {
+            return {
+                text: head,
+                value: body[index]
+            }
+        }).filter((ob) => ob.text.length !== 0 && ob.value.length !== 0);
+    }
+
     addButtonListener(listeners) {
         for (const listener of listeners) {
             const button = this.buttonExist(listener.name);
@@ -321,7 +350,11 @@ export class TableListener {
             if (button) {
                 button.element.addEventListener("click", () => {
                     if (listener.action) {
-                        listener.action(listener.single ? this.selected[0] : this.selected, listener.object ? this.getItemObject(listener) : null);
+                        if (listener.selectAsObject) {
+                            listener.action(listener.single ? this.getAsObject(this.selected[0]) : this.getAsObject(this.selected));
+                        } else {
+                            listener.action(listener.single ? this.selected[0] : this.selected);
+                        }
                     }
 
                     if (listener.toggle) {
@@ -392,7 +425,7 @@ export class TableListener {
     }
 
     disableSelections() {
-       this.enableSelection = false
+        this.enableSelection = false
     }
 
     createFooter() {
@@ -600,8 +633,6 @@ export class TableListener {
     activateSorting() {
         const obj = this;
         const header = this.parent.querySelector('.main-table-header');
-        
-        if (!header) return;
         const right = header.querySelector(".right");
         const headerList = this.getHeaderTextLists();
         const before = right.querySelector('.sort-button');
@@ -719,10 +750,24 @@ export class TableListener {
 
     }
 
+    sortying() {
 
+    }
     getHeaderTextLists() {
         if (!this.elements.header) return  [];
-        return [...this.elements.header.querySelectorAll('th')].map((th) => th.innerText.trim()).filter(t => t.length);
+        return [...this.elements.header.querySelectorAll('th')].map((th) => th.innerText.trim());
+    }
+
+
+    getRow(id) {
+        return this.elements.items.filter((item) => {
+            return item.getAttribute("data-id") == id;
+        })[0];
+    }
+
+    getBodyTextLists(id) {
+        const item = this.getRow(id);
+        return [...item.querySelectorAll('td')].map((td) => td.innerText.trim());
     }
 
     toggleColumns() {
@@ -751,20 +796,6 @@ export class TableListener {
                 }
             })
         }
-    }
 
-    getItemAsObject(id) {
-        for (const item of this.elements.items) {
-            const tds = item.querySelectorAll('td');
-            const __id = item.getAttribute("data-id");
-
-            if (id == __id) {
-                return [...tds].map(td => td.innerText);
-            }
-        }
-    }
-
-    getItemObject(listener) {
-        return listener.single ? this.getItemAsObject(this.selected[0]) : this.selected.map(id => this.getItemAsObject(id));
     }
 }

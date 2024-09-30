@@ -1,0 +1,16 @@
+<?php
+
+global $APPLICATION, $CLASSROOMS_HEADER_BODY;
+
+$control = $APPLICATION->FUNCTIONS->CLASSROOM_CONTROL;
+$search = $_POST['search'];
+
+$RECORDS = $control->searchRecords($search,true);
+
+?>
+
+<?= CreateTable([
+    "content" => $CLASSROOMS_HEADER_BODY,
+    "data" => $RECORDS,
+    "id" => "classroom_id"
+]) ?>

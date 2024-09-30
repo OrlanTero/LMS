@@ -3,6 +3,52 @@
 
 global $APPLICATION, $SESSION;
 
+
+$dashboardCards = [
+    [
+        "title" => "Users",
+        "value" => 0,
+    ],
+    [
+        "title" => "Faculty Members",
+        "value" => 0,
+    ],
+    [
+        "title" => "Professors",
+        "value" => 0,
+    ],
+    [
+        "title" => "Staffs",
+        "value" => 0,
+    ],
+    [
+        "title" => "Students",
+        "value" => 0,
+    ],
+];
+
+$maintenanceCards = [
+    [
+        "title" => "Classrooms",
+        "value" => 0,
+    ],
+    [
+        "title" => "Sections",
+        "value" => 0,
+    ],
+    [
+        "title" => "Courses",
+        "value" => 0,
+    ],
+    [
+        "title" => "Subjects",
+        "value" => 0,
+    ],
+    [
+        "title" => "Events ",
+        "value" => 0,
+    ],
+];
 ?>
 
 <?php include "public/views/pages/structures/html_headings.phtml" ?>
@@ -19,23 +65,169 @@ global $APPLICATION, $SESSION;
 
     <?php include "public/views/pages/structures/html_navbar.phtml" ?>
 
-    <?php include "public/views/pages/structures/html_right_heading.phtml" ?>
 </div>
 
 <div class="right-content">
+
+    <?php include "public/views/pages/structures/html_right_heading.phtml" ?>
+
     <div class="right-body">
+        <div class="dashboard-header">
+            <div class="header-container">
+                <div class="text-container">
+                    <h1>Good Day, <?= $SESSION->displayName ?></h1>
+                    <p>What a beautiful day is it.</p>
+                </div>
 
+                <div class="framed-container">
+                    <?= UseImage('/img/welcome.svg', true) ?>
+                </div>
+            </div>
+        </div>
+        <div class="dashboard-body">
+            <div class="dashboard-grid">
+                <div class="left-right">
+                    <div class="left-grid">
+                        <div class="first">
+                            <div class="dash-title">
+                                <h2>System</h2>
+                            </div>
+                            <div class="dashboard-cards">
+                                <?php foreach($dashboardCards as $card): ?>
+                                    <div class="dashboard-card">
+                                        <div class="main">
+                                            <p><?= $card['title'] ?></p>
+                                            <h1><?= $card['value'] ?></h1>
+                                        </div>
+                                    </div>
+                                <?php endforeach ?>
+                            </div>
+                        </div>
+                        <div class="first">
+                            <div class="dash-title">
+                                <h2>Maintenance</h2>
+                            </div>
+                            <div class="dashboard-cards">
+                                <?php foreach($maintenanceCards as $card): ?>
+                                    <div class="dashboard-card">
+                                        <div class="main">
+                                            <p><?= $card['title'] ?></p>
+                                            <h1><?= $card['value'] ?></h1>
+                                        </div>
+                                    </div>
+                                <?php endforeach ?>
+                            </div>
+                        </div>
+                        <div class="first">
+                            <div class="dash-title">
+                                <h2>Loan Management</h2>
+                            </div>
+                            <div class="dashboard-cards">
+                                <div class="flex-dashboard-cards">
+                                    <div class="flex-card">
+                                        <h1>0</h1>
+                                        <p>Item 1</p>
+                                    </div>
+                                    <div class="flex-card">
+                                        <h1>0</h1>
+                                        <p>Item 2</p>
+                                    </div>
+                                    <div class="flex-card">
+                                        <h1>0</h1>
+                                        <p>Item 3</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="right-grid">
+                        <section>
+                            <div class="dash-title">
+                                <h2>Average Report</h2>
+                            </div>
 
+                            <div class="image-container">
+                                <?= UseImage('/img/no_data.svg', true) ?>
+                            </div>
+<!--                            --><?php //if ($DATA['expenses']['most_expensive'][0][0] != null): ?>
+<!--                                <div id="chart-container"></div>-->
+<!--                            --><?php //else: ?>
+<!--                             -->
+<!--                            --><?php //endif; ?>
+                        </section>
+                        <section>
+                            <div class="dash-title">
+                                <h2>Label Title</h2>
+                            </div>
+
+                            <div class="holiday-container">
+<!--                                --><?php //if (isset($DATA['next_holiday'])): ?>
+<!--                                    <h1>--><?php //= $DATA['next_holiday']->holiday ?><!--</h1>-->
+<!--                                    <p>--><?php //= $DATA['next_holiday']->holiday_date ?><!--</p>-->
+<!--                                --><?php //endif ?>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+                <div class="full-grid">
+                    <div class="min-full-right-grid">
+                        <div class="dash-title">
+                            <h2>Container 1</h2>
+                        </div>
+
+                        <div class="item-lists">
+
+                        </div>
+                    </div>
+                    <div class="half-full-right-grid">
+                        <div class="dash-title">
+                            <h2>Container 2</h2>
+                        </div>
+                        <div class="item-lists">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
 
     <script type="module">
-
+        //window.onload = function () {
+        //
+        //    var chart = new CanvasJS.Chart("chart-container", {
+        //        animationEnabled: true,
+        //        data: [{
+        //            type: "pie",
+        //            showInLegend: "true",
+        //            legendText: "{label}",
+        //            indexLabelFontSize: 12,
+        //            indexLabel: "{label} - #percent%",
+        //            yValueFormatString: "₱#,##0",
+        //            dataPoints: <?php //echo json_encode($dataPoints, JSON_NUMERIC_CHECK); ?>
+        //        }]
+        //    });
+        //
+        //    chart.render();
+        //
+        //    const credits = document.querySelectorAll('.canvasjs-chart-credit');
+        //
+        //    credits.forEach((c) => c.remove())
+        //
+        //    document.documentElement.addEventListener("resize", function () {
+        //        const credits = document.querySelectorAll('.canvasjs-chart-credit');
+        //
+        //        credits.forEach((c) => c.remove())
+        //    })
+        //}
+        //
 
     </script>
     <?php include "public/views/pages/structures/html_pipes.phtml" ?>
 
     <!--<script type="module" src="/public/assets/scripts/pages/main/dashboard.js"></script>-->
+<!--    <script type="module" src="/public/assets/scripts/libraries/canvasjs/canvasjs-chart-3.8.2/canvasjs.min.js"></script>-->
 
     <?php include "public/views/pages/structures/html_closing_parent.phtml" ?>
 
