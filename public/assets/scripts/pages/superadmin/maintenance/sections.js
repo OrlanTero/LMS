@@ -1,7 +1,7 @@
 import {
-    addHtml, GetComboValue,
+    addHtml, Ajax, CreateElement, GetComboValue,
     ListenToForm,
-    ManageComboBoxes
+    ManageComboBoxes, ToData
 } from "../../../modules/component/Tool.js";
 import Popup from "../../../classes/components/Popup.js";
 import {TableListener} from "../../../classes/components/TableListener.js";
@@ -14,6 +14,7 @@ import {
 import {NewNotification, NotificationType} from "../../../classes/components/NotificationPopup.js";
 import AlertPopup, {AlertTypes} from "../../../classes/components/AlertPopup.js";
 import {SelectModel, SelectSomething} from "../../../modules/app/Administrator.js";
+import {SidePicker} from "../../../classes/components/SidePicker.js";
 
 
 const TARGET = "sections";
@@ -56,8 +57,74 @@ function DeleteRequests(ids) {
     popup.Create().then(() => { popup.Show() })
 }
 
-function ManageStudentsTable(popup, students, update) {
-    const TABLE = popup.ELEMENT.querySelector(".main-table-container.table-component");
+function NewSchedule() {
+    return new Promise((resolve,reject) => {
+        const p = new Popup("schedules/add_new_schedule", null, {
+            backgroundDismiss: false,
+        });
+
+        // p.AddListeners({
+        //     onRemove: function () {
+        //         reject(false)
+        //     },
+        //     onHide: function () {
+        //         reject(false)
+        //     },
+        // })
+        p.Create().then((p) => {
+            p.Show();
+
+            const btn = p.ELEMENT.querySelector(".add-new-schedule");
+            const addedContainer = p.ELEMENT.querySelector(".added-groups");
+
+            let count = 1;
+
+            const f = p.ELEMENT.querySelector("form.form-control");
+
+            const cc = ListenToForm(f, function (data) {
+                const items = p.ELEMENT.querySelectorAll(".group-item");
+
+                const schedules = [...items].map((item) => {
+                    const combo = item.querySelector(".custom-combo-box");
+                    const inputs = item.querySelectorAll("input[type=time]");
+                    return {
+                        day: GetComboValue(combo).value,
+                        start_time: inputs[0].value,
+                        end_time: inputs[1].value,
+                    }
+                });
+
+                p.Remove();
+
+                resolve(schedules);
+            })
+
+            btn.addEventListener("click", function () {
+                Ajax({
+                    url: `/components/popup/schedules/add_new_schedule_item`,
+                    type: "POST",
+                    data: ToData({count: count}),
+                    success: (itemElement) => {
+                        const span = CreateElement({
+                            el: "SPAN",
+                            html: itemElement
+                        })
+
+                        addedContainer.appendChild(span);
+
+                        cc(true, true);
+
+                        ManageComboBoxes();
+                    },
+                });
+            })
+
+            ManageComboBoxes();
+        });
+    })
+}
+function ManageStudentsTable(element, students, update) {
+    const TABLE = element.querySelector(".main-table-container.table-component");
 
     if (!TABLE) return;
 
@@ -213,6 +280,161 @@ function ManageStudentsTable(popup, students, update) {
 
     PlaceCurrents();
 }
+function ManageSubjectsTable(element, subjects, update) {
+    const TABLE = element.querySelector(".main-table-container.table-component");
+
+    if (!TABLE) return;
+
+    const TABLE_LISTENER = new TableListener(TABLE);
+
+    let ALLSUBJECTS = subjects;
+
+    const _Add = () => {
+        const popup = new Popup("section_subjects/add_new_section_subject", null, {
+            backgroundDismiss: false,
+        });
+
+        popup.Create().then((p) => {
+            popup.Show();
+
+            const form = p.ELEMENT.querySelector("form.form-control");
+            const subj = p.ELEMENT.querySelector(".subject_id");
+
+            let student = p.ELEMENT.querySelector(".select-professor");
+            let studentInput = p.ELEMENT.querySelector("input[name=professor_id]");
+            let selectedProfessor;
+
+            const check = ListenToForm(form, function (data) {
+                const sub_id = GetComboValue(subj).value;
+                popup.Remove();
+
+                TABLE_LISTENER.insertItem(ALLSUBJECTS.length + 1, [ALLSUBJECTS.length + 1, data.subject_id, selectedProfessor.user.displayName]);
+
+                ALLSUBJECTS.push({professor_id: selectedProfessor.professor_id, subject_id: sub_id, status: 'created'});
+
+                update(ALLSUBJECTS);
+            })
+
+            student.addEventListener("click", function() {
+                SelectSomething("professors/select_professors", "professors", "PROFESSOR_CONTROL", null, true).then((prof) => {
+                    selectedProfessor = prof;
+                    studentInput.value = prof.user.displayName;
+                    check(true);
+                })
+            });
+
+            ManageComboBoxes();
+        })
+    }
+
+    const _Del = (id) => {
+        TABLE_LISTENER.removeItem(id);
+
+        ALLSUBJECTS = ALLSUBJECTS.map((b) => {
+            if (b.id === id) {
+                if (b.status === 'created') {
+                    return false;
+                } else {
+                    return  {...b, status: 'deleted'}
+                }
+            }
+            return b;
+        }).filter(b => b);
+
+        update(ALLSUBJECTS);
+    }
+
+    const _Edit = (id) => {
+
+        const popup = new Popup("section_subjects/view_section_subject", {id}, {
+            backgroundDismiss: false,
+        });
+
+        popup.Create().then((p) => {
+            popup.Show();
+
+            let SCHEDULES = [];
+
+            const form = p.ELEMENT.querySelector("form.form-control");
+            const add = p.ELEMENT.querySelector(".add-schedule");
+
+            ListenToForm(form, function (data) {
+                popup.Remove();
+
+                if (SCHEDULES.length) {
+                    const item = Object.values(TABLE_LISTENER.getAsObject(id)).map((i) => i.value);
+
+                    TABLE_LISTENER.updateItem(id, [item[0], item[1], item[2], SCHEDULES.map((sched) => sched.day).join(",")]);
+
+                    ALLSUBJECTS = ALLSUBJECTS.map((b) => {
+                        if (b.id === id) {
+                            return {...b, schedules: SCHEDULES, id,  status: b.status === 'current' ? 'edited' : 'created'};
+                        }
+                        return b;
+                    });
+
+                    update(ALLSUBJECTS);
+                }
+            })
+
+            add.addEventListener("click", function () {
+                NewSchedule().then((schedules) => {
+                    SCHEDULES = schedules;
+                })
+            })
+
+            ManageComboBoxes();
+        })
+    }
+
+    const PlaceCurrents = () => {
+        for (const el of TABLE_LISTENER.elements.items) {
+            const id = el.getAttribute("data-id");
+
+            ALLSUBJECTS.push({id, status: 'current'});
+        }
+
+        update(ALLSUBJECTS);
+    }
+
+    TABLE_LISTENER.addListeners({
+        none: {
+            remove: ["delete-request", "view-request", "edit-request"],
+            view: ["add-request"],
+        },
+        select: {
+            view: ["delete-request", "view-request", "edit-request"],
+        },
+        selects: {
+            view: ["delete-request"],
+            remove: ["view-request", "edit-request"]
+        },
+    });
+
+    TABLE_LISTENER.init();
+
+    TABLE_LISTENER.listen(() => {
+        TABLE_LISTENER.addButtonListener([
+            {
+                name: "add-request",
+                action: _Add,
+                single: true
+            },
+            {
+                name: "delete-request",
+                action: _Del,
+                single: true
+            },
+            {
+                name: "edit-request",
+                action: _Edit,
+                single: true
+            },
+        ]);
+    });
+
+    PlaceCurrents();
+}
 function ViewRequest(id) {
     const popup = new Popup(`${TARGET}/view_${MINI_TARGET}`, {id}, {
         backgroundDismiss: false,
@@ -227,25 +449,31 @@ function ViewRequest(id) {
         const course_id = pop.ELEMENT.querySelector(".course_id");
         const semester = pop.ELEMENT.querySelector(".semester");
         const year_level = pop.ELEMENT.querySelector(".year_level");
+        const picker = pop.ELEMENT.querySelector('.table-data-picker');
+        const studentsC = pop.ELEMENT.querySelector('.students-content');
+        const subjectsC = pop.ELEMENT.querySelector('.subjects-content');
+        const TABLE_PICKER = new SidePicker(picker);
 
         let selected_user;
-        let students = [];
+        let students = [], subjects = [];
 
         ListenToForm(form, function (data) {
             data.course_id = GetComboValue(course_id).value;
             data.semester = GetComboValue(semester).value;
             data.year_level = GetComboValue(year_level).value;
 
-            EditRecord(TARGET, {data: JSON.stringify({id, data, students})}).then((res) => {
+
+            EditRecord(TARGET, {data: JSON.stringify({id, data, students, subjects})}).then((res) => {
                 popup.Remove();
 
                 NewNotification({
                     title: res.code === 200 ? 'Success' : 'Failed',
                     message: res.code === 200 ? 'Successfully Updated Data' : 'Task Failed to perform!'
                 }, 3000, res.code === 200 ? NotificationType.SUCCESS : NotificationType.ERROR)
-
             })
         })
+
+        TABLE_PICKER.listens();
 
         select.addEventListener("click", function() {
             SelectSomething(`professors/select_professors`, "professors", "PROFESSOR_CONTROL", null, true).then(user => {
@@ -254,8 +482,13 @@ function ViewRequest(id) {
             });
         })
 
-        ManageStudentsTable(pop, students, (up) => {
+
+        ManageStudentsTable(studentsC, students, (up) => {
             students = up;
+        });
+
+        ManageSubjectsTable(subjectsC, subjects, (up) => {
+            subjects = up;
         });
 
         ManageComboBoxes()

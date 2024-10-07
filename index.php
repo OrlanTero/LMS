@@ -16,7 +16,6 @@ $CONNECTION = new Connection(); //
 $SESSION = $_SESSION["session"] ?? new Session(); // handling users information // current logged in
 $APPLICATION = new Application();
 
-
 try {
     if ($CONNECTION->Test()) {
         $APPLICATION->run();

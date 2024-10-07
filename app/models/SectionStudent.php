@@ -16,6 +16,8 @@ class SectionStudent extends SectionStudentAbstract
     public $student_no;
 
     public $displayName;
+
+    public $section;
     public function __construct($data = [])
     {
         $this->applyData($data, SectionStudentAbstract::class);
@@ -27,6 +29,7 @@ class SectionStudent extends SectionStudentAbstract
         global $APPLICATION;
 
         $this->student = $APPLICATION->FUNCTIONS->USER_CONTROL->get($this->student_id, true);
+        $this->section = $APPLICATION->FUNCTIONS->SECTION_CONTROL->get($this->section_id, true);
 
         if ($this->student) {
             $this->user_id = $this->student->user_id;

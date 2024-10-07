@@ -1492,13 +1492,11 @@ export function ReformatURI(uri) {
 
 export function ListenToForm(form, callback, excepts = [], options = []) {
     const clearBtn = form.querySelector(".clear-form");
-
     const getAllFields = () => {
         const input = [...form.querySelectorAll("input")].filter(i => !i.classList.contains("table-checkbox"));
         const disabledInputWhereCounts = [...form.querySelectorAll("input[stillcount=true]")]
         const textarea = form.querySelectorAll("textarea");
         const combos = form.querySelectorAll(".custom-combo-box");
-
 
         if (disabledInputWhereCounts.length) {
             for(const i of disabledInputWhereCounts) {
@@ -1521,7 +1519,7 @@ export function ListenToForm(form, callback, excepts = [], options = []) {
         }
     }
 
-    const check = (ignore = false) => {
+    const check = (ignore = false, recheck = false) => {
         const formdata = new FormData(form);
         const data = Object.fromEntries(formdata);
         const verify = VerifyFormData(formdata, excepts, options);
@@ -1545,57 +1543,67 @@ export function ListenToForm(form, callback, excepts = [], options = []) {
                 disableButton(button, false);
             }
         }
+
+        if (recheck) {
+            checkGood(true);
+        }
     }
 
-    const fields = getAllFields();
+    const checkGood = (recheck = false) => {
+        const fields = getAllFields();
 
-    if (clearBtn) {
-        clearBtn.addEventListener("click", () => {
-            for (const input of fields.input) {
-                if (input.type !== "submit") {
-                    input.value = null
+        if (clearBtn) {
+            clearBtn.addEventListener("click", () => {
+                for (const input of fields.input) {
+                    if (input.type !== "submit") {
+                        input.value = null
+                    }
                 }
-            }
-            for (const textarea of fields.textarea) textarea.value = null;
+                for (const textarea of fields.textarea) textarea.value = null;
 
-            check(true)
-        })
+                check(true)
+            })
+        }
+
+        for (const input of fields.input) {
+            input.addEventListener("input", () => {
+                if (input.type !== 'submit') {
+                    check(true);
+                }
+            });
+            input.addEventListener("input", () => {
+                if (input.type !== 'submit') {
+                    check(true);
+                }
+            });
+
+            input.addEventListener("blur", () => {
+                if (input.type !== 'submit') {
+                    check(true);
+                }
+            });
+        }
+
+        for (const textarea of fields.textarea) {
+            textarea.addEventListener("change", () => check(true));
+        }
+
+        for (const combo of fields.combos) {
+            ListenToCombo(combo, () => check(true))
+        }
+
+
+        if (!recheck) {
+            form.addEventListener("submit", (e) => {
+                e.preventDefault()
+                check();
+            })
+        }
+
+        check(true);
     }
 
-    for (const input of fields.input) {
-
-        input.addEventListener("input", () => {
-            if (input.type !== 'submit') {
-                check(true);
-            }
-        });
-        input.addEventListener("input", () => {
-            if (input.type !== 'submit') {
-                check(true);
-            }
-        });
-
-        input.addEventListener("blur", () => {
-            if (input.type !== 'submit') {
-                check(true);
-            }
-        });
-    }
-
-    for (const textarea of fields.textarea) {
-        textarea.addEventListener("change", () => check(true));
-    }
-
-    for (const combo of fields.combos) {
-        ListenToCombo(combo, () => check(true))
-    }
-
-    form.addEventListener("submit", (e) => {
-        e.preventDefault()
-        check();
-    })
-
-    check(true);
+    checkGood();
 
     return check;
 }

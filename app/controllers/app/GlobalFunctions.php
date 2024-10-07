@@ -4,10 +4,15 @@ namespace Application\controllers\app;
 
 use Application\controllers\system\ClassroomControl;
 use Application\controllers\system\CourseControl;
+use Application\controllers\system\DepartmentControl;
 use Application\controllers\system\PostControl;
 use Application\controllers\system\ProfessorControl;
+use Application\controllers\system\ScheduleControl;
+use Application\controllers\system\ScheduleItemControl;
 use Application\controllers\system\SectionControl;
 use Application\controllers\system\SectionStudentControl;
+use Application\controllers\system\SectionSubjectControl;
+use Application\controllers\system\StaffControl;
 use Application\controllers\system\StudentControl;
 use Application\controllers\system\SubjectControl;
 use Application\controllers\system\UserControl;
@@ -39,6 +44,12 @@ class GlobalFunctions
 
     public $STUDENT_CONTROL;
     public $SECTION_STUDENT_CONTROL;
+    public $DEPARTMENT_CONTROL;
+    public $SECTION_SUBJECT_CONTROL;
+
+    public $STAFF_CONTROL;
+    public $SCHEDULE_CONTROL;
+    public $SCHEDULE_ITEM_CONTROL;
 
     public function __construct($SESSION)
     {
@@ -60,6 +71,8 @@ class GlobalFunctions
 
         $this->PROFESSOR_CONTROL = new ProfessorControl();
 
+        $this->STAFF_CONTROL = new StaffControl();
+
         $this->CLASSROOM_CONTROL = new ClassroomControl();
 
         $this->SECTION_CONTROL = new SectionControl();
@@ -69,5 +82,13 @@ class GlobalFunctions
         $this->STUDENT_CONTROL = new StudentControl();
 
         $this->SECTION_STUDENT_CONTROL = new SectionStudentControl();
+
+        $this->DEPARTMENT_CONTROL = new DepartmentControl();
+
+        $this->SECTION_SUBJECT_CONTROL = new SectionSubjectControl();
+
+        $this->SCHEDULE_CONTROL = new ScheduleControl();
+
+        $this->SCHEDULE_ITEM_CONTROL = new ScheduleItemControl();
     }
 }

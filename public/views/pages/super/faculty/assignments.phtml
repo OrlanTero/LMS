@@ -1,0 +1,78 @@
+<?php
+
+global $APPLICATION, $PROFESSORS_HEADER_BODY;
+
+$control = $APPLICATION->FUNCTIONS->PROFESSOR_CONTROL;
+$RECORDS = $control->getAllRecords(false);
+
+
+$cards = [
+    [
+        "title" => "School Year",
+        "contents" => [
+            [
+                "label" => "S.Y 2023 - 2024",
+                "value" => ""
+            ]
+        ]
+
+    ]
+];
+?>
+
+<?php include "public/views/pages/structures/html_headings.phtml" ?>
+
+<title>Assignments</title>
+
+<?php include "public/views/pages/structures/html_heading_closing.phtml" ?>
+
+<?php include "public/views/pages/structures/html_body_open.phtml" ?>
+
+<?php include "public/views/pages/structures/html_opening_parent.phtml" ?>
+
+<div class="left-content">
+
+    <?php include "public/views/pages/structures/html_navbar.phtml" ?>
+
+    <?php include "public/views/pages/structures/html_right_heading.phtml" ?>
+
+</div>
+
+<div class="right-content">
+
+    <div class="right-body">
+        <div class="main-body-content-parent">
+            <div class="main-body-header">
+                <div class="header-nav">
+                    <div class="left">
+                        <div class="title">
+                            <h2>Assignments</h2>
+                        </div>
+                    </div>
+                    <div class="right"></div>
+                </div>
+            </div>
+            <div class="main-body-body">
+                <div class="data-bordered-container">
+                    <div class="content">
+                        <div class="card-picker-container-parent">
+                            <div class="picker-header">
+                                <h1>Title</h1>
+                            </div>
+                            <div class="picker-body">
+                                 <div class="card-picker-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <?php include "public/views/pages/structures/html_pipes.phtml" ?>
+
+    <script type="module" src="/public/assets/scripts/pages/superadmin/faculty/professors.js"></script>
+
+    <?php include "public/views/pages/structures/html_closing_parent.phtml" ?>
+
+    <?php include "public/views/pages/structures/html_body_closing.phtml" ?>

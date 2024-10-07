@@ -8,6 +8,23 @@ enum UserAuthenticationTypes : string {
     case EMAIL_AUTHENTICATION = "EMAIL_AUTHENTICATION";
 }
 
+enum DayTypes : string
+{
+    case MONDAY = "Monday";
+
+    case TUESDAY = "Tuesday";
+
+    case WEDNESDAY = "Wednesday";
+
+    case THURSDAY = "Thursday";
+
+    case FRIDAY = "Friday";
+
+    case SATURDAY = "Saturday";
+
+    case SUNDAY = "Sunday";
+}
+
 enum PostedTypes : int
 {
     case POSTED = 1;

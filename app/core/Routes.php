@@ -178,7 +178,7 @@ class Routes
 
                 $KLEIN->with("/sections", function () use ($KLEIN, $APPLICATION) {
                     $KLEIN->respond("POST", "/addRecord", function () use ($APPLICATION) {
-                        return json_encode($APPLICATION->FUNCTIONS->{"SECTION_CONTROL"}->add(json_decode($_POST["data"], true)));
+                        return json_encode($APPLICATION->FUNCTIONS->{"SECTION_CONTROL"}->addRecord(json_decode($_POST["data"], true)));
                     });
 
                     $KLEIN->respond("POST", "/editRecord", function () use ($APPLICATION) {
@@ -206,6 +206,26 @@ class Routes
                     [
                         "path" => "/subjects",
                         "control" => "SUBJECT_CONTROL"
+                    ],
+                    [
+                        "path" => "/departments",
+                        "control" => "DEPARTMENT_CONTROL"
+                    ],
+                    [
+                        "path" => "/section_subjects",
+                        "control" => "SECTION_SUBJECT_CONTROL"
+                    ],
+                    [
+                        "path" => "/staffs",
+                        "control" => "STAFF_CONTROL"
+                    ],
+                    [
+                        "path" => "/schedules",
+                        "control" => "SCHEDULE_CONTROL"
+                    ],
+                    [
+                        "path" => "/schedule_items",
+                        "control" => "SCHEDULE_ITEM_CONTROL"
                     ],
                 ];
 //

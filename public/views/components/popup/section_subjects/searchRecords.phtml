@@ -1,0 +1,16 @@
+<?php
+
+global $APPLICATION, $DEPARTMENTS_HEADER_BODY;
+
+$control = $APPLICATION->FUNCTIONS->DEPARTMENT_CONTROL;
+$search = $_POST['search'];
+
+$RECORDS = $control->searchRecords($search,true);
+
+?>
+
+<?= CreateTable([
+    "content" => $DEPARTMENTS_HEADER_BODY,
+    "data" => $RECORDS,
+    "id" => "department_id"
+]) ?>

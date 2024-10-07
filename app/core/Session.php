@@ -14,6 +14,7 @@ class Session extends UserAbstract
 
     public $typeName;
 
+
     public function __construct()
     {
         $this->hasUser = isset($_SESSION['user_id']);
@@ -69,5 +70,16 @@ class Session extends UserAbstract
         session_destroy();
 
         $KLEIN->response()->redirect('/login');
+    }
+
+    public function getAsStudent() {
+        global $APPLICATION;
+
+        return $APPLICATION->FUNCTIONS->STUDENT_CONTROL->get($this->user_id, true);
+    }
+    public function getAsProfessor() {
+        global $APPLICATION;
+
+        return $APPLICATION->FUNCTIONS->PROFESSOR_CONTROL->getBy("user_id",$this->user_id, true);
     }
 }

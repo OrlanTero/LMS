@@ -245,29 +245,58 @@ $STUDENT = array(
         "icon" => UseIcon("chart-bar-thin")
     ],
     [
-        "text" => "My Appointments",
-        "path" => '/services/schedule_appointment',
+        "text" => "My Subjects",
+        "path" => '/me/subjects',
         "icon" => UseIcon("book-bookmark-thin")
     ],
     [
-        "text" => "My Orders",
-        "path" => '/pos/orders',
+        "text" => "My Section",
+        "path" => '/me/section',
         "icon" => UseIcon("shopping-cart-thin")
     ],
     [
-        "text" => "My Lab Orders",
-        "path" => '/pos/lab_orders',
-        "icon" => UseIcon("person-thin")
+        "text" => "Resources",
+        "path" => '/resources',
+        "icon" => UseIcon("cube-thin"),
+        "sub-content" => [
+            [
+                "text" => "Slot 1",
+                "path" => '/inventory/slot1',
+                "icon" => UseIcon("cube-thin")
+            ],
+            [
+                "text" => "Slot 2",
+                "path" => '/inventory/slot2',
+                "icon" => UseIcon("cube-thin")
+            ],
+        ]
     ],
     [
-        "text" => "My Payments",
-        "path" => '/pos/payments',
-        "icon" => UseIcon("money-thin")
-    ],
-    [
-        "text" => "Glasses Try On",
-        "path" => '/tryon/glasses_tryon',
-        "icon" => UseIcon("person-thin")
+        "text" => "Events & Announcements",
+        "path" => '/maintenance',
+        "icon" => UseIcon("hand-palm-thin"),
+        "sub-content" => [
+            [
+                "text" => "Events",
+                "path" => '/maintenance/events',
+                "icon" => UseIcon("circles-four-thin")
+            ],
+            [
+                "text" => "News & Announcements",
+                "path" => '/maintenance/news_and_announcements',
+                "icon" => UseIcon("circles-four-thin")
+            ],
+            [
+                "text" => "Slot 1",
+                "path" => '/maintenance/slot1',
+                "icon" => UseIcon("toggle-left-thin")
+            ],
+            [
+                "text" => "Slot 1",
+                "path" => '/maintenance/slot2',
+                "icon" => UseIcon("toggle-left-thin")
+            ],
+        ]
     ],
 );
 
@@ -278,46 +307,64 @@ $FACULTY = array(
         "icon" => UseIcon("chart-bar-thin")
     ],
     [
-        "text" => "Patients",
-        "path" => '/patients',
+        "text" => "My Classes",
+        "path" => '/me/classes',
+        "icon" => UseIcon("book-bookmark-thin")
+    ],
+    [
+        "text" => "Students",
+        "path" => '/students',
         "icon" => UseIcon("face-mask-thin"),
         "sub-content" => [
             [
-                "text" => "Search Patients",
-                "path" => '/patients/search_patients',
+                "text" => "Students",
+                "path" => '/students/students',
                 "icon" => UseIcon("book-bookmark-thin")
             ],
             [
-                "text" => "Appointments",
-                "path" => '/patients/appointments',
+                "text" => "Search Students",
+                "path" => '/students/search_students',
                 "icon" => UseIcon("book-bookmark-thin")
             ],
             [
-                "text" => "Evaluations",
-                "path" => '/patients/evaluations',
+                "text" => "Classrooms",
+                "path" => '/students/classrooms',
                 "icon" => UseIcon("eye-thin")
             ],
             [
-                "text" => "Color Vision Eval",
-                "path" => '/patients/color_vision_evaluations',
-                "icon" => UseIcon("eye-thin")
-            ],
-            [
-                "text" => "Dry Eyes Eval",
-                "path" => '/patients/dry_eyes_evaluations',
+                "text" => "Groups",
+                "path" => '/students/groups',
                 "icon" => UseIcon("eye-thin")
             ],
         ]
     ],
+
     [
-        "text" => "Schedule",
-        "path" => '/services/schedule',
-        "icon" => UseIcon("faders-horizontal-thin")
-    ],
-    [
-        "text" => "Payments",
-        "path" => '/services/payments',
-        "icon" => UseIcon("coin-thin")
+        "text" => "Events & Announcements",
+        "path" => '/maintenance',
+        "icon" => UseIcon("hand-palm-thin"),
+        "sub-content" => [
+            [
+                "text" => "Events",
+                "path" => '/maintenance/events',
+                "icon" => UseIcon("circles-four-thin")
+            ],
+            [
+                "text" => "News & Announcements",
+                "path" => '/maintenance/news_and_announcements',
+                "icon" => UseIcon("circles-four-thin")
+            ],
+            [
+                "text" => "Slot 1",
+                "path" => '/maintenance/slot1',
+                "icon" => UseIcon("toggle-left-thin")
+            ],
+            [
+                "text" => "Slot 1",
+                "path" => '/maintenance/slot2',
+                "icon" => UseIcon("toggle-left-thin")
+            ],
+        ]
     ],
 );
 
@@ -426,6 +473,11 @@ $SUPERADMIN = array(
             [
                 "text" => "Year Levels",
                 "path" => '/maintenance/year_levels',
+                "icon" => UseIcon("handshake-thin")
+            ],
+            [
+                "text" => "Departments",
+                "path" => '/maintenance/departments',
                 "icon" => UseIcon("handshake-thin")
             ],
             [

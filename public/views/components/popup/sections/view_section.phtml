@@ -1,5 +1,5 @@
 <?php
-global $APPLICATION, $STUDENT_IN_SECTION_HEADER_BODY;
+global $APPLICATION, $STUDENT_IN_SECTION_HEADER_BODY, $SECTION_SUBJECT_HEADER_BODY;
 
 
 $data = json_decode($_POST['data'], true);
@@ -9,9 +9,11 @@ $control = $APPLICATION->FUNCTIONS->SECTION_CONTROL;
 $userControl = $APPLICATION->FUNCTIONS->USER_CONTROL;
 $courseControl = $APPLICATION->FUNCTIONS->COURSE_CONTROL;
 $sectionStudentControl = $APPLICATION->FUNCTIONS->SECTION_STUDENT_CONTROL;
+$sectionSubjectControl = $APPLICATION->FUNCTIONS->SECTION_SUBJECT_CONTROL;
 
 $section = $control->get($id, true);
 $students = $sectionStudentControl->filterRecords(['section_id' => $id], true);
+$subjects = $sectionSubjectControl->filterRecords(['section_id' => $id], true);
 $courses = $courseControl->getAllRecords(false);
 $courses = ObjectToCombo("course_name", "course_id", $courses);
 
@@ -25,7 +27,7 @@ $courses = ObjectToCombo("course_name", "course_id", $courses);
                     <h1>View Section</h1>
                 </div>
                 <div class="paragraph">
-                    <p>List of Beneficiaries</p>
+                    <p>List of students</p>
                 </div>
 
                 <div class="floating-button">
@@ -107,50 +109,116 @@ $courses = ObjectToCombo("course_name", "course_id", $courses);
                         </div>
                     </div>
 
-                    <div class="data-table-content">
-                        <div class="main-table-container table-component full">
-                            <div class="main-table-header">
-                                <div class="table-header">
-                                    <div class="left">
-                                        <div class="title">
-                                            <h2>Students</h2>
-                                        </div>
-                                    </div>
-                                    <div class="center"></div>
-                                    <div class="right"></div>
+                    <div class="tab-container-picker table-data-picker"  data-id="data-picker">
+                        <div class="tab-header">
+                            <div class="tab-button side-bar-button" data-id="students" data-picker="data-picker">
+                                <div class="text">
+                                    <span>
+                                        Students
+                                    </span>
                                 </div>
-                                <div class="table-buttons">
-                                    <div class="left"></div>
-                                    <div class="right">
-                                        <div class="icon-button table-button show-component" data-name="delete-request">
-                                            <div class="icon">
-                                                <?= UseIcon("trash-thin") ?>
+                            </div>
+                            <div class="tab-button side-bar-button" data-id="subjects" data-picker="data-picker">
+                                <div class="text">
+                                    <span>
+                                        Subjects
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-body">
+                            <div class="tab-content side-bar-content students-content" data-content="students" data-picker="data-picker">
+                                <div class="data-table-content">
+                                    <div class="main-table-container table-component full">
+                                        <div class="main-table-header">
+                                            <div class="table-header">
+                                                <div class="left">
+                                                    <div class="title">
+                                                        <h2>Students</h2>
+                                                    </div>
+                                                </div>
+                                                <div class="center"></div>
+                                                <div class="right"></div>
+                                            </div>
+                                            <div class="table-buttons">
+                                                <div class="left"></div>
+                                                <div class="right">
+                                                    <div class="icon-button table-button show-component" data-name="delete-request">
+                                                        <div class="icon">
+                                                            <?= UseIcon("trash-thin") ?>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="icon-button table-button show-component" data-name="add-request">
+                                                        <div class="icon">
+                                                            <?= UseIcon("plus-thin") ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-<!---->
-<!--                                        <div class="icon-button table-button show-component" data-name="edit-request">-->
-<!--                                            <div class="icon">-->
-<!--                                                --><?php //= UseIcon("pencil-thin") ?>
-<!--                                            </div>-->
-<!--                                        </div>-->
-
-                                        <div class="icon-button table-button show-component" data-name="add-request">
-                                            <div class="icon">
-                                                <?= UseIcon("plus-thin") ?>
-                                            </div>
+                                        <div class="main-table-body main-table-requests">
+                                            <?= CreateTable([
+                                                "content" => $STUDENT_IN_SECTION_HEADER_BODY,
+                                                "data" => $students,
+                                                "id" => "section_student_id"
+                                            ]) ?>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="main-table-body main-table-requests">
-                                <?= CreateTable([
-                                    "content" => $STUDENT_IN_SECTION_HEADER_BODY,
-                                    "data" => $students,
-                                    "id" => "section_student_id"
-                                ]) ?>
+                            <div class="tab-content side-bar-content subjects-content" data-content="subjects" data-picker="data-picker">
+                                <div class="data-table-content">
+                                    <div class="main-table-container table-component full">
+                                        <div class="main-table-header">
+                                            <div class="table-header">
+                                                <div class="left">
+                                                    <div class="title">
+                                                        <h2>Subjects</h2>
+                                                    </div>
+                                                </div>
+                                                <div class="center"></div>
+                                                <div class="right"></div>
+                                            </div>
+                                            <div class="table-buttons">
+                                                <div class="left"></div>
+
+                                                <div class="right">
+                                                    <div class="icon-button table-button show-component" data-name="delete-request">
+                                                        <div class="icon">
+                                                            <?= UseIcon("trash-thin") ?>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="icon-button table-button show-component" data-name="edit-request">
+                                                        <div class="icon">
+                                                            <?= UseIcon("eye-thin") ?>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="icon-button table-button show-component" data-name="add-request">
+                                                        <div class="icon">
+                                                            <?= UseIcon("plus-thin") ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="main-table-body main-table-requests">
+                                            <?= CreateTable([
+                                                "content" => $SECTION_SUBJECT_HEADER_BODY,
+                                                "data" => $subjects,
+                                                "id" => "section_subject_id"
+                                            ]) ?>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+
                 </div>
                 <div class="popup-footer">
                     <div class="form-group-container submit-group">
