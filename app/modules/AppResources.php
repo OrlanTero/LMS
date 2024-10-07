@@ -89,3 +89,13 @@ $SECTION_SUBJECT_HEADER_BODY = [
         "value" =>  "displayName"
     ], "schedule_label"]
 ];
+
+$STUDENTS_IN_CLASSES_HEADER_BODY = [
+    "header" => ["No","Student Name", "Gender"],
+    "body" => ["no","displayName","gender"]
+];
+
+$SUBJECTS_IN_CLASSES_HEADER_BODY = [
+    "header" => ["No","Subject", "Schedule"],
+    "body" => ["no","subject_name","schedule_label"]
+];

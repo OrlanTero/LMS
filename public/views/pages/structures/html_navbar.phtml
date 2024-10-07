@@ -107,8 +107,13 @@ $STAFF = array(
 
 $ADMIN = array(
     [
-        "text" => "Home",
+        "text" => "Dashboard",
         "path" => '/',
+        "icon" => UseIcon("chart-bar-thin")
+    ],
+    [
+        "text" => "News Feed",
+        "path" => '/newsfeed',
         "icon" => UseIcon("chart-bar-thin")
     ],
     [
@@ -240,8 +245,13 @@ $ADMIN = array(
 
 $STUDENT = array(
     [
-        "text" => "Home",
+        "text" => "Dashboard",
         "path" => '/',
+        "icon" => UseIcon("chart-bar-thin")
+    ],
+    [
+        "text" => "News Feed",
+        "path" => '/newsfeed',
         "icon" => UseIcon("chart-bar-thin")
     ],
     [
@@ -282,11 +292,6 @@ $STUDENT = array(
                 "icon" => UseIcon("circles-four-thin")
             ],
             [
-                "text" => "News & Announcements",
-                "path" => '/maintenance/news_and_announcements',
-                "icon" => UseIcon("circles-four-thin")
-            ],
-            [
                 "text" => "Slot 1",
                 "path" => '/maintenance/slot1',
                 "icon" => UseIcon("toggle-left-thin")
@@ -300,17 +305,24 @@ $STUDENT = array(
     ],
 );
 
+$isProfessor =  $SESSION->user_type == 2 && !empty($SESSION->getAsProfessor());
+
 $FACULTY = array(
     [
-        "text" => "Home",
+        "text" => "Dashboard",
         "path" => '/',
         "icon" => UseIcon("chart-bar-thin")
     ],
     [
+        "text" => "News Feed",
+        "path" => '/newsfeed',
+        "icon" => UseIcon("chart-bar-thin")
+    ],
+    ($isProfessor ? [
         "text" => "My Classes",
         "path" => '/me/classes',
         "icon" => UseIcon("book-bookmark-thin")
-    ],
+    ]: []),
     [
         "text" => "Students",
         "path" => '/students',
@@ -326,19 +338,8 @@ $FACULTY = array(
                 "path" => '/students/search_students',
                 "icon" => UseIcon("book-bookmark-thin")
             ],
-            [
-                "text" => "Classrooms",
-                "path" => '/students/classrooms',
-                "icon" => UseIcon("eye-thin")
-            ],
-            [
-                "text" => "Groups",
-                "path" => '/students/groups',
-                "icon" => UseIcon("eye-thin")
-            ],
         ]
     ],
-
     [
         "text" => "Events & Announcements",
         "path" => '/maintenance',
@@ -347,11 +348,6 @@ $FACULTY = array(
             [
                 "text" => "Events",
                 "path" => '/maintenance/events',
-                "icon" => UseIcon("circles-four-thin")
-            ],
-            [
-                "text" => "News & Announcements",
-                "path" => '/maintenance/news_and_announcements',
                 "icon" => UseIcon("circles-four-thin")
             ],
             [
@@ -370,8 +366,13 @@ $FACULTY = array(
 
 $SUPERADMIN = array(
     [
-        "text" => "Home",
+        "text" => "Dashboard",
         "path" => '/',
+        "icon" => UseIcon("chart-bar-thin")
+    ],
+    [
+        "text" => "News Feed",
+        "path" => '/newsfeed',
         "icon" => UseIcon("chart-bar-thin")
     ],
     [
@@ -389,16 +390,6 @@ $SUPERADMIN = array(
                 "path" => '/students/search_students',
                 "icon" => UseIcon("book-bookmark-thin")
             ],
-            [
-                "text" => "Classrooms",
-                "path" => '/students/classrooms',
-                "icon" => UseIcon("eye-thin")
-            ],
-            [
-                "text" => "Groups",
-                "path" => '/students/groups',
-                "icon" => UseIcon("eye-thin")
-            ],
         ]
     ],
     [
@@ -415,16 +406,6 @@ $SUPERADMIN = array(
                 "text" => "Staffs",
                 "path" => '/faculty/staffs',
                 "icon" => UseIcon("shopping-cart-thin")
-            ],
-            [
-                "text" => "Assignments",
-                "path" => '/faculty/assignments',
-                "icon" => UseIcon("person-thin")
-            ],
-            [
-                "text" => "Schedule Manager",
-                "path" => '/faculty/schedule_manager',
-                "icon" => UseIcon("truck-thin")
             ],
         ]
     ],
@@ -491,11 +472,6 @@ $SUPERADMIN = array(
                 "icon" => UseIcon("circles-four-thin")
             ],
             [
-                "text" => "News & Announcements",
-                "path" => '/maintenance/news_and_announcements',
-                "icon" => UseIcon("circles-four-thin")
-            ],
-            [
                 "text" => "Slot 1",
                 "path" => '/maintenance/slot1',
                 "icon" => UseIcon("toggle-left-thin")
@@ -542,56 +518,58 @@ $NAVLINKS = $ALL[$SESSION->user_type - 1];
     <div class="nav-body">
         <div class="nav-link-items">
             <?php foreach ($NAVLINKS as $link): ?>
-                <?php
-                if ($this->view_path === "/") {
-                    $match = $this->view_path === $link['path'];
-                } else {
-                    $match = '/' . $this->view_path === $link['path'];
-                }
-                ?>
-                <?php if (isset($link['sub-content'])): ?>
-                    <a>
+                <?php if(!empty($link)): ?>
+            <?php
+            if ($this->view_path === "/") {
+                $match = $this->view_path === $link['path'];
+            } else {
+                $match = '/' . $this->view_path === $link['path'];
+            }
+            ?>
+            <?php if (isset($link['sub-content'])): ?>
+            <a>
                 <?php else: ?>
                     <a href="<?= $link['path'] ?>">
-                <?php endif; ?>
-                    <div class="nav-link <?= $match ? 'active' : '' ?>" data-path="<?= $link['path'] ?>">
-                        <div class="main">
-                            <div class="icon">
+                        <?php endif; ?>
+                        <div class="nav-link <?= $match ? 'active' : '' ?>" data-path="<?= $link['path'] ?>">
+                            <div class="main">
+                                <div class="icon">
                                     <?= $link['icon'] ?? '' ?>
                                 </div>
-                            <div class="text">
-                                <span>
-                                    <?= $link['text'] ?>
-                                </span>
+                                <div class="text">
+                                    <span>
+                                        <?= $link['text'] ?>
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                        <?php if (isset($link['sub-content'])): ?>
-                            <div class="sub-content" data-path="<?= $link['path'] ?>">
-                                <?php foreach ($link['sub-content'] as $item): ?>
-                                    <?php
+                            <?php if (isset($link['sub-content'])): ?>
+                                <div class="sub-content" data-path="<?= $link['path'] ?>">
+                                    <?php foreach ($link['sub-content'] as $item): ?>
+                                        <?php
                                         if ($this->view_path === "/") {
                                             $match = $this->view_path === $item['path'];
                                         } else {
                                             $match = '/' . $this->view_path === $item['path'];
                                         }
-                                    ?>
-                                    <a href="<?= $item['path'] ?>">
-                                        <div class="sub-link <?= $match ? 'active' : '' ?>">
-                                            <div class="icon">
-                                                <?= $item['icon'] ?? '' ?>
+                                        ?>
+                                        <a href="<?= $item['path'] ?>">
+                                            <div class="sub-link <?= $match ? 'active' : '' ?>">
+                                                <div class="icon">
+                                                    <?= $item['icon'] ?? '' ?>
+                                                </div>
+                                                <div class="text">
+                                                <span>
+                                                    <?= $item['text'] ?>
+                                                </span>
+                                                </div>
                                             </div>
-                                            <div class="text">
-                                            <span>
-                                                <?= $item['text'] ?>
-                                            </span>
-                                            </div>
-                                        </div>
-                                    </a>
-                                <?php endforeach ?>
-                            </div>
-                        <?php endif ?>
-                    </div>
-                </a>
+                                        </a>
+                                    <?php endforeach ?>
+                                </div>
+                            <?php endif ?>
+                        </div>
+                    </a>
+                <?php endif ?>
             <?php
             endforeach; ?>
         </div>

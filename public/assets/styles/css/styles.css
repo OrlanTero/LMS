@@ -2357,6 +2357,193 @@ table.no-check-box td:first-child, table.no-check-box th:first-child {
   color: #232F35;
 }
 
+.main-two-flex-container {
+  padding: 20px;
+  display: flex;
+}
+.main-two-flex-container .main-flex-container {
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  border-radius: 15px;
+  margin: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+  min-height: 400px;
+  padding: 20px;
+}
+.main-two-flex-container .main-flex-container.column-flex {
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+}
+.main-two-flex-container .main-flex-container.column-flex .container-head, .main-two-flex-container .main-flex-container.column-flex .container-body {
+  width: 100%;
+  height: 100%;
+}
+.main-two-flex-container .main-flex-container .title {
+  padding: 10px;
+}
+.main-two-flex-container .main-flex-container .title h2 {
+  color: #232F35;
+}
+
+.newsfeed-parent {
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  justify-content: center;
+}
+.newsfeed-parent .newsfeed-flex {
+  display: flex;
+  gap: 10px;
+}
+
+.newsfeed-main-container {
+  width: 600px;
+  min-height: 85%;
+  padding: 20px;
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.newsfeed-announcement {
+  padding: 20px;
+  width: 300px;
+  height: 800px;
+  border-radius: 6px;
+  position: sticky !important;
+  top: 30px;
+}
+
+.post-container {
+  padding: 20px;
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  margin: 20px 10px;
+}
+.post-container .post-head {
+  display: flex;
+}
+.post-container .post-head .photo {
+  margin-right: 10px;
+}
+.post-container .post-head .photo .image {
+  width: 50px;
+  height: 50px;
+  border-radius: 4px;
+  background: #ebeeee;
+}
+.post-container .post-head .texts {
+  color: #232F35;
+}
+.post-container .post-head .texts p.primary {
+  font-size: 18px;
+  font-weight: 600;
+}
+.post-container .post-head .texts p.secondary {
+  font-size: 14px;
+}
+.post-container .post-body {
+  padding: 10px 0;
+  font-size: 13px;
+  line-height: 18px;
+}
+.post-container .post-footer {
+  padding: 10px 0;
+}
+.post-container .post-footer .reaction-container {
+  display: flex;
+  align-items: center;
+}
+.post-container .post-footer .reaction-container .date-content {
+  padding: 10px 0;
+}
+.post-container .post-footer .reaction-container .date-content small {
+  color: #232F35;
+}
+.post-container .post-footer .reaction-container .reaction-content {
+  margin-left: 20px;
+}
+.post-container .post-footer .reaction-container .reaction-content .text-button .text span {
+  font-size: 13px !important;
+}
+.post-container .post-footer .reaction-content-result {
+  padding: 10px 20px;
+  font-size: 13px;
+  color: #232F35;
+  border-radius: 4px;
+  background: lightgray;
+}
+
+.post-creator-container {
+  padding: 20px;
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  margin: 20px 10px;
+}
+.post-creator-container .creator-head {
+  display: flex;
+}
+.post-creator-container .creator-head .photo {
+  margin-right: 10px;
+}
+.post-creator-container .creator-head .photo .image {
+  width: 50px;
+  height: 50px;
+  border-radius: 4px;
+  background: #ebeeee;
+}
+.post-creator-container .creator-head .photo .image img {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+}
+.post-creator-container .creator-head .texts {
+  color: #232F35;
+}
+.post-creator-container .creator-head .texts p.primary {
+  font-size: 18px;
+  font-weight: 600;
+}
+.post-creator-container .creator-head .texts p.secondary {
+  font-size: 14px;
+}
+.post-creator-container .creator-body {
+  padding: 10px 0;
+}
+.post-creator-container .creator-body .textarea-container {
+  border-radius: 4px;
+  background: #F0F2F5;
+  padding: 20px;
+  height: 100px;
+  cursor: pointer;
+}
+
+.main-creator .post-content {
+  width: 100%;
+  max-height: 500px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+.main-creator .creator-upload {
+  width: 100%;
+  min-height: 200px;
+}
+.main-creator .creator-upload #drop_zone {
+  width: 100%;
+  height: 100%;
+  background: #f0f2f5;
+  border-radius: 4px;
+  min-height: 200px;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+}
+
 .second-navbar {
   width: 100%;
   height: 60px;

@@ -134,3 +134,157 @@
   padding: 0px 40px
   h2
     color: $textgray
+
+.main-two-flex-container
+  padding: 20px
+  display: flex
+  .main-flex-container
+    width: 100%
+    height: 100%
+    background: #ffffff
+    border-radius: 15px
+    margin: 10px
+    box-shadow: $global_boxshadow
+    min-height: 400px
+    padding: 20px
+    &.column-flex
+      display: flex
+      justify-content: center
+      flex-direction: row
+      .container-head, .container-body
+        width: 100%
+        height: 100%
+
+    .title
+      padding: 10px
+      h2
+        color: $textgray
+.newsfeed-parent
+  width: 100%
+  min-height: 100%
+  display: flex
+  justify-content: center
+  .newsfeed-flex
+    display: flex
+    gap: 10px
+.newsfeed-main-container
+  width: 600px
+  min-height: 85%
+  padding: 20px
+  border-radius: 6px
+  background: #ffffff
+  box-shadow: $global_boxshadow
+.newsfeed-announcement
+  padding: 20px
+  width: 300px
+  height: 800px
+  border-radius: 6px
+  //background: #ffffff
+  //box-shadow: $global_boxshadow
+  position: sticky !important
+  top: 30px
+
+.post-container
+  padding: 20px
+  border-radius: 6px
+  background: #ffffff
+  box-shadow: $component_boxshadow
+  margin: 20px 10px
+  .post-head
+    display: flex
+    .photo
+      margin-right: 10px
+      .image
+        width: 50px
+        height: 50px
+        border-radius: 4px
+        background: #ebeeee
+    .texts
+      color: $textgray
+
+      p.primary
+        font-size: 18px
+        font-weight: 600
+      p.secondary
+        font-size: 14px
+  .post-body
+    padding: 10px 0
+    font-size: 13px
+    line-height: 18px
+  .post-footer
+    padding: 10px 0
+    .reaction-container
+      display: flex
+      align-items: center
+      .date-content
+        padding: 10px 0
+        small
+          color: $textgray
+      .reaction-content
+        margin-left: 20px
+        .text-button
+          .text span
+            font-size: 13px !important
+    .reaction-content-result
+      padding: 10px 20px
+      font-size: 13px
+      color: $textgray
+      border-radius: 4px
+      background: lightgray
+
+.post-creator-container
+  padding: 20px
+  border-radius: 6px
+  background: #ffffff
+  box-shadow: $component_boxshadow
+  margin: 20px 10px
+  .creator-head
+    display: flex
+    .photo
+      margin-right: 10px
+      .image
+        width: 50px
+        height: 50px
+        border-radius: 4px
+        background: #ebeeee
+        img
+          width: 100%
+          height: 100%
+          border-radius: 4px
+    .texts
+      color: $textgray
+
+      p.primary
+        font-size: 18px
+        font-weight: 600
+      p.secondary
+        font-size: 14px
+  .creator-body
+    padding: 10px 0
+    .textarea-container
+      border-radius: 4px
+      background: #F0F2F5
+      padding: 20px
+      height: 100px
+      cursor: pointer
+
+
+.main-creator
+  .post-content
+    width: 100%
+    max-height: 500px !important
+    overflow-y: auto !important
+    overflow-x: hidden !important
+  .creator-upload
+    width: 100%
+    min-height: 200px
+    #drop_zone
+      width: 100%
+      height: 100%
+      background: #f0f2f5
+      border-radius: 4px
+      min-height: 200px
+      display: flex
+      justify-content: center
+      align-content: center
+      align-items: center

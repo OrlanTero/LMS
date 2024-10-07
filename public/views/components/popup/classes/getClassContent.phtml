@@ -1,0 +1,83 @@
+
+<?php
+
+global $APPLICATION, $STUDENTS_IN_CLASSES_HEADER_BODY, $SUBJECTS_IN_CLASSES_HEADER_BODY;
+
+$id = $_POST['id'];
+
+$section = $APPLICATION->FUNCTIONS->SECTION_CONTROL->get($id, true);
+
+$RECORDS = $APPLICATION->FUNCTIONS->SECTION_STUDENT_CONTROL->filterRecords(['section_id' => $section->section_id], true);
+
+$RECORDS = array_map(function ($record)  {
+    return [
+        "displayName" => $record->displayName,
+        "gender" => $record->student->gender == 0 ? "Male" : "Female",
+        "user_id" => $record->user_id
+    ];
+}, $RECORDS);
+
+$SUBJECTS = array_map(function ($record){
+    $record->subject_name = $record->subject->subject_name;
+    return $record;
+}, $section->subjects);
+?>
+
+<div class="main-body-body">
+    <div class="data-table-content">
+        <div class="main-table-container table-component">
+            <div class="main-table-header">
+                <div class="table-header">
+                    <div class="left">
+                        <div class="title">
+                            <h2>Section <?= $section->section_name ?></h2>
+                        </div>
+                    </div>
+                    <div class="center">
+                        <div class="search-engine-parent full-width">
+                            <div class="search-engine">
+                                <div class="icon">
+                                    <?= UseIcon("magnifying-glass-thin") ?>
+                                </div>
+                                <input type="text" name="search-records" placeholder="Search Records...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="right"></div>
+                </div>
+            </div>
+            <div class="main-table-body">
+                <div class="main-two-flex-container">
+                    <div class="main-flex-container">
+                        <div class="container-head">
+                            <div class="title">
+                                <h2>Students</h2>
+                            </div>
+                        </div>
+                        <div class="container-content">
+                            <?= CreateTable([
+                                "content" => $STUDENTS_IN_CLASSES_HEADER_BODY,
+                                "data" => $RECORDS,
+                                "id" => "user_id"
+                            ]) ?>
+                        </div>
+                    </div>
+                    <div class="main-flex-container">
+                        <div class="container-head">
+                            <div class="title">
+                                <h2>Subjects</h2>
+                            </div>
+                        </div>
+                        <div class="container-content">
+                            <?= CreateTable([
+                                "content" => $SUBJECTS_IN_CLASSES_HEADER_BODY,
+                                "data" => $SUBJECTS,
+                                "id" => "section_subject_id"
+                            ]) ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
