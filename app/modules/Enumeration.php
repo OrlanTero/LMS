@@ -51,6 +51,14 @@ enum ActiveTypes : int
 
 }
 
+enum PostTypes : int
+{
+    case EVENT = 1;
+    case POST = 2;
+    case ANNOUNCEMENT = 3;
+
+}
+
 enum GenderType : string
 {
     case MALE = "Male";

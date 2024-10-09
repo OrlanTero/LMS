@@ -1,5 +1,7 @@
 import Popup from "../../../classes/components/Popup.js";
-import {append, CreateElement} from "../../../modules/component/Tool.js";
+import {append, CreateElement, ListenToForm, ManageComboBoxes} from "../../../modules/component/Tool.js";
+import {AddRecord, UploadFileFromFile} from "../../../modules/app/SystemFunctions";
+import {NewNotification, NotificationType} from "../../../classes/components/NotificationPopup";
 
 const TARGET = "posts";
 const MINI_TARGET = "post";
@@ -28,6 +30,21 @@ function ListenToDropZone(drop_zone, callback) {
 }
 
 
+function PublishPost(data) {
+    return new Promise((resolve) => {
+        AddRecord(TARGET, {data: JSON.stringify(data)}).then((res) => {
+            popup.Remove();
+
+            NewNotification({
+                title: res.code === 200 ? 'Success' : 'Failed',
+                message: res.code === 200 ? 'Successfully Added' : 'Task Failed to perform!'
+            }, 3000, res.code === 200 ? NotificationType.SUCCESS : NotificationType.ERROR)
+
+            UpdateData()
+        })
+    })
+}
+
 function CreateNewPost() {
 
     // console.log(Macy)
@@ -41,10 +58,14 @@ function CreateNewPost() {
         const editor = popup.ELEMENT.querySelector("#editor");
         const drop_zone = popup.ELEMENT.querySelector("#drop_zone");
         const post_gallery = popup.ELEMENT.querySelector(".post-gallery");
+        const form = popup.ELEMENT.querySelector("form.form-control");
+        const post_type = popup.ELEMENT.querySelector(".post_type");
 
-        const wall = new Freewall(".gg-box");
+        const sp = new Splide(post_gallery);
 
-        wall.fitWidth();
+        const uploadedFiles = [];
+
+        sp.mount();
 
         ClassicEditor
             .create( editor )
@@ -53,19 +74,37 @@ function CreateNewPost() {
             } );
 
         ListenToDropZone(drop_zone, function (files) {
+
+            if (!post_gallery.classList.contains("show")) {
+                post_gallery.classList.add("show");
+            }
+
             files.forEach((file) => {
-                append(gg, CreateElement({
+                sp.add(CreateElement({
                     el:"IMG",
+                    className:"splide__slide",
                     attr: {
                         src: URL.createObjectURL(file)
                     }
                 }))
+
+                uploadedFiles.push(file);
+            });
+        })
+        
+        ListenToForm(form, function (data) {
+            return new Promise((resolve, reject) => {
+
+                const files = uploadedFiles.map(async (file) => UploadFileFromFile(file))
+
+                PublishPost({
+                    content: data.content,
+                    post_type,
+                }).then(resolve);
             })
-
-            wall.fitWidth();
-
         })
 
+        ManageComboBoxes();
     }));
 }
 
