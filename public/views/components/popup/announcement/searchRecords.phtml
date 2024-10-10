@@ -1,0 +1,16 @@
+<?php
+
+global $APPLICATION, $COURSE_HEADER_BODY;
+
+$control = $APPLICATION->FUNCTIONS->COURSE_CONTROL;
+$search = $_POST['search'];
+
+$RECORDS = $control->searchRecords($search,true);
+
+?>
+
+<?= CreateTable([
+    "content" => $COURSE_HEADER_BODY,
+    "data" => $RECORDS,
+    "id" => "course_id"
+]) ?>

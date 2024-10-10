@@ -2,6 +2,7 @@
 
 namespace Application\controllers\app;
 
+use Application\controllers\system\AnnouncementControl;
 use Application\controllers\system\ClassroomControl;
 use Application\controllers\system\CourseControl;
 use Application\controllers\system\DepartmentControl;
@@ -57,6 +58,8 @@ class GlobalFunctions
 
     public $POST_MEDIA_CONTROL;
 
+    public $ANNOUNCEMENT_CONTROL;
+
     public function __construct($SESSION)
     {
         global $CONNECTION;
@@ -100,5 +103,7 @@ class GlobalFunctions
         $this->POSTS_CONTROL = new PostsControl();
 
         $this->POST_MEDIA_CONTROL = new PostMediaControl();
+
+        $this->ANNOUNCEMENT_CONTROL = new AnnouncementControl();;
     }
 }

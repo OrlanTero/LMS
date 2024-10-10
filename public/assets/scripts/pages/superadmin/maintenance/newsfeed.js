@@ -47,6 +47,18 @@ function PublishPost(data) {
     })
 }
 
+function PublishAnnouncement(data) {
+    return new Promise((resolve) => {
+        AddRecord("announcements", {data: JSON.stringify(data)}).then((res) => {
+            console.log(data)
+            // NewNotification({
+            //     title: res.code === 200 ? 'Success' : 'Failed',
+            //     message: res.code === 200 ? 'Successfully Added' : 'Task Failed to perform!'
+            // }, 3000, res.code === 200 ? NotificationType.SUCCESS : NotificationType.ERROR)
+        })
+    })
+}
+
 function CreateNewPost() {
 
     // console.log(Macy)
@@ -103,7 +115,7 @@ function CreateNewPost() {
                         content: data.content,
                         post_type: GetComboValue(post_type).value,
                         files: fff
-                    }).then(resolve);
+                    }).then(resolve).finally(() => popup.Remove());
                 })
 
 
@@ -114,8 +126,33 @@ function CreateNewPost() {
     }));
 }
 
+function CreateNewAnnouncement() {
+    const popup = new Popup(`announcement/add_new_announcement`, null, {
+        backgroundDismiss: false,
+    });
+
+    popup.Create().then(((pop) => {
+        popup.Show();
+
+        const editor = popup.ELEMENT.querySelector("#editor");
+        const form = popup.ELEMENT.querySelector("form.form-control");
+
+        ClassicEditor
+            .create( editor )
+            .catch( error => {
+                console.error( error );
+            } );
+
+        ListenToForm(form, function (data) {
+            PublishAnnouncement(data);
+        })
+    }));
+}
+
 function ManageAllPosts() {
     const posts = document.querySelectorAll(".post-container");
+    const creator = document.querySelector(".announcement-creator");
+    // const announcement 
 
     for (const post of posts) {
         const splide = post.querySelector(".splide.user-post-gallery");
@@ -124,6 +161,10 @@ function ManageAllPosts() {
 
         ss.mount();
     }
+
+    creator.addEventListener("click", function () {
+        CreateNewAnnouncement();
+    })
 }
 
 

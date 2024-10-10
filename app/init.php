@@ -25,6 +25,7 @@ include_once "abstract/ScheduleAbstract.php";
 include_once "abstract/ScheduleItemAbstract.php";
 include_once "abstract/PostAbstract.php";
 include_once "abstract/PostMediaAbstract.php";
+include_once "abstract/AnnouncementAbstract.php";
 
 // ALL MODELS
 include_once "models/User.php";
@@ -43,6 +44,7 @@ include_once "models/Schedule.php";
 include_once "models/ScheduleItem.php";
 include_once "models/Post.php";
 include_once "models/PostMedia.php";
+include_once "models/Announcement.php";
 
 // APP CONTROLLERS
 include_once "controllers/app/Response.php";
@@ -65,6 +67,7 @@ include_once "controllers/system/ScheduleControl.php";
 include_once "controllers/system/ScheduleItemControl.php";
 include_once "controllers/system/PostsControl.php";
 include_once "controllers/system/PostMediaControl.php";
+include_once "controllers/system/AnnouncementControl.php";
 
 //include_once "controllers/app/SMSControl.php";
 
