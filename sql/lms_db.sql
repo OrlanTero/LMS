@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 10, 2024 at 08:09 AM
+-- Generation Time: Oct 10, 2024 at 09:11 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,29 @@ SET time_zone = "+00:00";
 --
 -- Database: `lms_db`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `announcements`
+--
+
+CREATE TABLE `announcements` (
+  `announcement_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `for_view` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `content` text NOT NULL,
+  `status` int(11) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `announcements`
+--
+
+INSERT INTO `announcements` (`announcement_id`, `user_id`, `for_view`, `title`, `content`, `status`, `date_created`) VALUES
+(1, 3, 0, 'Annoncement Title', '<p>This is the example of a announcement</p>', 0, '2024-10-10 07:06:17');
 
 -- --------------------------------------------------------
 
@@ -367,6 +390,12 @@ INSERT INTO `users` (`user_id`, `no`, `email`, `password`, `displayName`, `first
 --
 
 --
+-- Indexes for table `announcements`
+--
+ALTER TABLE `announcements`
+  ADD PRIMARY KEY (`announcement_id`);
+
+--
 -- Indexes for table `classrooms`
 --
 ALTER TABLE `classrooms`
@@ -459,6 +488,12 @@ ALTER TABLE `users`
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `announcements`
+--
+ALTER TABLE `announcements`
+  MODIFY `announcement_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `classrooms`
