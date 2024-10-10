@@ -2435,6 +2435,11 @@ table.no-check-box td:first-child, table.no-check-box th:first-child {
   border-radius: 4px;
   background: #ebeeee;
 }
+.post-container .post-head .photo .image img {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+}
 .post-container .post-head .texts {
   color: #232F35;
 }
@@ -2447,8 +2452,11 @@ table.no-check-box td:first-child, table.no-check-box th:first-child {
 }
 .post-container .post-body {
   padding: 10px 0;
-  font-size: 13px;
+  font-size: 16px;
   line-height: 18px;
+}
+.post-container .post-body .post-content {
+  padding: 20px 10px;
 }
 .post-container .post-footer {
   padding: 10px 0;
@@ -2475,6 +2483,10 @@ table.no-check-box td:first-child, table.no-check-box th:first-child {
   color: #232F35;
   border-radius: 4px;
   background: lightgray;
+}
+.post-container .post-media .post-img {
+  width: 100% !important;
+  height: auto !important;
 }
 
 .post-creator-container {

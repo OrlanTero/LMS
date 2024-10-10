@@ -20,7 +20,29 @@ class PostsControl extends ControlDefaultFunctions
 
     public function add($data)
     {
-        return null;
+        global $SESSION, $APPLICATION;
+
+        $control = $APPLICATION->FUNCTIONS->POST_MEDIA_CONTROL;
+
+        $data['user_id'] = $SESSION->user_id;
+
+        $files = $data['files'];
+
+        unset($data['files']);
+
+        $add = $this->addRecord($data);
+
+        if (!empty($files)) {
+            foreach ($files as $file) {
+                $control->addRecord([
+                    "post_id" => $add->body['id'],
+                    "filepath" => $file
+                ]);
+            }
+        }
+
+
+        return  $add;
     }
 
     public function update($id, $data)

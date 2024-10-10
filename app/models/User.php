@@ -26,7 +26,7 @@ class User extends UserAbstract
         global $ALL_USER_TYPES;
 
         $EXTENSION = 'jpg';
-        $CHARACTER_AVATAR_PATH = '/public/assets/media/avatar/' . $EXTENSION . '/';
+        $CHARACTER_AVATAR_PATH = '/public/assets/media/avatar/' . '/';
 
         if (!$this->displayName) {
             $this->displayName = $this->firstname . ' ' . $this->lastname;

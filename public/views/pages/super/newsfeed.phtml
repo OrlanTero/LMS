@@ -3,7 +3,10 @@
 global $APPLICATION, $USER_HEADER_BODY, $SESSION;
 
 $control = $APPLICATION->FUNCTIONS->USER_CONTROL;
+$postControl = $APPLICATION->FUNCTIONS->POSTS_CONTROL;
 $RECORDS = $control->filterRecords(['user_type' => 2],true);
+
+$POSTS = $postControl->getLatestRecords(false,true);
 
 ?>
 <?php include "public/views/pages/structures/html_headings.phtml" ?>
@@ -66,20 +69,33 @@ $RECORDS = $control->filterRecords(['user_type' => 2],true);
                        </div>
 
 
-                       <?php for ($i = 0; $i < 5; $i++): ?>
+                       <?php foreach ($POSTS as $POST): ?>
                            <div class="post-container">
                                <div class="post-head">
                                    <div class="photo">
-                                       <div class="image"></div>
+                                       <div class="image">
+                                           <img src="<?= $POST->author->photoURL ?>" alt="">
+                                       </div>
                                    </div>
                                    <div class="texts">
-                                       <p class="primary">Name Primary</p>
-                                       <p class="secondary">Description Secondary</p>
+                                       <p class="primary"><?= $POST->author->displayName ?></p>
+                                       <p class="secondary"><?= $POST->date_created ?></p>
                                    </div>
                                </div>
                                <div class="post-body">
                                    <div class="post-content">
-                                       Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto eos eveniet, fuga fugit illo, incidunt iste itaque laboriosam nam nesciunt nostrum reiciendis vitae voluptate. Amet animi autem commodi, cupiditate deserunt dolorem doloremque dolores earum eligendi explicabo, illo impedit incidunt ipsa magni minus molestiae perspiciatis porro provident quia quibusdam quos reprehenderit saepe sapiente sed, sequi sint tempora voluptatibus. Harum molestiae optio voluptatem! Aperiam architecto assumenda beatae consectetur corporis deserunt distinctio dolore ducimus et harum hic illum ipsam minus odio officiis, pariatur quae quasi quisquam quos recusandae reiciendis, suscipit vero voluptatem. Modi provident quia suscipit veniam vitae! Aut cum deserunt excepturi voluptatum.
+                                      <?= $POST->content ?>
+                                   </div>
+                                   <div class="post-media">
+                                       <section class="splide user-post-gallery">
+                                           <div class="splide__track">
+                                               <ul class="splide__list">
+                                                   <?php foreach ($POST->medias as $media): ?>
+                                                       <img src="/<?= $media->filepath ?>" class="post-img" alt="">
+                                                   <?php endforeach; ?>
+                                               </ul>
+                                           </div>
+                                       </section>
                                    </div>
                                </div>
                                <div class="post-footer">
@@ -100,7 +116,44 @@ $RECORDS = $control->filterRecords(['user_type' => 2],true);
                                    </div>
                                </div>
                            </div>
-                       <?php endfor ?>
+                       <?php endforeach ?>
+
+
+<!--                       --><?php //for ($i = 0; $i < 5; $i++): ?>
+<!--                           <div class="post-container">-->
+<!--                               <div class="post-head">-->
+<!--                                   <div class="photo">-->
+<!--                                       <div class="image"></div>-->
+<!--                                   </div>-->
+<!--                                   <div class="texts">-->
+<!--                                       <p class="primary">Name Primary</p>-->
+<!--                                       <p class="secondary">Description Secondary</p>-->
+<!--                                   </div>-->
+<!--                               </div>-->
+<!--                               <div class="post-body">-->
+<!--                                   <div class="post-content">-->
+<!--                                       Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto eos eveniet, fuga fugit illo, incidunt iste itaque laboriosam nam nesciunt nostrum reiciendis vitae voluptate. Amet animi autem commodi, cupiditate deserunt dolorem doloremque dolores earum eligendi explicabo, illo impedit incidunt ipsa magni minus molestiae perspiciatis porro provident quia quibusdam quos reprehenderit saepe sapiente sed, sequi sint tempora voluptatibus. Harum molestiae optio voluptatem! Aperiam architecto assumenda beatae consectetur corporis deserunt distinctio dolore ducimus et harum hic illum ipsam minus odio officiis, pariatur quae quasi quisquam quos recusandae reiciendis, suscipit vero voluptatem. Modi provident quia suscipit veniam vitae! Aut cum deserunt excepturi voluptatum.-->
+<!--                                   </div>-->
+<!--                               </div>-->
+<!--                               <div class="post-footer">-->
+<!--                                   <div class="reaction-container">-->
+<!--                                       <div class="date-content">-->
+<!--                                           <small>Thu, Apr 11, 2024 at 11:55 am</small>-->
+<!--                                       </div>-->
+<!--                                       <div class="reaction-content">-->
+<!--                                           <div class="text-button">-->
+<!--                                               <div class="text">-->
+<!--                                                   <span>Like</span>-->
+<!--                                               </div>-->
+<!--                                           </div>-->
+<!--                                       </div>-->
+<!--                                   </div>-->
+<!--                                   <div class="reaction-content-result">-->
+<!--                                       <span>13 People like this</span>-->
+<!--                                   </div>-->
+<!--                               </div>-->
+<!--                           </div>-->
+<!--                       --><?php //endfor ?>
 
                    </div>
                    <div class="newsfeed-announcement">

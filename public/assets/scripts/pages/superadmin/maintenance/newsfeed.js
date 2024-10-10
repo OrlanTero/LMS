@@ -1,7 +1,14 @@
 import Popup from "../../../classes/components/Popup.js";
-import {append, CreateElement, ListenToForm, ManageComboBoxes} from "../../../modules/component/Tool.js";
-import {AddRecord, UploadFileFromFile} from "../../../modules/app/SystemFunctions";
-import {NewNotification, NotificationType} from "../../../classes/components/NotificationPopup";
+import {
+    append,
+    CreateElement,
+    GetComboValue,
+    ListenToForm,
+    MakeID,
+    ManageComboBoxes
+} from "../../../modules/component/Tool.js";
+import {AddRecord, UploadFileFromFile} from "../../../modules/app/SystemFunctions.js";
+import {NewNotification, NotificationType} from "../../../classes/components/NotificationPopup.js";
 
 const TARGET = "posts";
 const MINI_TARGET = "post";
@@ -29,18 +36,13 @@ function ListenToDropZone(drop_zone, callback) {
     }
 }
 
-
 function PublishPost(data) {
     return new Promise((resolve) => {
         AddRecord(TARGET, {data: JSON.stringify(data)}).then((res) => {
-            popup.Remove();
-
             NewNotification({
                 title: res.code === 200 ? 'Success' : 'Failed',
                 message: res.code === 200 ? 'Successfully Added' : 'Task Failed to perform!'
             }, 3000, res.code === 200 ? NotificationType.SUCCESS : NotificationType.ERROR)
-
-            UpdateData()
         })
     })
 }
@@ -94,19 +96,36 @@ function CreateNewPost() {
         
         ListenToForm(form, function (data) {
             return new Promise((resolve, reject) => {
+                Promise.all([...uploadedFiles].map(async (file) => {
+                    return await UploadFileFromFile(file, MakeID(), "public/assets/media/uploads/").then((res) => res.body.path);
+                })).then((fff) => {
+                    return PublishPost({
+                        content: data.content,
+                        post_type: GetComboValue(post_type).value,
+                        files: fff
+                    }).then(resolve);
+                })
 
-                const files = uploadedFiles.map(async (file) => UploadFileFromFile(file))
 
-                PublishPost({
-                    content: data.content,
-                    post_type,
-                }).then(resolve);
             })
         })
 
         ManageComboBoxes();
     }));
 }
+
+function ManageAllPosts() {
+    const posts = document.querySelectorAll(".post-container");
+
+    for (const post of posts) {
+        const splide = post.querySelector(".splide.user-post-gallery");
+
+        const ss = new Splide(splide);
+
+        ss.mount();
+    }
+}
+
 
 function Init() {
     const creator = document.querySelector(".post-creator-container");
@@ -115,6 +134,9 @@ function Init() {
     creatorTextArea.addEventListener("click", function () {
         CreateNewPost();
     })
+
+
+    ManageAllPosts();
 }
 
 document.addEventListener("DOMContentLoaded", Init);

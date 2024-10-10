@@ -190,6 +190,20 @@ class Routes
                     });
                 });
 
+                $KLEIN->with("/posts", function () use ($KLEIN, $APPLICATION) {
+                    $KLEIN->respond("POST", "/addRecord", function () use ($APPLICATION) {
+                        return json_encode($APPLICATION->FUNCTIONS->{"POSTS_CONTROL"}->add(json_decode($_POST["data"], true)));
+                    });
+
+                    $KLEIN->respond("POST", "/editRecord", function () use ($APPLICATION) {
+                        return json_encode($APPLICATION->FUNCTIONS->{"POSTS_CONTROL"}->editRecord(json_decode($_POST["data"], true)));
+                    });
+
+                    $KLEIN->respond("POST", "/removeRecords", function () use ($APPLICATION) {
+                        return json_encode($APPLICATION->FUNCTIONS->{"POSTS_CONTROL"}->removeRecords(json_decode($_POST["data"], true)));
+                    });
+                });
+
                 $ALL_SAME_FUNCTIONS = [
                     [
                         "path" => "/courses",

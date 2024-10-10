@@ -6,6 +6,7 @@ use Application\controllers\system\ClassroomControl;
 use Application\controllers\system\CourseControl;
 use Application\controllers\system\DepartmentControl;
 use Application\controllers\system\PostControl;
+use Application\controllers\system\PostMediaControl;
 use Application\controllers\system\PostsControl;
 use Application\controllers\system\ProfessorControl;
 use Application\controllers\system\ScheduleControl;
@@ -54,6 +55,8 @@ class GlobalFunctions
 
     public $POSTS_CONTROL;
 
+    public $POST_MEDIA_CONTROL;
+
     public function __construct($SESSION)
     {
         global $CONNECTION;
@@ -95,5 +98,7 @@ class GlobalFunctions
         $this->SCHEDULE_ITEM_CONTROL = new ScheduleItemControl();
 
         $this->POSTS_CONTROL = new PostsControl();
+
+        $this->POST_MEDIA_CONTROL = new PostMediaControl();
     }
 }

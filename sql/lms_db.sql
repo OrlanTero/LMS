@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 07, 2024 at 05:26 AM
--- Server version: 10.4.27-MariaDB
--- PHP Version: 8.1.12
+-- Generation Time: Oct 10, 2024 at 08:09 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -104,9 +104,54 @@ CREATE TABLE `email_verifications` (
 
 INSERT INTO `email_verifications` (`verification_id`, `user_id`, `verification`, `date_created`) VALUES
 (6, '1', '529649', '2024-09-22 21:34:47'),
-(8, '3', '844406', '2024-10-06 23:03:47'),
 (10, '5', '549966', '2024-10-07 02:33:15'),
-(11, '4', '903773', '2024-10-07 03:02:25');
+(11, '4', '903773', '2024-10-07 03:02:25'),
+(12, '3', '541943', '2024-10-10 05:15:42');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `posts`
+--
+
+CREATE TABLE `posts` (
+  `post_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `post_type` int(11) NOT NULL,
+  `content` text NOT NULL,
+  `status` int(11) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `posts`
+--
+
+INSERT INTO `posts` (`post_id`, `user_id`, `post_type`, `content`, `status`, `date_created`) VALUES
+(2, 3, 2, '<p>This is my Post</p>', 0, '2024-10-10 05:34:18'),
+(3, 3, 2, '<p>Hatdogggggggg</p>', 0, '2024-10-10 05:46:11');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `post_medias`
+--
+
+CREATE TABLE `post_medias` (
+  `post_medias` int(11) NOT NULL,
+  `post_id` int(11) NOT NULL,
+  `filepath` text NOT NULL,
+  `status` int(11) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `post_medias`
+--
+
+INSERT INTO `post_medias` (`post_medias`, `post_id`, `filepath`, `status`, `date_created`) VALUES
+(1, 2, 'public/assets/media/uploads/pngtree-rainbow-curves-abstract-colorful-background-image_2164067.jpg', 0, '2024-10-10 05:34:18'),
+(2, 3, 'public/assets/media/uploads/g.jpg', 0, '2024-10-10 05:46:11');
 
 -- --------------------------------------------------------
 
@@ -346,6 +391,18 @@ ALTER TABLE `email_verifications`
   ADD PRIMARY KEY (`verification_id`);
 
 --
+-- Indexes for table `posts`
+--
+ALTER TABLE `posts`
+  ADD PRIMARY KEY (`post_id`);
+
+--
+-- Indexes for table `post_medias`
+--
+ALTER TABLE `post_medias`
+  ADD PRIMARY KEY (`post_medias`);
+
+--
 -- Indexes for table `professors`
 --
 ALTER TABLE `professors`
@@ -425,7 +482,19 @@ ALTER TABLE `departments`
 -- AUTO_INCREMENT for table `email_verifications`
 --
 ALTER TABLE `email_verifications`
-  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT for table `posts`
+--
+ALTER TABLE `posts`
+  MODIFY `post_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `post_medias`
+--
+ALTER TABLE `post_medias`
+  MODIFY `post_medias` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `professors`
