@@ -66,7 +66,8 @@ class EmailControl
         $verification = random_int(100000, 999999);
         $subject = $altSubject != false ? $altSubject : "Dr. Yanga's Learning Management System";
         $body = "Your verification code for LMS Authentication  is: " . $verification;
-        $send = $this->sendTo($email, $subject, $body);
+        // $send = $this->sendTo($email, $subject, $body);
+        $send = true;
         return $send && $this->insertVerificationToUser($userID, $verification, $table);
     }
 

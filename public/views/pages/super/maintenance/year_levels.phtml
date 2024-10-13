@@ -42,7 +42,7 @@ $RECORDS = $control->filterRecords(['user_type' => 3],true);
             <div class="main-body-body">
                 <div class="data-bordered-container">
                     <div class="content">
-                        <div class="content-as-list">
+                        <div class="content-as-list" id="yearLevelsList">
                             <div class="list-item-container">
                                 <div class="left">
                                     <p>First Year</p>
@@ -51,7 +51,8 @@ $RECORDS = $control->filterRecords(['user_type' => 3],true);
                                 <div class="right">
                                     <?= CreateSwitch([
                                         "name"  => "first_year_level",
-                                        "value" => true
+                                        "value" => true,
+                                        "class" => "year-level-switch"
                                     ]) ?>
                                 </div>
                             </div>
@@ -63,7 +64,8 @@ $RECORDS = $control->filterRecords(['user_type' => 3],true);
                                 <div class="right">
                                     <?= CreateSwitch([
                                         "name"  => "second_year_level",
-                                        "value" => true
+                                        "value" => true,
+                                        "class" => "year-level-switch"
                                     ]) ?>
                                 </div>
                             </div>
@@ -75,7 +77,8 @@ $RECORDS = $control->filterRecords(['user_type' => 3],true);
                                 <div class="right">
                                     <?= CreateSwitch([
                                         "name"  => "third_year_level",
-                                        "value" => true
+                                        "value" => true,
+                                        "class" => "year-level-switch"
                                     ]) ?>
                                 </div>
                             </div>
@@ -87,7 +90,8 @@ $RECORDS = $control->filterRecords(['user_type' => 3],true);
                                 <div class="right">
                                     <?= CreateSwitch([
                                         "name"  => "fourth_year_level",
-                                        "value" => true
+                                        "value" => true,
+                                        "class" => "year-level-switch"
                                     ]) ?>
                                 </div>
                             </div>
@@ -97,7 +101,9 @@ $RECORDS = $control->filterRecords(['user_type' => 3],true);
                                     <small>Add new year level</small>
                                 </div>
                                 <div class="right">
-
+                                    <button id="createYearBtn" class="create-year-btn">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -106,6 +112,91 @@ $RECORDS = $control->filterRecords(['user_type' => 3],true);
             </div>
         </div>
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const switches = document.querySelectorAll('.year-level-switch');
+        const createYearBtn = document.getElementById('createYearBtn');
+        let yearLevelStates = {};
+
+        function updateYearLevelStates() {
+            switches.forEach(switchElement => {
+                const name = switchElement.getAttribute('name');
+                const isChecked = switchElement.checked;
+                yearLevelStates[name] = isChecked;
+            });
+            console.log('Current year level states:', yearLevelStates);
+            // You can use yearLevelStates object here or send it to the server
+        }
+
+        switches.forEach(switchElement => {
+            switchElement.addEventListener('change', updateYearLevelStates);
+        });
+
+        // Initial update
+        updateYearLevelStates();
+
+        // Create Year functionality
+        const yearLevelsList = document.getElementById('yearLevelsList');
+
+        createYearBtn.addEventListener('click', function() {
+            const newYearNumber = yearLevelsList.children.length;
+            const newYearName = getOrdinal(newYearNumber) + " Year";
+
+            const newYearElement = document.createElement('div');
+            newYearElement.className = 'list-item-container';
+            newYearElement.innerHTML = `
+                <div class="left">
+                    <p>${newYearName}</p>
+                    <small>Enable/Disable ${newYearName}</small>
+                </div>
+                <div class="right">
+                    <label class="custom-switch" >
+                        <input type="checkbox" class="year-level-switch" name="${newYearName.toLowerCase().replace(' ', '_')}_level" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                </div>
+            `;
+
+            yearLevelsList.insertBefore(newYearElement, yearLevelsList.lastElementChild);
+
+            // Add event listener to the new switch
+            const newSwitch = newYearElement.querySelector('.year-level-switch');
+            newSwitch.addEventListener('change', updateYearLevelStates);
+
+            // Update year level states
+            updateYearLevelStates();
+        });
+
+        function getOrdinal(n) {
+            const s = ["th", "st", "nd", "rd"];
+            const v = n % 100;
+            return n + (s[(v - 20) % 10] || s[v] || s[0]);
+        }
+    });
+    </script>
+
+    <style>
+    .create-year-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #007bff;
+        border: none;
+        color: white;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .create-year-btn:hover {
+        background-color: #0056b3;
+    }
+    </style>
 
     <?php include "public/views/pages/structures/html_pipes.phtml" ?>
 

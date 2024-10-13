@@ -115,8 +115,9 @@
         &.active
           .main
             .icon
-              img, svg
+              img, svg, i
                 fill: $color0
+                color: $color0
 
             .text
               color: $color0
@@ -149,10 +150,12 @@
           transition: 0.2s
           display: flex
           &.active
-            .icon img,svg
-              fill: #000 !important
+            .icon img,svg,i
+              // fill: $color0 !important
+              color: $color0 !important
+              width: 18px
             .text
-              color: #000
+              color: $color0
 
           .icon
             width: 30px
@@ -162,10 +165,11 @@
             justify-content: center
             margin-right: 10px
 
-            img, svg
-              width: 24px
+            img, svg, i
+              width: 18px
               height: auto
-              fill: #000
+              // fill: #000
+              color: #000
           &:hover
             margin-left: 45px
 
@@ -184,9 +188,9 @@
             justify-content: center
             margin-right: 10px
 
-            img, svg
-              width: 24px
+            img, svg, i
+              width: 18px
               height: auto
-              fill: #000
+              // fill: #000
 
 

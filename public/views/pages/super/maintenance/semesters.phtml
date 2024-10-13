@@ -51,7 +51,8 @@ $RECORDS = $control->filterRecords(['user_type' => 3],true);
                                 <div class="right">
                                     <?= CreateSwitch([
                                         "name"  => "semester_1",
-                                        "value" => true
+                                        "value" => true,
+                                        "class" => "semester-switch"
                                     ]) ?>
                                 </div>
                             </div>
@@ -63,7 +64,8 @@ $RECORDS = $control->filterRecords(['user_type' => 3],true);
                                 <div class="right">
                                     <?= CreateSwitch([
                                         "name"  => "semester_2",
-                                        "value" => true
+                                        "value" => true,
+                                        "class" => "semester-switch"
                                     ]) ?>
                                 </div>
                             </div>
@@ -75,7 +77,8 @@ $RECORDS = $control->filterRecords(['user_type' => 3],true);
                                 <div class="right">
                                     <?= CreateSwitch([
                                         "name"  => "semester_3",
-                                        "value" => false
+                                        "value" => false,
+                                        "class" => "semester-switch"
                                     ]) ?>
                                 </div>
                             </div>
@@ -89,6 +92,30 @@ $RECORDS = $control->filterRecords(['user_type' => 3],true);
     <?php include "public/views/pages/structures/html_pipes.phtml" ?>
 
     <script type="module" src="/public/assets/scripts/pages/superadmin/accounts/accounts.js"></script>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const switches = document.querySelectorAll('.semester-switch');
+        let semesterStates = {};
+
+        function updateSemesterStates() {
+            switches.forEach(switchElement => {
+                const name = switchElement.getAttribute('name');
+                const isChecked = switchElement.checked;
+                semesterStates[name] = isChecked;
+            });
+            console.log('Current semester states:', semesterStates);
+            // You can use semesterStates object here or send it to the server
+        }
+
+        switches.forEach(switchElement => {
+            switchElement.addEventListener('change', updateSemesterStates);
+        });
+
+        // Initial update
+        updateSemesterStates();
+    });
+    </script>
 
     <?php include "public/views/pages/structures/html_closing_parent.phtml" ?>
 

@@ -324,11 +324,13 @@ function CreateSwitch($options) {
     $name = $options['name'];
     $type = $options['type'] ?? "round";
     $value = $options['value'];
+    $class = $options['class'] ?? "";
+
 
     return '
-        <label class="custom-switch">
-          <input type="checkbox" name="'.$name.'" '. ($value ? "checked" : "") .'  >
-          <span class="slider '. ( $type ).'"></span>
+        <label class="custom-switch" >
+          <input type="checkbox" class="'.$class.'" name="'.$name.'" '. ($value ? "checked" : "") .'  >
+            <span class="slider '. ( $type ).'"></span>
         </label>
     ';
 }

@@ -27,6 +27,29 @@ export class PINCodeEditor {
         for (const item of this.elements.items) {
             let index = i;
 
+            item.addEventListener("paste", function(e) {
+                var clipboardData, pastedData;
+
+                // Stop data actually being pasted into div
+                e.stopPropagation();
+                e.preventDefault();
+
+                // Get pasted data via clipboard API
+                clipboardData = e.clipboardData || window.clipboardData;
+
+                pastedData = clipboardData.getData('Text');
+
+                for (const o of obj.elements.items) {
+                    o.querySelector(".text").innerText = "";
+                }
+
+                pastedData.split("").forEach((val, iiii) => {
+                    obj.elements.items[iiii].querySelector(".text").innerText = val;
+                })
+
+                ExecuteFn(obj.listeners, 'onChange', obj.getPIN());
+            });
+
             item.addEventListener("input", function () {
                 if (item.innerText.length === 1) {
                     obj.pin = obj.getPIN();
@@ -110,7 +133,12 @@ export class PINCodeEditor {
     }
 
     shake() {
+        const obj = this;
+        this.parent.classList.add("apply-shake");
 
+        setTimeout(function () {
+            obj.parent.classList.remove("apply-shake");
+        }, 1100);
     }
 
     reset() {

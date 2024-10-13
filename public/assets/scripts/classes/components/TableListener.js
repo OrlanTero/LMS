@@ -425,7 +425,7 @@ export class TableListener {
     }
 
     disableSelections() {
-        this.enableSelection = false
+       this.enableSelection = false
     }
 
     createFooter() {
@@ -666,19 +666,28 @@ export class TableListener {
             ],
             listener: {
                 click: () => {
+                    let active = null;
                     float.showAt(right, {
                         onLoad: (parent) => {
                             const combo = parent.querySelector('.sort_type');
                             const items = parent.querySelectorAll('.just-a-list li.item');
 
-                            ListenToThisCombo(combo, () => {})
+                            ListenToThisCombo(combo, (data) => {
+                                obj.sortTable(headerList.indexOf(active) + 1, GetComboValue(combo).value);
+                            })
 
                             for (const item of items) {
                                 item.addEventListener("click", function () {
                                     const __text = item.innerText;
+                                    ResetActiveComponent(items);
+
                                     float.hide();
 
+                                    active = __text;
+
                                     obj.sortTable(headerList.indexOf(__text) + 1, GetComboValue(combo).value);
+
+                                    item.classList.add("active");
 
                                 })
                             }
@@ -698,14 +707,10 @@ export class TableListener {
     }
 
     sortTable(index, dir = "asc") {
-        // table = this.parent.querySelector('table');
-        // const values = this.pagination.items.map((items) => items.map(tr => [...tr.querySelectorAll('td')].map((td) => td.innerText.trim())));
-        //
         var table, rows, switching, i, x, y, shouldSwitch, switchcount = 0;
 
         table = this.parent.querySelector('table');
         switching = true;
-
 
         while (switching) {
             switching = false;
@@ -714,40 +719,61 @@ export class TableListener {
                 shouldSwitch = false;
                 x = rows[i].getElementsByTagName("TD")[index];
                 y = rows[i + 1].getElementsByTagName("TD")[index];
-                var cmpX=isNaN(parseInt(x.innerHTML))?x.innerHTML.toLowerCase():parseInt(x.innerHTML);
-                var cmpY=isNaN(parseInt(y.innerHTML))?y.innerHTML.toLowerCase():parseInt(y.innerHTML);
-                cmpX=(cmpX=='-')?0:cmpX;
-                cmpY=(cmpY=='-')?0:cmpY;
 
-                if (dir == "asc") {
+                var cmpX, cmpY;
+                const xContent = x.innerHTML.trim();
+                const yContent = y.innerHTML.trim();
+
+                // Try to parse the date
+                const dateX = new Date(xContent);
+                const dateY = new Date(yContent);
+
+                // Determine if the content is a date, number, or string
+                if (!isNaN(dateX.getTime()) && !isNaN(dateY.getTime())) {
+                    // Both are valid dates
+                    cmpX = dateX;
+                    cmpY = dateY;
+                } else if (!isNaN(parseInt(xContent)) && !isNaN(parseInt(yContent))) {
+                    // Both are numbers
+                    cmpX = parseInt(xContent);
+                    cmpY = parseInt(yContent);
+                } else {
+                    // Both are strings
+                    cmpX = xContent.toLowerCase();
+                    cmpY = yContent.toLowerCase();
+                }
+
+                // Handle '-' as 0
+                cmpX = (cmpX === '-') ? 0 : cmpX;
+                cmpY = (cmpY === '-') ? 0 : cmpY;
+
+                if (dir === "asc") {
                     if (cmpX > cmpY) {
-                        shouldSwitch= true;
+                        shouldSwitch = true;
                         break;
                     }
-                } else if (dir == "desc") {
+                } else if (dir === "desc") {
                     if (cmpX < cmpY) {
-                        shouldSwitch= true;
+                        shouldSwitch = true;
                         break;
                     }
                 }
             }
+
             if (shouldSwitch) {
                 rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
                 switching = true;
-                switchcount ++;
+                switchcount++;
             } else {
-                if (switchcount == 0 && dir == "asc") {
+                if (switchcount == 0 && dir === "asc") {
                     dir = "desc";
                     switching = true;
                 }
             }
         }
 
-
-        this.elements.items = [...this.parent .querySelectorAll(".grid-table-body .body-item")];
-
+        this.elements.items = [...this.parent.querySelectorAll(".grid-table-body .body-item")];
         this.activatePagination();
-
     }
 
     sortying() {
@@ -755,7 +781,12 @@ export class TableListener {
     }
     getHeaderTextLists() {
         if (!this.elements.header) return  [];
-        return [...this.elements.header.querySelectorAll('th')].map((th) => th.innerText.trim());
+        return [...this.elements.header.querySelectorAll('th')].map((th) => th.innerText).filter(a => a && a.length).map(b => b.trim()).map(c => c == "NO" ? "ID" : c);
+    }
+
+    getBodyEntryTextLists() {
+        if (!this.elements.header) return  [];
+        return [...this.elements.header.querySelectorAll('th')].map((th) => th.getAttribute("data-t")).filter((a) => a && a.length).map((b) => b.trim()).map(c => c == "no" ? "id" : c);;
     }
 
 
