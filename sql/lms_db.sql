@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 10, 2024 at 09:11 AM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Generation Time: Oct 18, 2024 at 06:10 AM
+-- Server version: 10.4.27-MariaDB
+-- PHP Version: 8.1.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -129,7 +129,7 @@ INSERT INTO `email_verifications` (`verification_id`, `user_id`, `verification`,
 (6, '1', '529649', '2024-09-22 21:34:47'),
 (10, '5', '549966', '2024-10-07 02:33:15'),
 (11, '4', '903773', '2024-10-07 03:02:25'),
-(12, '3', '541943', '2024-10-10 05:15:42');
+(13, '3', '471787', '2024-10-14 13:06:24');
 
 -- --------------------------------------------------------
 
@@ -265,7 +265,8 @@ CREATE TABLE `sections` (
 
 INSERT INTO `sections` (`section_id`, `section_name`, `adviser_id`, `semester`, `year_level`, `course_id`, `status`, `date_created`) VALUES
 (1, 'BSIT 1 A', 1, 1, 1, 1, 0, '2024-09-29 22:36:29'),
-(2, 'A', 1, 2, 1, 1, 0, '2024-10-06 23:05:07');
+(2, 'A', 1, 2, 1, 1, 0, '2024-10-06 23:05:07'),
+(3, 'BSIT 1 A', 1, 1, 1, 1, 0, '2024-10-16 09:54:51');
 
 -- --------------------------------------------------------
 
@@ -342,6 +343,7 @@ INSERT INTO `staffs` (`staff_id`, `user_id`, `department_id`, `description`, `st
 CREATE TABLE `subjects` (
   `subject_id` int(11) NOT NULL,
   `subject_name` varchar(255) NOT NULL,
+  `subject_code` varchar(255) NOT NULL,
   `course_id` int(11) NOT NULL,
   `status` int(11) NOT NULL DEFAULT 1,
   `date_created` timestamp NOT NULL DEFAULT current_timestamp()
@@ -351,8 +353,8 @@ CREATE TABLE `subjects` (
 -- Dumping data for table `subjects`
 --
 
-INSERT INTO `subjects` (`subject_id`, `subject_name`, `course_id`, `status`, `date_created`) VALUES
-(1, 'Web Development', 1, 1, '2024-09-29 22:48:24');
+INSERT INTO `subjects` (`subject_id`, `subject_name`, `subject_code`, `course_id`, `status`, `date_created`) VALUES
+(1, 'Web Development', '12334', 1, 1, '2024-09-29 22:48:24');
 
 -- --------------------------------------------------------
 
@@ -517,7 +519,7 @@ ALTER TABLE `departments`
 -- AUTO_INCREMENT for table `email_verifications`
 --
 ALTER TABLE `email_verifications`
-  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `posts`
@@ -553,7 +555,7 @@ ALTER TABLE `schedule_items`
 -- AUTO_INCREMENT for table `sections`
 --
 ALTER TABLE `sections`
-  MODIFY `section_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `section_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `section_students`

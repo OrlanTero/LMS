@@ -495,10 +495,7 @@ function ViewRequest(id) {
     }))
 }
 
-function AddRequest() {
-    const body= document.querySelector(".main-table-body");
-    const user_type = body.getAttribute("data-user-type");
-
+export function AddNewSection() {
     const popup = new Popup(`${TARGET}/add_new_${MINI_TARGET}`, null, {
         backgroundDismiss: false,
     });
@@ -571,7 +568,7 @@ function ManageTable() {
         TABLE_LISTENER.addButtonListener([
             {
                 name: "add-request",
-                action: AddRequest,
+                action: AddNewSection,
                 single: true
             },
             {
@@ -594,12 +591,14 @@ function Search(toSearch, filter) {
 
 function ManageSearchEngine() {
     const searchEngine = document.querySelector(".search-engine input[name=search-records]");
-    const body = document.querySelector(".main-table-body");
-    const user_type = body.getAttribute("data-users-type");
 
-    searchEngine.addEventListener("input", () => {
+    if (searchEngine) {
+        const body = document.querySelector(".main-table-body");
+        const user_type = body.getAttribute("data-users-type");
+        searchEngine.addEventListener("input", () => {
         Search(searchEngine.value, JSON.stringify({user_type}))
-    })
+        })
+    }
 }
 
 function ManageButtons() {

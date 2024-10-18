@@ -68,8 +68,8 @@ $SECTIONS_HEADER_BODY = [
 ];
 
 $SUBJECTS_HEADER_BODY = [
-    "header" => ["No","Name","Course","Status", "Date Created"],
-    "body" => ["no","subject_name","course_id","status", "date_created"]
+    "header" => ["No","Name","Code","Course","Status", "Date Created"],
+    "body" => ["no","subject_name","subject_code","course_id","status", "date_created"]
 ];
 
 $DEPARTMENTS_HEADER_BODY = [

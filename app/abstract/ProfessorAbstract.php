@@ -10,7 +10,6 @@ abstract class ProfessorAbstract extends ModelDefaultFunctions
 
     public $main_course_id;
 
-
     public $user_id;
 
     public $description;

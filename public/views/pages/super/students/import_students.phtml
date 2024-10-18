@@ -3,7 +3,10 @@
 global $APPLICATION, $USER_HEADER_BODY;
 
 $control = $APPLICATION->FUNCTIONS->USER_CONTROL;
+$sectionControl = $APPLICATION->FUNCTIONS->SECTION_CONTROL;
 $RECORDS = $control->filterRecords(['user_type' => 2],true);
+$SECTIONS = $sectionControl->getAllRecords(true);
+
 
 ?>
 
@@ -50,7 +53,7 @@ $RECORDS = $control->filterRecords(['user_type' => 2],true);
                         <div class="tab-body">
                             <button class="tab-button active" data-tab="step1">Step 1: Add Students</button>
                             <button class="tab-button" data-tab="step2">Step 2: Subjects</button>
-                            <button class="tab-button" data-tab="step3">Step 3: Schedules</button>
+                            <button class="tab-button" data-tab="step3">Step 3: Professors</button>
                             <button class="tab-button" data-tab="step4">Step 4: Section</button>
                             <button class="tab-button" data-tab="step5">Step 5: Import</button>
                         </div>
@@ -128,42 +131,110 @@ $RECORDS = $control->filterRecords(['user_type' => 2],true);
                                         <button type="submit" id="submitManualEntry" class="btn-primary">Submit Entries</button>
                                     </div>
                                     <div class="file-upload">
-                                        <h4>File Upload</h4>
-                                        <p>Upload a CSV file containing student data.</p>
-                                        <div class="upload-area">
-                                            <i data-feather="upload-cloud"></i>
-                                            <p>Drag and drop your file here or</p>
-                                            <label for="fileInput" class="btn-secondary">Choose File</label>
-                                            <input type="file" id="fileInput" accept=".csv" style="display: none;">
+                                        <div class="file-upload-card">
+                                            <h4>File Upload</h4>
+                                            <p>Upload a CSV file containing student data.</p>
+                                            <div class="upload-area" id="dropZone">
+                                                <i data-feather="upload-cloud"></i>
+                                                <p>Drag and drop your file here or</p>
+                                                <label for="fileInput" class="btn-secondary">Choose File</label>
+                                                <input type="file" id="fileInput" accept=".csv" style="display: none;">
+                                            </div>
+                                            <p class="file-info">Supported format: CSV</p>
+                                            <div id="fileDetails" class="file-details">
+                                                <p>File Name: <span id="fileName"></span></p>
+                                                <p>File Size: <span id="fileSize"></span></p>
+                                            </div>
+                                            <button id="processFileBtn" class="btn-primary">Process File</button>
                                         </div>
-                                        <p class="file-info">Supported format: CSV</p>
                                     </div>
+
+                                    <div id="dataPreview"></div>
                                 </div>
                             </div>
                         </div>
                         <div class="tab-pane" id="step2">
                             <h3>Step 2: Subjects</h3>
                             <p>Add or select subjects for the students.</p>
-                            <!-- Add subject selection interface here -->
+                            <div class="subjects-container" id="subjectsContainer">
+                                <!-- Subject cards will be dynamically added here -->
+                            </div>
+                            <div class="subject-actions">
+                                <div class="add-subject-card" id="addEmptySubjectCard">
+                                    <i data-feather="plus-circle"></i>
+                                    <span>Add Subject</span>
+                                </div>
+                                <button id="addSubjectPopupBtn" class="btn-secondary">Select Subject</button>
+                            </div>
                             <p><small>This step is required.</small></p>
                         </div>
                         <div class="tab-pane" id="step3">
-                            <h3>Step 3: Schedules</h3>
-                            <p>Set up schedules for the students.</p>
-                            <!-- Add schedule setup interface here -->
+                            <h3>Step 3: Professors</h3>
+                            <p>Set up professors for the subjects.</p>
+                            <div class="professors-subjects-container">
+                                <div class="professors-column">
+                                    <h4>Professors</h4>
+                                    <div id="professorsContainer">
+                                        <!-- Professor cards will be dynamically added here -->
+                                    </div>
+                                    <div class="professor-actions">
+                                        <div class="add-professor-card" id="addEmptyProfessorCard">
+                                            <i data-feather="plus-circle"></i>
+                                            <span>Add Professor</span>
+                                        </div>
+                                        <button id="addProfessorPopupBtn" class="btn-secondary">Select Professor</button>
+                                    </div>
+                                </div>
+                                <div class="subjects-column">
+                                    <h4>Subjects</h4>
+                                    <div id="subjectsDisplayContainer">
+                                        <!-- Subject cards from subjectsArray will be displayed here -->
+                                    </div>
+                                </div>
+                            </div>
                             <p><small>This step is required.</small></p>
                         </div>
+                        
+                      
                         <div class="tab-pane" id="step4">
                             <h3>Step 4: Section</h3>
-                            <p>Assign students to sections.</p>
-                            <!-- Add section assignment interface here -->
-                            <p><small>This step is required.</small></p>
+                            <p>Select a section for the students.</p>
+                            <div class="section-cards-container" id="sectionCardsContainer">
+                                <!-- Section cards will be dynamically added here -->
+                                <?php foreach($SECTIONS as $SECTION): ?>
+                                    <div class="section-card">
+                                        <input type="radio" name="section" id="section-<?= $SECTION->section_id; ?>" value="<?= $SECTION->section_id; ?>">
+                                        <label for="section-<?= $SECTION->section_id; ?>">
+                                            <h4><?= $SECTION->section_name; ?></h4>
+                                            <p>Course: <?= $SECTION->course->course_name; ?></p>
+                                            <p>Students: <span class="student-count"><?= count($SECTION->students); ?></span></p>
+                                        </label>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <button id="addSectionBtn" class="btn-add-section">+ Add New Section</button>
+                            <p><small>This step is required. Please select one section.</small></p>
+                    
                         </div>
                         <div class="tab-pane" id="step5">
-                            <h3>Step 5: Import</h3>
-                            <p>Start the import process.</p>
-                            <button id="importBtn">Start Import</button>
-                            <p><small>This step is required to complete the import.</small></p>
+                            <h3>Step 5: Import Summary</h3>
+                            <p>Review the summary below before starting the import process.</p>
+                            <div class="import-summary">
+                                <div class="summary-item">
+                                    <h4>Students to Import</h4>
+                                    <p id="studentCount">Loading...</p>
+                                </div>
+                                <div class="summary-item">
+                                    <h4>Subjects</h4>
+                                    <ul id="subjectsList"></ul>
+                                </div>
+                                <div class="summary-item">
+                                    <h4>Selected Section</h4>
+                                    <p id="selectedSection">None selected</p>
+                                </div>
+                            </div>
+                            <button id="importBtn" class="btn-primary">Start Import</button>
+                            <p><small>Please review the summary carefully before starting the import process.</small></p>
                         </div>
                         <div class="navigation-buttons">
                             <button id="backBtn" class="nav-btn" disabled>Back</button>
@@ -173,526 +244,17 @@ $RECORDS = $control->filterRecords(['user_type' => 2],true);
                     </div>
                 </div>
                 </div>
-
-                <style>
-                    .tab-content-head {
-                        margin-bottom: 1.5rem;
-                    }
-                    .tab-content-head h3 {
-                        margin-bottom: 0.5rem;
-                        font-size: 1.5rem;
-                        line-height: 1.2;
-                    }
-                    .tab-content-head p {
-                        margin: 0;
-                        line-height: 1.5;
-                    }
-                    .tab-content-body {
-                        padding: 1.5rem;
-                        background-color: #f8f9fa;
-                        border-radius: 0.25rem;
-                        position: relative;
-                    }
-                    .import-options-container {
-                        position: absolute;
-                        top: 1rem;
-                        right: 1rem;
-                        z-index: 1000;
-                    }
-                    .btn-icon {
-                        width: 40px;
-                        height: 40px;
-                        border-radius: 50%;
-                        background-color: #fff;
-                        color: #000;
-                        border: none;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        cursor: pointer;
-                        transition: background-color 0.2s ease;
-                    }
-                    .btn-icon:hover {
-                        background-color: #f8f9fa;
-                    }
-                    .import-options {
-                        display: none;
-                        position: absolute;
-                        top: 100%;
-                        right: 0;
-                        background-color: white;
-                        border: 1px solid #ced4da;
-                        border-radius: 0.25rem;
-                        padding: 1rem;
-                        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-                        min-width: 380px;
-                    }
-                    .import-options.show {
-                        display: block;
-                    }
-                    .import-options h4 {
-                        margin-bottom: 1rem;
-                        font-size: 1.25rem;
-                    }
-                    .option-checkboxes {
-                        margin-bottom: 1.5rem;
-                    }
-                    .option-checkboxes label {
-                        display: flex;
-                        align-items: center;
-                        margin-bottom: 0.5rem;
-                        font-size: 0.9rem;
-                    }
-                    .option-checkboxes input[type="checkbox"] {
-                        margin-right: 0.5rem;
-                    }
-                    .option-buttons {
-                        display: flex;
-                        gap: 1rem;
-                    }
-                    .option-btn {
-                        display: flex;
-                        align-items: center;
-                        gap: 0.5rem;
-                        padding: 0.75rem 1rem;
-                        border: 1px solid #ced4da;
-                        border-radius: 0.25rem;
-                        background-color: #fff;
-                        font-size: 0.9rem;
-                        cursor: pointer;
-                        transition: all 0.2s ease;
-                    }
-                    .option-btn.active {
-                        background-color: #007bff;
-                        color: white;
-                        border-color: #007bff;
-                    }
-                    .import-content > div {
-                        display: none;
-                    }
-                    .import-content > div.active {
-                        display: block;
-                    }
-                    .table-responsive {
-                        margin-bottom: 1rem;
-                    }
-
-                    .table-responsive-head {
-                        margin-bottom: 1rem;
-                    }
-                    .table-responsive-head h4 {
-                        margin-bottom: 0.5rem;
-                        font-size: 1.5rem;
-                        line-height: 1.2;
-                    }
-                    .table-responsive-head p {
-                        margin: 0;
-                    }
-                    .table {
-                        width: 100%;
-                        border-collapse: separate;
-                        border-spacing: 0;
-                    }
-                    .table th, .table td {
-                        padding: 0.75rem;
-                        border: 1px solid #dee2e6;
-                        vertical-align: middle;
-                    }
-                    .table th {
-                        background-color: #f8f9fa;
-                        font-weight: 600;
-                    }
-                    .table input {
-                        width: 100%;
-                        padding: 0.5rem;
-                        border: 1px solid #ced4da;
-                        border-radius: 0.25rem;
-                        font-size: 0.9rem;
-                    }
-                    .btn-remove-row {
-                        background: none;
-                        border: none;
-                        color: #dc3545;
-                        cursor: pointer;
-                        padding: 0.25rem;
-                    }
-                    .btn-primary, .btn-secondary {
-                        padding: 0.75rem 1rem;
-                        border: none;
-                        border-radius: 0.25rem;
-                        font-size: 0.9rem;
-                        cursor: pointer;
-                        transition: background-color 0.2s ease;
-                    }
-                    .btn-primary {
-                        background-color: #007bff;
-                        color: white;
-                    }
-                    .btn-secondary {
-                        background-color: #6c757d;
-                        color: white;
-                    }
-                    .btn-primary:hover, .btn-secondary:hover {
-                        opacity: 0.9;
-                    }
-                    .upload-area {
-                        border: 2px dashed #ced4da;
-                        border-radius: 0.25rem;
-                        padding: 2rem;
-                        text-align: center;
-                        cursor: pointer;
-                        transition: border-color 0.2s ease;
-                    }
-                    .upload-area:hover {
-                        border-color: #007bff;
-                    }
-                    .upload-area i {
-                        font-size: 3rem;
-                        color: #007bff;
-                        margin-bottom: 1rem;
-                    }
-                    .upload-area p {
-                        margin-bottom: 1rem;
-                    }
-                    .file-info {
-                        font-size: 0.8rem;
-                        color: #6c757d;
-                        margin-top: 0.5rem;
-                    }
-                </style>
-                <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const optionButtons = document.querySelectorAll('.option-btn');
-                        const importContents = document.querySelectorAll('.import-content > div');
-                        const addRowBtn = document.getElementById('addRowBtn');
-                        const manualEntryTable = document.getElementById('manualEntryTable');
-                        const autoGenerateCheckbox = document.getElementById('autoGenerateAccounts');
-                        const checkDuplicatesCheckbox = document.getElementById('checkDuplicates');
-                        const importOptionsToggle = document.getElementById('importOptionsToggle');
-                        const importOptions = document.querySelector('.import-options');
-
-                        importOptionsToggle.addEventListener('click', function(event) {
-                            event.stopPropagation();
-                            importOptions.classList.toggle('show');
-                        });
-
-                        // Close the dropdown when clicking outside of it
-                        document.addEventListener('click', function(event) {
-                            if (!importOptions.contains(event.target) && !importOptionsToggle.contains(event.target)) {
-                                importOptions.classList.remove('show');
-                            }
-                        });
-
-                        optionButtons.forEach(button => {
-                            button.addEventListener('click', function() {
-                                optionButtons.forEach(btn => btn.classList.remove('active'));
-                                this.classList.add('active');
-
-                                const option = this.getAttribute('data-option');
-                                importContents.forEach(content => {
-                                    content.classList.remove('active');
-                                    if (content.classList.contains(option === 'manual' ? 'manual-entry' : 'file-upload')) {
-                                        content.classList.add('active');
-                                    }
-                                });
-                                importOptions.classList.remove('show');
-                            });
-                        });
-
-                        addRowBtn.addEventListener('click', function() {
-                            addNewRow();
-                        });
-
-                        function addNewRow() {
-                            const newRow = manualEntryTable.insertRow(-1);
-                            newRow.innerHTML = `
-                                <td><input type="text" name="firstName[]" required></td>
-                                <td><input type="text" name="middleName[]"></td>
-                                <td><input type="text" name="lastName[]" required></td>
-                                <td><input type="email" name="email[]" required></td>
-                                <td><input type="text" name="username[]" pattern="^[a-zA-Z0-9_]{3,20}$" title="Username must be 3-20 characters long and can only contain letters, numbers, and underscores" required></td>
-                                <td><input type="text" name="uniqueId[]"></td>
-                                <td><input type="text" name="password[]"></td>
-                                <td><button type="button" class="btn-remove-row"><i data-feather="trash-2"></i></button></td>
-                            `;
-                            feather.replace();
-                            attachRemoveRowListeners();
-                            attachInputListeners(newRow);
-                        }
-
-                        function attachRemoveRowListeners() {
-                            const removeButtons = document.querySelectorAll('.btn-remove-row');
-                            removeButtons.forEach(button => {
-                                button.addEventListener('click', function() {
-                                    this.closest('tr').remove();
-                                });
-                            });
-                        }
-
-                        function attachInputListeners(row) {
-                            const inputs = row.querySelectorAll('input');
-                            inputs.forEach(input => {
-                                input.addEventListener('input', function() {
-                                    if (autoGenerateCheckbox.checked) {
-                                        generateAccountInfo(row);
-                                    }
-                                    if (checkDuplicatesCheckbox.checked) {
-                                        if (input.name === 'email[]') {
-                                            checkDuplicateEmail(input);
-                                        } else if (input.name === 'username[]') {
-                                            checkDuplicateUsername(input);
-                                        }
-                                    }
-                                });
-                            });
-                        }
-
-                        function generateAccountInfo(row) {
-                            const firstName = row.querySelector('input[name="firstName[]"]').value;
-                            const lastName = row.querySelector('input[name="lastName[]"]').value;
-
-                            // Generate username with a minimum length of 8
-                            let username = (firstName + lastName).toLowerCase().replace(/[^a-z0-9]/g, '');
-                            if (username.length < 8) {
-                                username += Math.random().toString(36).substring(2, 8 - username.length + 2);
-                            }
-                            username = ensureUniqueUsername(username.substring(0, 20));
-                            row.querySelector('input[name="username[]"]').value = username;
-
-                            // Generate email
-                            const email = `${username}@example.com`;
-                            row.querySelector('input[name="email[]"]').value = email;
-
-                            // Generate unique ID (you may want to implement a more robust method)
-                            const uniqueId = 'STU' + Math.floor(10000 + Math.random() * 90000);
-                            row.querySelector('input[name="uniqueId[]"]').value = uniqueId;
-
-                            // Generate password based on lastname
-                            const password = lastName.toLowerCase() + '@' + Math.floor(100 + Math.random() * 900);
-                            row.querySelector('input[name="password[]"]').value = password;
-                        }
-
-                        function ensureUniqueUsername(username) {
-                            const existingUsernames = Array.from(document.querySelectorAll('input[name="username[]"]')).map(el => el.value);
-                            let uniqueUsername = username;
-                            let counter = 1;
-                            while (existingUsernames.includes(uniqueUsername)) {
-                                uniqueUsername = (username + counter).substring(0, 20);
-                                counter++;
-                            }
-                            return uniqueUsername;
-                        }
-
-                        function checkDuplicateEmail(input) {
-                            const emails = Array.from(document.querySelectorAll('input[name="email[]"]')).map(el => el.value);
-                            const currentEmail = input.value;
-                            const isDuplicate = emails.filter(email => email === currentEmail).length > 1;
-
-                            if (isDuplicate) {
-                                input.setCustomValidity('This email address is already in use.');
-                                input.reportValidity();
-                            } else {
-                                input.setCustomValidity('');
-                            }
-                        }
-
-                        function checkDuplicateUsername(input) {
-                            const usernames = Array.from(document.querySelectorAll('input[name="username[]"]')).map(el => el.value);
-                            const currentUsername = input.value;
-                            const isDuplicate = usernames.filter(username => username === currentUsername).length > 1;
-
-                            if (isDuplicate) {
-                                input.setCustomValidity('This username is already in use.');
-                                input.reportValidity();
-                            } else {
-                                input.setCustomValidity('');
-                            }
-                        }
-
-                        autoGenerateCheckbox.addEventListener('change', function() {
-                            const rows = manualEntryTable.querySelectorAll('tbody tr');
-                            rows.forEach(row => {
-                                if (this.checked) {
-                                    generateAccountInfo(row);
-                                }
-                            });
-                        });
-
-                        checkDuplicatesCheckbox.addEventListener('change', function() {
-                            const emailInputs = document.querySelectorAll('input[name="email[]"]');
-                            const usernameInputs = document.querySelectorAll('input[name="username[]"]');
-                            emailInputs.forEach(input => {
-                                if (this.checked) {
-                                    checkDuplicateEmail(input);
-                                } else {
-                                    input.setCustomValidity('');
-                                }
-                            });
-                            usernameInputs.forEach(input => {
-                                if (this.checked) {
-                                    checkDuplicateUsername(input);
-                                } else {
-                                    input.setCustomValidity('');
-                                }
-                            });
-                        });
-
-                        // Initialize the first row
-                        const firstRow = manualEntryTable.querySelector('tbody tr');
-                        attachInputListeners(firstRow);
-
-                        attachRemoveRowListeners();
-
-                        // Initialize Feather icons
-                        if (typeof feather !== 'undefined') {
-                            feather.replace();
-                        }
-                    });
-                </script>
-               
-                <style>
-                    .tab-container {
-                        display: flex;
-                        border-radius: 4px;
-                        overflow: hidden;
-                        height: 100%;
-                        min-height: 600px;
-                    }
-
-                    .tab-container .tab-menu .tab-header {
-                        padding: 10px 16px;
-                    }
-                    
-                    .tab-container .tab-menu .tab-body {
-                        padding: 20px 0;
-                    }
-                    .tab-menu {
-                        width: 300px;
-                        height: 100%;
-                        display: flex;
-                        flex-direction: column;
-                    }
-                    .tab-button {
-                        background-color: inherit;
-                        border: none;
-                        outline: none;
-                        cursor: pointer;
-                        padding: 14px 16px;
-                        transition: 0.3s;
-                        text-align: left;
-                        width: 100%;
-                    }
-                    .tab-button:hover {
-                        background-color: #ddd;
-                    }
-                    .tab-button.active {
-                        background-color: #ccc;
-                    }
-                    .tab-content {
-                        flex-grow: 1;
-                        padding: 20px;
-                        display: flex;
-                        flex-direction: column;
-                    }
-                    .tab-pane {
-                        display: none;
-                        flex-grow: 1;
-                    }
-                    .tab-pane.active {
-                        display: block;
-                    }
-                    .navigation-buttons {
-                        display: flex;
-                        justify-content: space-between;
-                        margin-top: 20px;
-                    }
-                    .nav-btn {
-                        padding: 10px 20px;
-                        cursor: pointer;
-                    }
-                    .nav-btn:disabled {
-                        opacity: 0.5;
-                        cursor: not-allowed;
-                    }
-                </style>
-
-                <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const tabButtons = document.querySelectorAll('.tab-button');
-                        const tabPanes = document.querySelectorAll('.tab-pane');
-                        const backBtn = document.getElementById('backBtn');
-                        const skipBtn = document.getElementById('skipBtn');
-                        const nextBtn = document.getElementById('nextBtn');
-                        let currentStep = 1;
-
-                        function updateStepVisibility() {
-                            tabButtons.forEach((btn, index) => {
-                                if (index < currentStep) {
-                                    btn.disabled = false;
-                                } else {
-                                    btn.disabled = true;
-                                }
-                            });
-
-                            backBtn.disabled = currentStep === 1;
-                            nextBtn.disabled = currentStep === 5;
-                            skipBtn.style.display = currentStep === 4 ? 'inline-block' : 'none';
-                        }
-
-                        function showStep(step) {
-                            tabButtons.forEach(btn => btn.classList.remove('active'));
-                            tabPanes.forEach(pane => pane.classList.remove('active'));
-
-                            tabButtons[step - 1].classList.add('active');
-                            tabPanes[step - 1].classList.add('active');
-                        }
-
-                        tabButtons.forEach((button, index) => {
-                            button.addEventListener('click', function() {
-                                if (index < currentStep) {
-                                    currentStep = index + 1;
-                                    showStep(currentStep);
-                                    updateStepVisibility();
-                                }
-                            });
-                        });
-
-                        backBtn.addEventListener('click', function() {
-                            if (currentStep > 1) {
-                                currentStep--;
-                                showStep(currentStep);
-                                updateStepVisibility();
-                            }
-                        });
-
-                        skipBtn.addEventListener('click', function() {
-                            if (currentStep === 4) {
-                                currentStep++;
-                                showStep(currentStep);
-                                updateStepVisibility();
-                            }
-                        });
-
-                        nextBtn.addEventListener('click', function() {
-                            if (currentStep < 5) {
-                                currentStep++;
-                                showStep(currentStep);
-                                updateStepVisibility();
-                            }
-                        });
-
-                        // Initial setup
-                        updateStepVisibility();
-                    });
-                </script>
+              
             </div>
         </div>
     </div>
 </div>
 
+
+
     <?php include "public/views/pages/structures/html_pipes.phtml" ?>
 
-    <script type="module" src="/public/assets/scripts/pages/superadmin/accounts/accounts.js"></script>
+    <script type="module" src="/public/assets/scripts/pages/superadmin/students/import_students.js"></script>
 
     <?php include "public/views/pages/structures/html_closing_parent.phtml" ?>
 
