@@ -6,21 +6,31 @@ $professor = $SESSION->getAsProfessor();
 
 $classes = $professor->getClasses();
 
-$firstYears = array_filter($classes, function ($section) {
-    return $section->year_level == 1;
-});
 
-$secondYears = array_filter($classes, function ($section) {
-    return $section->year_level == 2;
-});
+function f($year) {
+    return array_reduce($year, function($store, $sectionSubject) {
+        if (!isset($store[$sectionSubject->section_id])) {
+            $store[$sectionSubject->section_id] = $sectionSubject;
+        }
+        return $store;
+    }, []);
+}
 
-$thirdYears = array_filter($classes, function ($section) {
-    return $section->year_level == 3;
-});
+$firstYears = f(array_filter($classes, function ($section) {
+    return $section->getSection()->year_level == 1;
+}));
 
-$fourthYears = array_filter($classes, function ($section) {
-    return $section->year_level == 4;
-});
+$secondYears = f(array_filter($classes, function ($section) {
+    return $section->getSection()->year_level == 2;
+}));
+
+$thirdYears = f(array_filter($classes, function ($section) {
+    return $section->getSection()->year_level == 3;
+}));
+
+$fourthYears = f(array_filter($classes, function ($section) {
+    return $section->getSection()->year_level == 4;
+}));
 ?>
 
 <?php include "public/views/pages/structures/html_headings.phtml" ?>
@@ -90,8 +100,9 @@ $fourthYears = array_filter($classes, function ($section) {
                                             </div>
                                         </div>
                                         <div class="cards-flex-container">
-                                            <?php foreach ($year as $section): ?>
+                                            <?php foreach ($year as $sectionSubject): ?>
                                                 <?php
+                                                $section = $sectionSubject->getSection();
                                                 $students = $section->getAllStudents();
                                                 ?>
                                                 <div class="card-flex-container" data-id="<?= $section->section_id ?>">
@@ -116,7 +127,7 @@ $fourthYears = array_filter($classes, function ($section) {
 
     <?php include "public/views/pages/structures/html_pipes.phtml" ?>
 
-    <script type="module" src="/public/assets/scripts/pages/student/me/subjects.js"></script>
+    <script type="module" src="/public/assets/scripts/pages/faculty/me/classes.js"></script>
 
     <?php include "public/views/pages/structures/html_closing_parent.phtml" ?>
 

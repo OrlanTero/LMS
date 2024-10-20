@@ -455,11 +455,16 @@ export function addStyles(element, styles = {}) {
 }
 
 export function CreateElement(element) {
-    const {el, className, id, listener, attr} = element;
-    const {classes, child, childs, text, html, styles} = element;
+    const {el, className, classes, id, listener, attr} = element;
+    const {child, childs, text, html, styles} = element;
     const elem = document.createElement(el ?? "DIV");
 
-    addClass(elem, className);
+    if (className) {
+        addClass(elem, className);
+    }
+    if (classes) {
+        classes.forEach(cls => addClass(elem, cls));
+    }
     addAttr(elem, "id", id);
     append(elem, child);
     addText(elem, text);
@@ -476,7 +481,6 @@ export function CreateElement(element) {
         addAttr(elem, pair[0], pair[1]);
     });
 
-    classes && classes.length && classes.forEach((c) => addClass(elem, c));
     childs && childs.length && childs.forEach((c) => append(elem, c));
 
     return elem;
@@ -1820,4 +1824,74 @@ export function ChunkArray(array, size) {
 
         return resultArray;
     }, [])
+}
+
+
+export function CreateComboBox(name, placeholder, items, options = {firstval: false, initial: null, disabled: false, small: false}) {
+    const value = options.initial ? (!Array.isArray(options.initial) ? options.initial : options.initial.text) : (options.firstval && items.length > 0 ? items[0].text : "");
+    const defValue = options.initial ? (!Array.isArray(options.initial) ? options.initial : options.initial.value) : (options.firstval && items.length > 0 ? items[0].value : "");
+
+    const comboBox = CreateElement({
+        el: 'div',
+        className: [`custom-combo-box`, name, options.small ? 'small' : ''],
+        childs: [
+            CreateElement({
+                el: 'div',
+                className: 'main-content',
+                childs: [
+                    CreateElement({
+                        el: 'input',
+                        attr: {
+                            type: 'text',
+                            value: value,
+                            name: name,
+                            placeholder: placeholder,
+                            autocomplete: 'off',
+                            'data-value': defValue,
+                            disabled: options.disabled ? 'disabled' : null
+                        }
+                    }),
+                    CreateElement({
+                        el: 'div',
+                        className: 'icon',
+                        child: CreateElement({
+                            el: 'svg',
+                            attr: {
+                                width: '16px',
+                                height: '16px',
+                                viewBox: '0 0 256 256',
+                                id: 'Flat',
+                                xmlns: 'http://www.w3.org/2000/svg'
+                            },
+                            child: CreateElement({
+                                el: 'path',
+                                attr: {
+                                    d: 'M128,180a3.98881,3.98881,0,0,1-2.82861-1.17139l-80-80.00024a4.00009,4.00009,0,0,1,5.65722-5.65674L128,170.34326l77.17139-77.17163a4.00009,4.00009,0,0,1,5.65722,5.65674l-80,80.00024A3.98881,3.98881,0,0,1,128,180Z'
+                                }
+                            })
+                        })
+                    })
+                ]
+            }),
+            CreateElement({
+                el: 'div',
+                className: 'floating-container',
+                childs: items.map(item => {
+                    const itemValue = typeof item === 'object' ? item.value : item;
+                    const itemText = typeof item === 'object' ? item.text : item;
+                    return CreateElement({
+                        el: 'div',
+                        className: 'item',
+                        attr: { value: itemValue },
+                        child: CreateElement({
+                            el: 'span',
+                            text: itemText
+                        })
+                    });
+                })
+            })
+        ]
+    });
+
+    return comboBox;
 }

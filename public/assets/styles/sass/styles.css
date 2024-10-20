@@ -1998,6 +1998,32 @@ body {
   background: #F5F6F7;
 }
 
+.custom-combo-box.small {
+  width: 100%;
+  border-radius: 4px;
+}
+
+.custom-combo-box.small .main-content {
+  height: 30px;
+}
+
+.custom-combo-box.small .main-content input {
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.custom-combo-box.small .main-content .icon {
+  width: 30px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  max-width: 24px;
+}
+
+.custom-combo-box.small .main-content .icon svg, .custom-combo-box.small .main-content .icon path {
+  width: 18px;
+}
+
 .custom-combo-box.show .floating-container {
   display: block;
 }

@@ -2,8 +2,8 @@ import Popup from "../../../classes/components/Popup.js";
 import ImportWizard from '../../../classes/components/ImportWizard.js';
 import FileUploader from '../../../classes/components/FileUploader.js';
 import TableBulkEntryGenerator from '../../../classes/components/TableBulkEntryGenerator.js';
-import { ListenToForm, ManageComboBoxes, GetComboValue, MakeID } from '../../../modules/component/Tool.js';
-import { SelectSomething, SelectModel } from '../../../modules/app/Administrator.js';
+import { ListenToForm, ManageComboBoxes, GetComboValue, MakeID, CreateComboBox, SetNewComboItems, ListenToThisCombo, ListenToCombo } from '../../../modules/component/Tool.js';
+import { SelectSomething, SelectModel,SelectModels } from '../../../modules/app/Administrator.js';
 
 // Global variables to store data
 let tableBulkEntryGenerator;
@@ -140,57 +140,108 @@ function setupSubjectsAndProfessors() {
         const newSubjectCard = document.createElement('div');
         newSubjectCard.className = 'subject-card';
         newSubjectCard.draggable = false;
+        
+        // Create the course combo box
+        const courseComboBox = CreateComboBox('subject-course_name[]', 'Select course', [], false, subject ? { value: subject.course_id, text: subject.course_name } : null, false);
+
         if (subject) {
             newSubjectCard.innerHTML = `
                 <input type="text" name="subject[]" class="primary-text" value="${subject.name}" readonly>
                 <input type="text" name="subject-code[]" class="secondary-text" value="${subject.code}" readonly>
-                <input type="text" name="subject-course_name[]" class="tertiary-text" value="${subject.course_name}" readonly>
                 <div class="assigned-professor"></div>
                 <button type="button" class="btn-remove-subject"><i data-feather="x"></i></button>
             `;
+            newSubjectCard.insertBefore(courseComboBox, newSubjectCard.querySelector('.assigned-professor'));
             subjectsArray.push(subject);
         } else {
             newSubjectCard.innerHTML = `
                 <input type="text" name="subject[]" class="primary-text" placeholder="Subject name" required>
                 <input type="text" name="subject-code[]" class="secondary-text" placeholder="Subject code">
-                <input type="text" name="subject-course_name[]" class="tertiary-text" placeholder="Course name">
                 <div class="assigned-professor"></div>
                 <button type="button" class="btn-remove-subject"><i data-feather="x"></i></button>
             `;
-            const newSubject = { name: '', code: '', course_name: '', professor: null };
+            newSubjectCard.insertBefore(courseComboBox, newSubjectCard.querySelector('.assigned-professor'));
+            const newSubject = { name: '', code: '', course_name: '', course_id: '', professor: null };
             subjectsArray.push(newSubject);
-            newSubjectCard.dataset.index = subjectsArray.length - 1;
         }
+        
+        newSubjectCard.dataset.index = subjectsArray.length - 1;
         subjectsContainer.appendChild(newSubjectCard);
         feather.replace();
         setupDragAndDrop(newSubjectCard);
         displaySubjects();
+
+        // Populate the course combo box
+        populateCourseComboBox(courseComboBox, newSubjectCard);
+    }
+
+    function populateCourseComboBox(comboBox, newSubjectCard) {
+        // Fetch courses from your API or use a predefined list
+        SelectModels("COURSE_CONTROL", []).then(courses => {
+            const courseItems = courses.map(course => ({
+                value: course.course_id,
+                text: course.course_name
+            }));
+            
+            SetNewComboItems(comboBox, courseItems);
+
+            ListenToThisCombo(comboBox, (value, text) => {
+                const index = parseInt(newSubjectCard.dataset.index);
+                subjectsArray[index].course_id = value;
+                subjectsArray[index].course_name = text;
+                displaySubjects();
+            });
+        });
     }
 
     function createProfessorCard(professor = null) {
         const newProfessorCard = document.createElement('div');
         newProfessorCard.className = 'professor-card';
         newProfessorCard.draggable = true;
+        
+        // Create the main course combo box
+        const mainCourseComboBox = CreateComboBox('professor-main-course[]', 'Select main course', [], false, professor ? { value: professor.main_course_id, text: professor.main_course } : null, false);
+
         if (professor) {
             newProfessorCard.innerHTML = `
                 <input type="text" name="professor[]" class="primary-text" value="${professor.displayName}" readonly>
-                <input type="text" name="professor-main-course[]" class="secondary-text" value="${professor.main_course}" readonly>
                 <button type="button" class="btn-remove-professor"><i data-feather="x"></i></button>
             `;
+            newProfessorCard.insertBefore(mainCourseComboBox, newProfessorCard.querySelector('.btn-remove-professor'));
             professorsArray.push(professor);
         } else {
             newProfessorCard.innerHTML = `
                 <input type="text" name="professor[]" class="primary-text" placeholder="Professor name" required>
-                <input type="text" name="professor-main-course[]" class="secondary-text" placeholder="Main course" required>
                 <button type="button" class="btn-remove-professor"><i data-feather="x"></i></button>
             `;
-            const newProfessor = { displayName: '', main_course: '' };
+            newProfessorCard.insertBefore(mainCourseComboBox, newProfessorCard.querySelector('.btn-remove-professor'));
+            const newProfessor = { displayName: '', main_course: '', main_course_id: '' };
             professorsArray.push(newProfessor);
         }
         newProfessorCard.dataset.index = professorsArray.length - 1;
         professorsContainer.appendChild(newProfessorCard);
         feather.replace();
         setupDragAndDrop(newProfessorCard);
+
+        // Populate the main course combo box
+        populateMainCourseComboBox(mainCourseComboBox, newProfessorCard);
+    }
+
+    function populateMainCourseComboBox(comboBox, newProfessorCard) {
+        SelectModels("COURSE_CONTROL", []).then(courses => {
+            const courseItems = courses.map(course => ({
+                value: course.course_id,
+                text: course.course_name
+            }));
+            
+            SetNewComboItems(comboBox, courseItems);
+
+            ListenToThisCombo(comboBox, (value, text) => {
+                const index = parseInt(newProfessorCard.dataset.index);
+                professorsArray[index].main_course_id = value;
+                professorsArray[index].main_course = text;
+            });
+        });
     }
 
     function displaySubjects() {
@@ -202,7 +253,7 @@ function setupSubjectsAndProfessors() {
             subjectCard.innerHTML = `
                 <input type="text" class="primary-text" value="${subject.name}" readonly>
                 <input type="text" class="secondary-text" value="${subject.code}" readonly>
-                <input type="text" class="tertiary-text" value="${subject.course_name}" readonly>
+                <input type="text" class="tertiary-text" value="${subject.course_name || 'No course selected'}" readonly>
                 <div class="assigned-professor">${subject.professor ? subject.professor.displayName : ''}</div>
                 ${subject.professor ? '<button type="button" class="btn-remove-assigned-professor"><i data-feather="x"></i></button>' : ''}
             `;
@@ -271,6 +322,7 @@ function setupSubjectsAndProfessors() {
                     name: res.subject_name,
                     code: res.subject_code,
                     course_name: course.course_name,
+                    course_id: res.course_id,
                     subject_id: res.subject_id,
                     professor: null
                 }
@@ -289,6 +341,7 @@ function setupSubjectsAndProfessors() {
             const professor = {
                 displayName: res.displayName,
                 main_course: course.course_name,
+                main_course_id: res.main_course_id,
                 professor_id: res.professor_id
             };
             
@@ -299,7 +352,7 @@ function setupSubjectsAndProfessors() {
     subjectsContainer.addEventListener('click', function(e) {
         if (e.target.closest('.btn-remove-subject')) {
             const card = e.target.closest('.subject-card');
-            const index = Array.from(subjectsContainer.children).indexOf(card);
+            const index = parseInt(card.dataset.index);
             subjectsArray.splice(index, 1);
             card.remove();
             displaySubjects();
@@ -309,7 +362,7 @@ function setupSubjectsAndProfessors() {
     professorsContainer.addEventListener('click', function(e) {
         if (e.target.closest('.btn-remove-professor')) {
             const card = e.target.closest('.professor-card');
-            const index = Array.from(professorsContainer.children).indexOf(card);
+            const index = parseInt(card.dataset.index);
             professorsArray.splice(index, 1);
             card.remove();
         }
@@ -326,7 +379,7 @@ function setupSubjectsAndProfessors() {
 
     subjectsContainer.addEventListener('input', function(e) {
         const card = e.target.closest('.subject-card');
-        const index = Array.from(subjectsContainer.children).indexOf(card);
+        const index = parseInt(card.dataset.index);
         const subject = subjectsArray[index];
         const inputName = e.target.name;
         
@@ -334,8 +387,6 @@ function setupSubjectsAndProfessors() {
             subject.name = e.target.value;
         } else if (inputName === 'subject-code[]') {
             subject.code = e.target.value;
-        } else if (inputName === 'subject-course_name[]') {
-            subject.course_name = e.target.value;
         }
         
         displaySubjects();
@@ -343,14 +394,12 @@ function setupSubjectsAndProfessors() {
 
     professorsContainer.addEventListener('input', function(e) {
         const card = e.target.closest('.professor-card');
-        const index = Array.from(professorsContainer.children).indexOf(card);
+        const index = parseInt(card.dataset.index);
         const professor = professorsArray[index];
         const inputName = e.target.name;
         
         if (inputName === 'professor[]') {
             professor.displayName = e.target.value;
-        } else if (inputName === 'professor-main-course[]') {
-            professor.main_course = e.target.value;
         }
     });
 }

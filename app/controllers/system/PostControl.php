@@ -70,6 +70,10 @@ class PostControl
         $filter = json_decode($_POST["filter"], true);
         $controller = $_POST['controller'];
 
+        if (empty($filter) || !is_array($filter) || count($filter) == 0 || !isset($filter)) {
+            return $APPLICATION->FUNCTIONS->{$controller}->getAllRecords(true);
+        }
+
         return $APPLICATION->FUNCTIONS->{$controller}->filterRecords($filter, true);
     }
 

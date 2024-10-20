@@ -31,6 +31,13 @@ class Section extends SectionAbstract
     {
         global $APPLICATION;
 
-        return $APPLICATION->FUNCTIONS->SECTION_STUDENT_CONTROL->filterRecords(['section_id' => $this->section_id], false);
+        return $APPLICATION->FUNCTIONS->SECTION_STUDENT_CONTROL->filterRecords(['section_id' => $this->section_id], true);
+    }
+
+    public function getSubjectForProfessor($professor_id)
+    {
+        global $APPLICATION;
+
+        return $APPLICATION->FUNCTIONS->SECTION_SUBJECT_CONTROL->filterRecords(['section_id' => $this->section_id, 'professor_id' => $professor_id], true);
     }
 }

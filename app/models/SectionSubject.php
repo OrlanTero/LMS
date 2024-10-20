@@ -15,6 +15,7 @@ class SectionSubject extends SectionSubjectAbstract
     public $schedule;
 
     public $schedule_label;
+
     public function __construct($data = [])
     {
         $this->applyData($data, SectionSubjectAbstract::class);
@@ -37,5 +38,12 @@ class SectionSubject extends SectionSubjectAbstract
             }
 
         }
+    }
+
+    public function getSection()
+    {
+        global $APPLICATION;
+
+        return $APPLICATION->FUNCTIONS->SECTION_CONTROL->get($this->section_id, true);
     }
 }

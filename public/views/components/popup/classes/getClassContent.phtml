@@ -1,7 +1,6 @@
-
 <?php
 
-global $APPLICATION, $STUDENTS_IN_CLASSES_HEADER_BODY, $SUBJECTS_IN_CLASSES_HEADER_BODY;
+global $APPLICATION, $SESSION, $STUDENTS_IN_CLASSES_HEADER_BODY, $SUBJECTS_IN_CLASSES_HEADER_BODY;
 
 $id = $_POST['id'];
 
@@ -20,7 +19,79 @@ $RECORDS = array_map(function ($record)  {
 $SUBJECTS = array_map(function ($record){
     $record->subject_name = $record->subject->subject_name;
     return $record;
-}, $section->subjects);
+}, $section->getSubjectForProfessor($SESSION->getAsProfessor()->professor_id));
+
+// Fetch resources (this is a placeholder, replace with actual data fetching)
+$RESOURCES = [
+    'Mathematics' => [
+        [
+            'title' => 'Sample Math Resource 1',
+            'description' => 'This is a sample math resource description',
+            'filename' => 'math1.pdf',
+            'filesize' => '2.5 MB',
+            'date' => '2023-06-15',
+            'type' => 'pdf'
+        ],
+        [
+            'title' => 'Sample Math Resource 2',
+            'description' => 'Another sample math resource description',
+            'filename' => 'math2.docx',
+            'filesize' => '1.8 MB',
+            'date' => '2023-06-16',
+            'type' => 'docx'
+        ]
+    ],
+    'Science' => [
+        [
+            'title' => 'Sample Science Video',
+            'description' => 'A video resource for Science',
+            'filename' => 'science_video.mp4',
+            'filesize' => '50 MB',
+            'date' => '2023-06-18',
+            'type' => 'video'
+        ],
+        [
+            'title' => 'Sample Science Resource',
+            'description' => 'A resource for Science',
+            'filename' => 'science1.pdf',
+            'filesize' => '3.2 MB',
+            'date' => '2023-06-19',
+            'type' => 'pdf'
+        ]
+    ]
+];
+
+// Fetch activities (this is a placeholder, replace with actual data fetching)
+$ACTIVITIES = [
+    [
+        'title' => 'Activity 1',
+        'description' => 'This is a sample activity description',
+        'due_date' => '2023-07-01',
+        'status' => 'Ongoing'
+    ],
+    [
+        'title' => 'Activity 2',
+        'description' => 'Another sample activity description',
+        'due_date' => '2023-07-15',
+        'status' => 'Upcoming'
+    ]
+];
+
+// Fetch exams (this is a placeholder, replace with actual data fetching)
+$EXAMS = [
+    [
+        'title' => 'Midterm Exam',
+        'subject' => 'Mathematics',
+        'date' => '2023-07-30',
+        'duration' => '2 hours'
+    ],
+    [
+        'title' => 'Final Exam',
+        'subject' => 'Science',
+        'date' => '2023-08-15',
+        'duration' => '3 hours'
+    ]
+];
 ?>
 
 <div class="main-body-body">
@@ -47,37 +118,547 @@ $SUBJECTS = array_map(function ($record){
                 </div>
             </div>
             <div class="main-table-body">
-                <div class="main-two-flex-container">
-                    <div class="main-flex-container">
-                        <div class="container-head">
-                            <div class="title">
-                                <h2>Students</h2>
-                            </div>
-                        </div>
-                        <div class="container-content">
+                <div class="main">
+                <div class="tab-container">
+                    <ul class="tab-nav">
+                        <li class="tab-item active" data-tab="students">STUDENTS</li>
+                        <li class="tab-item" data-tab="subjects">SUBJECTS</li>
+                        <li class="tab-item" data-tab="resources">RESOURCES</li>
+                        <li class="tab-item" data-tab="activities">ACTIVITIES</li>
+                        <li class="tab-item" data-tab="exams">EXAMS</li>
+                        <li class="tab-item" data-tab="notes">NOTES</li>
+                        <li class="tab-item" data-tab="grades">GRADES</li>
+                        <li class="tab-item" data-tab="options">OPTIONS</li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="students">
                             <?= CreateTable([
                                 "content" => $STUDENTS_IN_CLASSES_HEADER_BODY,
                                 "data" => $RECORDS,
                                 "id" => "user_id"
                             ]) ?>
                         </div>
-                    </div>
-                    <div class="main-flex-container">
-                        <div class="container-head">
-                            <div class="title">
-                                <h2>Subjects</h2>
-                            </div>
-                        </div>
-                        <div class="container-content">
+                        <div class="tab-pane" id="subjects">
                             <?= CreateTable([
                                 "content" => $SUBJECTS_IN_CLASSES_HEADER_BODY,
                                 "data" => $SUBJECTS,
                                 "id" => "section_subject_id"
                             ]) ?>
                         </div>
+                        <div class="tab-pane" id="resources">
+                            <div class="resources-container">
+                                <div class="resources-actions">
+                                    <button class="btn btn-primary">Upload Resource</button>
+                                </div>
+                                <div class="resources-content">
+                                    <div class="resources-menu">
+                                        <ul>
+                                            <?php foreach ($RESOURCES as $subject => $resources): ?>
+                                                <li class="subject-tab <?= $subject === array_key_first($RESOURCES) ? 'active' : '' ?>" data-subject="<?= $subject ?>"><?= $subject ?></li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    </div>
+                                    <div class="resources-list">
+                                        <?php foreach ($RESOURCES as $subject => $subjectResources): ?>
+                                            <div class="subject-resources <?= $subject === array_key_first($RESOURCES) ? 'active' : '' ?>" data-subject="<?= $subject ?>">
+                                                <h3><?= $subject ?> Resources</h3>
+                                                <?php foreach ($subjectResources as $resource): ?>
+                                                    <div class="resource-item">
+                                                        <div class="resource-info">
+                                                            <h4><?= $resource['title'] ?></h4>
+                                                            <p><?= $resource['description'] ?></p>
+                                                            <small>
+                                                                <?= $resource['filename'] ?> | 
+                                                                <?= $resource['filesize'] ?> | 
+                                                                <?= $resource['date'] ?>
+                                                            </small>
+                                                        </div>
+                                                        <div class="resource-actions">
+                                                            <button class="btn btn-circle" title="Download">
+                                                                <?= UseIcon("download-thin") ?>
+                                                            </button>
+                                                            <button class="btn btn-circle" title="View">
+                                                                <?= UseIcon("eye-thin") ?>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="activities">
+                            <div class="activities-container">
+                                <div class="activities-actions">
+                                    <button class="btn btn-primary">Add Activity</button>
+                                </div>
+                                <div class="activities-list">
+                                    <?php foreach ($ACTIVITIES as $activity): ?>
+                                        <div class="activity-item">
+                                            <div class="activity-info">
+                                                <h3><?= $activity['title'] ?></h3>
+                                                <p><?= $activity['description'] ?></p>
+                                                <small>
+                                                    Due: <?= $activity['due_date'] ?> | 
+                                                    Status: <?= $activity['status'] ?>
+                                                </small>
+                                            </div>
+                                            <div class="activity-actions">
+                                                <button class="btn btn-circle" title="Edit">
+                                                    <?= UseIcon("pencil-thin") ?>
+                                                </button>
+                                                <button class="btn btn-circle" title="Delete">
+                                                    <?= UseIcon("trash-thin") ?>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="exams">
+                            <div class="exams-container">
+                                <div class="exams-actions">
+                                    <button class="btn btn-primary">Schedule Exam</button>
+                                </div>
+                                <div class="exams-list">
+                                    <?php foreach ($EXAMS as $exam): ?>
+                                        <div class="exam-item">
+                                            <div class="exam-info">
+                                                <h3><?= $exam['title'] ?></h3>
+                                                <p>Subject: <?= $exam['subject'] ?></p>
+                                                <small>
+                                                    Date: <?= $exam['date'] ?> | 
+                                                    Duration: <?= $exam['duration'] ?>
+                                                </small>
+                                            </div>
+                                            <div class="exam-actions">
+                                                <button class="btn btn-circle" title="Edit">
+                                                    <?= UseIcon("pencil-thin") ?>
+                                                </button>
+                                                <button class="btn btn-circle" title="Delete">
+                                                    <?= UseIcon("trash-thin") ?>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="notes">
+                            <div class="notes-container">
+                                <div class="notes-actions">
+                                    <button class="btn btn-primary" id="add-note">Add Note</button>
+                                    <button class="btn btn-success" id="save-notes" disabled>Save</button>
+                                    <button class="btn btn-danger" id="discard-changes" disabled>Discard</button>
+                                </div>
+                                <div class="notes-board" id="notes-board">
+                                    <!-- Notes will be dynamically added here -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="grades">
+                            <p>Grades content goes here.</p>
+                        </div>
+                        <div class="tab-pane" id="options">
+                            <p>Options content goes here.</p>
+                        </div>
                     </div>
+                </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.tab-container {
+    width: 100%;
+    margin-top: 20px;
+    display: block !important;
+}
+
+.tab-nav {
+    display: flex;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    background-color: #f1f1f1;
+    border-bottom: 1px solid #ccc;
+}
+
+.tab-item {
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.tab-item:hover {
+    background-color: #ddd;
+}
+
+.tab-item.active {
+    background-color: #fff;
+    border-bottom: 2px solid #007bff;
+}
+
+.tab-content {
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-top: none;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+.resources-container,
+.activities-container,
+.exams-container,
+.notes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.resources-actions,
+.activities-actions,
+.exams-actions,
+.notes-actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+.resources-content {
+    display: flex;
+    gap: 20px;
+}
+
+.resources-menu {
+    width: 200px;
+    border-right: 1px solid #ddd;
+}
+
+.resources-menu ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.resources-menu li {
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.resources-menu li:hover {
+    background-color: #f0f0f0;
+}
+
+.resources-menu li.active {
+    background-color: #007bff;
+    color: white;
+}
+
+.resources-list {
+    flex-grow: 1;
+}
+
+.subject-resources {
+    display: none;
+}
+
+.subject-resources.active {
+    display: block;
+}
+
+.activities-list,
+.exams-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.resource-item,
+.activity-item,
+.exam-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.resource-item:last-child,
+.activity-item:last-child,
+.exam-item:last-child {
+    border-bottom: none;
+}
+
+.resource-info h4,
+.activity-info h3,
+.exam-info h3 {
+    margin: 0 0 5px 0;
+}
+
+.resource-info p,
+.activity-info p,
+.exam-info p {
+    margin: 0 0 5px 0;
+}
+
+.resource-actions,
+.activity-actions,
+.exam-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    transition: all 0.3s ease;
+}
+
+.btn-circle:hover {
+    background-color: #e9ecef;
+}
+
+.btn-circle svg {
+    width: 18px;
+    height: 18px;
+    fill: #6c757d;
+}
+
+.notes-board {
+    width: 100%;
+    height: 600px;
+    background-color: #f0f0f0;
+    background-image: 
+        linear-gradient(rgba(255,255,255,.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.2) 1px, transparent 1px);
+    background-size: 20px 20px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+}
+
+.sticky-note {
+    min-width: 150px;
+    min-height: 150px;
+    position: absolute;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
+    cursor: move;
+    overflow: hidden;
+    border-radius: 2px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+}
+
+.sticky-note:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 8px rgba(0,0,0,0.15), 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.sticky-note textarea {
+    width: 100%;
+    height: calc(100% - 60px);
+    border: none;
+    background: transparent;
+    resize: none;
+    font-family: 'Handlee', cursive;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.note-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.note-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: rgba(0,0,0,0.5);
+    transition: color 0.3s ease;
+}
+
+.note-btn:hover {
+    color: rgba(0,0,0,0.8);
+}
+
+.color-picker {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.color-option {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.color-option:hover {
+    transform: scale(1.2);
+}
+
+.custom-color-picker {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    background: linear-gradient(to right, red, yellow, green, blue, indigo, violet);
+    position: relative;
+    overflow: hidden;
+}
+
+.custom-color-picker:hover {
+    transform: scale(1.2);
+}
+
+.custom-color-picker input[type="color"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.locked {
+    cursor: default;
+}
+
+.locked::after {
+    content: '🔒';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 16px;
+}
+
+.resize-handle {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    cursor: se-resize;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.resize-handle::after {
+    content: '↘️';
+    font-size: 14px;
+    color: white;
+}
+
+.rotate-handle {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    /* cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAABNklEQVR4nO2XMU7DQBBF3xIJiYtwAQQNZ6DkBFBzAEQRzkDFAWgoOQGIlpIDQEELHRUUkVKkiQRCymejkSxFsbOJ7V3TrPSkkWb+/J3dlVYLwzBWC3AB3AFvQJVpb8A1cL4ueBt4XgN41b4BnSbwHnBfA3Dh3oFuKnxYE7hwQ1L2vSn4K3DqrR0B4yXhEyA3+A7wkeAMvPUeMImAT4AhsGXwUyBPcN6BnrfeS4RPgRGwbfATIE9wZmY/8NY7EfBHYA/YNPgxkCc4U7MfeuudCPgjcABsGPwIyBOcmdmPvPUk+BNwCKwb/BDIjXNu9mNvvRsJfwGOgDWD9w3u7Mfs5956PxL+ChwDHYMfALlxLsx+4q0PIuFvwCmwavDY/7wJfGHwdZqGYRjGf+EbNrQO7N+PuWoAAAAASUVORK5CYII=') 10 10, auto; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.rotate-handle::after {
+    content: '🔄';
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.5);
+}
+
+@keyframes shake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    30% { transform: translate(3px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(3px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(1px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+.shake {
+    animation: shake 0.5s;
+    animation-iteration-count: 1;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+</style>
