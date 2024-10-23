@@ -1,0 +1,118 @@
+<?php
+
+global $APPLICATION, $COURSE_HEADER_BODY, $SESSION;
+
+$student = $SESSION->getAsStudent();;
+
+$sectionStudent = $student->getSectionStudent();
+
+$section = $sectionStudent->section;
+
+$subjects = $section->subjects;
+
+// Group subjects by professor
+$subjectsByProfessor = [];
+
+foreach ($subjects as $subject) {
+    $professorId = $subject->professor->professor_id;
+    if (!isset($subjectsByProfessor[$professorId])) {
+        $subjectsByProfessor[$professorId] = [
+            'professor' => $subject->professor,
+            'subjects' => []
+        ];
+    }
+    $subjectsByProfessor[$professorId]['subjects'][] = $subject;
+}
+?>
+
+
+?>
+
+<?php include "public/views/pages/structures/html_headings.phtml" ?>
+
+<title>Classes</title>
+
+<?php include "public/views/pages/structures/html_heading_closing.phtml" ?>
+
+<?php include "public/views/pages/structures/html_body_open.phtml" ?>
+
+<?php include "public/views/pages/structures/html_opening_parent.phtml" ?>
+
+<div class="left-content">
+
+    <?php include "public/views/pages/structures/html_navbar.phtml" ?>
+
+    <?php include "public/views/pages/structures/html_right_heading.phtml" ?>
+
+</div>
+
+<div class="right-content">
+
+    <div class="right-body">
+        <div class="main-body-content-parent">
+            <div class="main-body-header">
+                <div class="header-nav">
+                    <div class="left">
+                        <div class="title">
+                            <h2>Classes</h2>
+                        </div>
+                    </div>
+                    <div class="right"></div>
+                </div>
+            </div>
+            <div class="main-content">
+            <div class="main-body-body">
+                <div class="data-table-content">
+                    <div class="main-table-container table-component">
+                        <div class="main-table-header">
+                            <div class="table-header">
+                                <div class="left">
+                                    <div class="title">
+                                        <h2>List of Subjects</h2>
+                                    </div>
+                                </div>
+                                <div class="center">
+                                    <div class="search-engine-parent full-width">
+                                        <div class="search-engine">
+                                            <div class="icon">
+                                                <?= UseIcon("magnifying-glass-thin") ?>
+                                            </div>
+                                            <input type="text" name="search-records" placeholder="Search Records...">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="right"></div>
+                            </div>
+                        </div>
+                        <div class="main-table-body main-table-requests" >
+
+                            <div class="cards-flex-container">
+                                <?php foreach ($subjectsByProfessor as $subProf): ?>
+                                    <div class="card-flex-container" data-id="<?= $section->section_id ?>" data-professor_id="<?= $subProf['professor']->professor_id ?>">
+                                        <div class="title">
+                                            <h3><?= implode(", ", array_map(fn($subject) => $subject->subject->subject_name, $subProf['subjects'])) ?></h3>
+                                            <p><?= $subProf['professor']->displayName ?></p>
+                                            <?php
+                                            $uniqueDays = array_unique(array_merge(...array_map(fn($subject) => explode(', ', $subject->schedule ? $subject->schedule->schedule_label : "" ), $subProf['subjects'])));
+                                            sort($uniqueDays);
+                                            ?>
+                                            <small><?= implode(', ', $uniqueDays) ?></small>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <?php include "public/views/pages/structures/html_pipes.phtml" ?>
+
+    <script type="module" src="/public/assets/scripts/pages/faculty/me/classes.js"></script>
+
+    <?php include "public/views/pages/structures/html_closing_parent.phtml" ?>
+
+    <?php include "public/views/pages/structures/html_body_closing.phtml" ?>

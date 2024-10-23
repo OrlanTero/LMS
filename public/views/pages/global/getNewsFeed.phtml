@@ -1,0 +1,128 @@
+<?php
+
+global $APPLICATION, $USER_HEADER_BODY, $SESSION;
+
+$control = $APPLICATION->FUNCTIONS->USER_CONTROL;
+$postControl = $APPLICATION->FUNCTIONS->POSTS_CONTROL;
+$RECORDS = $control->filterRecords(['user_type' => 2],true);
+
+$POSTS = $postControl->getLatestRecords(false, true, null, "date_created ");
+
+$ANNOUNCEMENTS = $APPLICATION->FUNCTIONS->ANNOUNCEMENT_CONTROL->getAllRecords(true);
+
+?>
+
+<div class="newsfeed-flex">
+    <div class="newsfeed-main-container">
+
+        <div class="post-creator-container">
+            <div class="creator-head">
+                <div class="photo">
+                    <div class="image">
+                        <img src="<?= $SESSION->getPhotoURL()?>" alt="">
+                    </div>
+                </div>
+                <div class="texts">
+                    <p class="primary">Create a Post</p>
+                    <p class="secondary">What's on your mind, <?= $SESSION->displayName ?>?</p>
+                </div>
+            </div>
+            <div class="creator-body">
+                <div class="textarea-container">
+                    <span>Create a Post</span>
+                </div>
+            </div>
+        </div>
+
+        <?php foreach ($POSTS as $POST): ?>
+            <div class="post-container" data-id="<?= $POST->post_id ?>">
+                <div class="post-head">
+                    <div class="photo">
+                        <div class="image">
+                            <img src="<?= $POST->author->photoURL ?>" alt="">
+                        </div>
+                    </div>
+                    <div class="texts">
+                        <p class="primary"><?= ucwords($POST->author->displayName) ?></p>
+                        <p class="secondary"><?= $POST->author->typeName ?></p>
+                    </div>
+                </div>
+                <div class="post-body">
+                    <div class="post-content">
+                        <?= $POST->content ?>
+                    </div>
+                    <?php if (count($POST->medias) > 0): ?>
+                        <div class="post-media">
+                            <section class="splide user-post-gallery">
+                                <div class="splide__track">
+                                    <ul class="splide__list">
+                                        <?php foreach ($POST->medias as $media): ?>
+                                            <img src="/<?= $media->filepath ?>" class="post-img" alt="">
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            </section>
+                        </div>
+                    <?php endif ?>
+                </div>
+                <div class="post-footer">
+                    <div class="reaction-container">
+                        <div class="date-content">
+                            <small><?= date('F j, Y \a\t g:i A', strtotime($POST->date_created)) ?></small>
+                        </div>
+                        <div class="reaction-content">
+                            <div class="icon-button like-button <?= $POST->isLiked ? 'active' : '' ?>">
+                                <div class="icon">
+                                    <?= UseIcon('heart-thin') ?>
+                                </div>
+                                <div class="text">
+                                    <span>Like</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="reaction-content-result <?= count($POST->likes) == 0 ? 'hide-component' : '' ?>">
+                        <span><?= count($POST->likes) ?> People like this</span>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach ?>
+
+
+    </div>
+    <div class="newsfeed-announcement">
+        <div class="announcement-title">
+            <h2>Announcements</h2>
+        </div>
+
+        <?php if ($SESSION->user_type == 3 || $SESSION->user_type == 4): ?>
+            <div class="announcement-creator">
+                <div class="photo">
+                    <div class="circle">
+                        <?= UseIcon('plus-thin') ?>
+                    </div>
+                </div>
+                <div class="text">
+                    <p> New Announcement</p>
+                </div>
+            </div>
+        <?php endif ?>
+
+
+        <div class="announcement-contents">
+            <?php foreach ($ANNOUNCEMENTS as $ANNOUNCEMENT): ?>
+                <div class="announcement-container">
+                    <div class="announcement-header">
+                        <div class="title">
+                            <p class="primary"><?= $ANNOUNCEMENT->title ?></p>
+                            <p class="secondary"><?= date('F j, Y \a\t g:i A', strtotime($ANNOUNCEMENT->date_created)) ?></p>
+                        </div>
+                    </div>
+                    <div class="announcement-body">
+                        <?= $ANNOUNCEMENT->content ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</div>

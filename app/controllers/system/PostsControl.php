@@ -26,21 +26,23 @@ class PostsControl extends ControlDefaultFunctions
 
         $data['user_id'] = $SESSION->user_id;
 
-        $files = $data['files'];
-
-        unset($data['files']);
+        if (isset($data['files'])) {
+            $files = $data['files'];
+            unset($data['files']);
+        }
 
         $add = $this->addRecord($data);
 
-        if (!empty($files)) {
-            foreach ($files as $file) {
-                $control->addRecord([
-                    "post_id" => $add->body['id'],
-                    "filepath" => $file
-                ]);
+        if (isset($files)) {
+            if (is_array($files) && !empty($files)) {
+                foreach ($files as $file) {
+                    $control->addRecord([
+                        "post_id" => $add->body['id'],
+                        "filepath" => $file
+                    ]);
+                }
             }
         }
-
 
         return  $add;
     }

@@ -60,8 +60,6 @@ function PublishAnnouncement(data) {
 }
 
 function CreateNewPost() {
-
-    // console.log(Macy)
     const popup = new Popup(`${TARGET}/create_new_${MINI_TARGET}`, null, {
         backgroundDismiss: false,
     });
@@ -108,17 +106,22 @@ function CreateNewPost() {
         
         ListenToForm(form, function (data) {
             return new Promise((resolve, reject) => {
-                Promise.all([...uploadedFiles].map(async (file) => {
-                    return await UploadFileFromFile(file, MakeID(), "public/assets/media/uploads/").then((res) => res.body.path);
-                })).then((fff) => {
-                    return PublishPost({
+                if (uploadedFiles.length > 0) {
+                    Promise.all([...uploadedFiles].map(async (file) => {
+                        return await UploadFileFromFile(file, MakeID(), "public/assets/media/uploads/").then((res) => res.body.path);
+                    })).then((fff) => {
+                        return PublishPost({
+                            content: data.content,
+                            post_type: post_type ? GetComboValue(post_type).value : 2,
+                            files: fff
+                        }).then(resolve).finally(() => popup.Remove());
+                    })   
+                } else {
+                    PublishPost({
                         content: data.content,
-                        post_type: GetComboValue(post_type).value,
-                        files: fff
+                        post_type: post_type ? GetComboValue(post_type).value : 2,
                     }).then(resolve).finally(() => popup.Remove());
-                })
-
-
+                }
             })
         })
 
@@ -149,6 +152,12 @@ function CreateNewAnnouncement() {
     }));
 }
 
+function LikeAPost(post_id) {
+    return new Promise((resolve) => {
+        AddRecord("post_likes", {data: JSON.stringify({post_id})}).then(resolve);
+    })
+}
+
 function ManageAllPosts() {
     const posts = document.querySelectorAll(".post-container");
     const creator = document.querySelector(".announcement-creator");
@@ -156,15 +165,46 @@ function ManageAllPosts() {
 
     for (const post of posts) {
         const splide = post.querySelector(".splide.user-post-gallery");
+        const postMedia = post.querySelector(".post-media");
+        const likeButton = post.querySelector(".like-button");
+        const likeCount = post.querySelector(".reaction-content-result span");
 
-        const ss = new Splide(splide);
+        if (splide && postMedia) {
+            const ss = new Splide(splide);
 
-        ss.mount();
+            ss.mount();
+        }
+
+        function UpdateLikeButton(code) {
+            if (code == 200) {
+                likeButton.classList.add("active");
+            } else {
+                likeButton.classList.remove("active");
+            }
+        }
+
+        if (likeButton) {
+            likeButton.addEventListener("click", function () {
+                LikeAPost(post.dataset.id).then((res) => {
+                    UpdateLikeButton(res.code);
+
+                    likeCount.textContent = `${res.body.likes} People like this`;
+
+                    if (res.body.likes == 0) {
+                        likeCount.parentElement.classList.add("hide-component");
+                    } else {
+                        likeCount.parentElement.classList.remove("hide-component");
+                    }
+                });
+            })
+        }
     }
 
-    creator.addEventListener("click", function () {
-        CreateNewAnnouncement();
-    })
+    if (creator) {
+        creator.addEventListener("click", function () {
+            CreateNewAnnouncement();
+        })
+    }
 }
 
 

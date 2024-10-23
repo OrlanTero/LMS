@@ -19,6 +19,12 @@ use Application\controllers\system\StaffControl;
 use Application\controllers\system\StudentControl;
 use Application\controllers\system\SubjectControl;
 use Application\controllers\system\UserControl;
+use Application\controllers\system\ResourcesControl;
+use Application\controllers\system\ResourcesGroupControl;
+use Application\controllers\system\ActivityControl;
+use Application\controllers\system\ExamControl;
+use Application\controllers\system\StickyNoteControl;
+use Application\controllers\system\PostLikeControl;
 use Application\models\Professor;
 use Application\models\Section;
 
@@ -46,12 +52,17 @@ class GlobalFunctions
     public $SUBJECT_CONTROL;
 
     public $STUDENT_CONTROL;
+
     public $SECTION_STUDENT_CONTROL;
+
     public $DEPARTMENT_CONTROL;
+
     public $SECTION_SUBJECT_CONTROL;
 
     public $STAFF_CONTROL;
+
     public $SCHEDULE_CONTROL;
+
     public $SCHEDULE_ITEM_CONTROL;
 
     public $POSTS_CONTROL;
@@ -59,6 +70,18 @@ class GlobalFunctions
     public $POST_MEDIA_CONTROL;
 
     public $ANNOUNCEMENT_CONTROL;
+
+    public $RESOURCES_CONTROL;
+
+    public $RESOURCES_GROUP_CONTROL;
+
+    public $ACTIVITY_CONTROL;
+
+    public $EXAM_CONTROL;   
+
+    public $STICKY_NOTE_CONTROL;
+
+    public $POST_LIKE_CONTROL;
 
     public function __construct($SESSION)
     {
@@ -104,6 +127,18 @@ class GlobalFunctions
 
         $this->POST_MEDIA_CONTROL = new PostMediaControl();
 
-        $this->ANNOUNCEMENT_CONTROL = new AnnouncementControl();;
+        $this->ANNOUNCEMENT_CONTROL = new AnnouncementControl();
+
+        $this->RESOURCES_CONTROL = new ResourcesControl();
+
+        $this->RESOURCES_GROUP_CONTROL = new ResourcesGroupControl();
+
+        $this->ACTIVITY_CONTROL = new ActivityControl();    
+
+        $this->EXAM_CONTROL = new ExamControl();
+
+        $this->STICKY_NOTE_CONTROL = new StickyNoteControl();
+
+        $this->POST_LIKE_CONTROL = new PostLikeControl();
     }
 }

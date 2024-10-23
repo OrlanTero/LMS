@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 18, 2024 at 06:10 AM
+-- Generation Time: Oct 23, 2024 at 11:45 AM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.1.12
 
@@ -20,6 +20,31 @@ SET time_zone = "+00:00";
 --
 -- Database: `lms_db`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `activities`
+--
+
+CREATE TABLE `activities` (
+  `activity_id` int(11) NOT NULL,
+  `section_subject_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `due_date` date NOT NULL,
+  `file` varchar(255) DEFAULT NULL,
+  `activity_status` varchar(255) NOT NULL DEFAULT 'On Going',
+  `status` int(11) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `activities`
+--
+
+INSERT INTO `activities` (`activity_id`, `section_subject_id`, `title`, `description`, `due_date`, `file`, `activity_status`, `status`, `date_created`) VALUES
+(1, 1, 'Activity 1', 'This is sample activity description', '2024-10-31', NULL, 'On Going', 0, '2024-10-23 01:45:05');
 
 -- --------------------------------------------------------
 
@@ -127,9 +152,38 @@ CREATE TABLE `email_verifications` (
 
 INSERT INTO `email_verifications` (`verification_id`, `user_id`, `verification`, `date_created`) VALUES
 (6, '1', '529649', '2024-09-22 21:34:47'),
-(10, '5', '549966', '2024-10-07 02:33:15'),
-(11, '4', '903773', '2024-10-07 03:02:25'),
-(13, '3', '471787', '2024-10-14 13:06:24');
+(18, '4', '975854', '2024-10-22 12:39:44'),
+(19, '5', '694906', '2024-10-23 06:06:10'),
+(20, '3', '776231', '2024-10-23 07:43:39');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `exams`
+--
+
+CREATE TABLE `exams` (
+  `exam_id` int(11) NOT NULL,
+  `section_id` int(11) NOT NULL,
+  `section_subject_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `count_items` int(11) NOT NULL,
+  `duration` varchar(255) NOT NULL,
+  `date_start` datetime DEFAULT NULL,
+  `due_date` date NOT NULL,
+  `file` varchar(255) NOT NULL,
+  `exam_status` int(11) NOT NULL,
+  `status` int(11) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `exams`
+--
+
+INSERT INTO `exams` (`exam_id`, `section_id`, `section_subject_id`, `title`, `description`, `count_items`, `duration`, `date_start`, `due_date`, `file`, `exam_status`, `status`, `date_created`) VALUES
+(1, 1, 1, 'Exam 1', '', 100, '30 Minutes', '2024-10-24 11:25:48', '2024-10-25', 'public/assets/media/uploads/exams/cmdc.sql.sql', 0, 0, '2024-10-23 03:21:56');
 
 -- --------------------------------------------------------
 
@@ -152,7 +206,31 @@ CREATE TABLE `posts` (
 
 INSERT INTO `posts` (`post_id`, `user_id`, `post_type`, `content`, `status`, `date_created`) VALUES
 (2, 3, 2, '<p>This is my Post</p>', 0, '2024-10-10 05:34:18'),
-(3, 3, 2, '<p>Hatdogggggggg</p>', 0, '2024-10-10 05:46:11');
+(3, 3, 2, '<p>Hatdogggggggg</p>', 0, '2024-10-10 05:46:11'),
+(4, 4, 2, '<p><strong>This is my Post as Faculty</strong></p><p>&nbsp;</p><p>Hello Everyone</p>', 0, '2024-10-23 05:36:41'),
+(5, 4, 2, '<h2><strong>This is the title</strong></h2><p>&nbsp;</p><p>This is the content</p>', 0, '2024-10-23 05:37:38');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `post_likes`
+--
+
+CREATE TABLE `post_likes` (
+  `post_like_id` int(11) NOT NULL,
+  `post_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `post_likes`
+--
+
+INSERT INTO `post_likes` (`post_like_id`, `post_id`, `user_id`, `date_created`) VALUES
+(13, 2, 4, '2024-10-23 06:03:00'),
+(14, 4, 4, '2024-10-23 06:03:02'),
+(16, 2, 3, '2024-10-23 06:04:26');
 
 -- --------------------------------------------------------
 
@@ -196,7 +274,62 @@ CREATE TABLE `professors` (
 --
 
 INSERT INTO `professors` (`professor_id`, `user_id`, `main_course_id`, `description`, `status`, `date_created`) VALUES
-(1, 4, 1, 'awdaw', 1, '2024-09-29 18:09:21');
+(1, 4, 1, 'awdaw', 1, '2024-09-29 18:09:21'),
+(2, 6, 1, '', 1, '2024-10-23 09:15:42'),
+(3, 8, 1, '', 1, '2024-10-23 09:19:03');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `resources`
+--
+
+CREATE TABLE `resources` (
+  `resources_id` int(11) NOT NULL,
+  `ref` varchar(255) NOT NULL,
+  `resources_group_id` int(11) NOT NULL,
+  `section_id` int(11) NOT NULL,
+  `section_subject_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `file_size` float NOT NULL,
+  `file_type` varchar(255) NOT NULL,
+  `file_name` varchar(255) NOT NULL,
+  `file_path` varchar(255) NOT NULL,
+  `status` int(11) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `resources`
+--
+
+INSERT INTO `resources` (`resources_id`, `ref`, `resources_group_id`, `section_id`, `section_subject_id`, `title`, `description`, `file_size`, `file_type`, `file_name`, `file_path`, `status`, `date_created`) VALUES
+(5, 'GRP-1729645498-7DJESWB4', 9, 1, 1, 'Resources 1', '...', 22479, 'sql', 'cmdc.sql', 'public/assets/media/resources/GRP-1729645498-7DJESWB4/cmdc.sql', 0, '2024-10-23 01:04:58');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `resources_groups`
+--
+
+CREATE TABLE `resources_groups` (
+  `resources_group_id` int(11) NOT NULL,
+  `section_id` int(11) NOT NULL,
+  `section_subject_id` int(11) NOT NULL,
+  `ref` varchar(255) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `status` int(11) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `resources_groups`
+--
+
+INSERT INTO `resources_groups` (`resources_group_id`, `section_id`, `section_subject_id`, `ref`, `title`, `description`, `status`, `date_created`) VALUES
+(9, 1, 1, 'GRP-1729645498-7DJESWB4', 'Resources Group', '...', 0, '2024-10-23 01:04:58');
 
 -- --------------------------------------------------------
 
@@ -287,7 +420,8 @@ CREATE TABLE `section_students` (
 --
 
 INSERT INTO `section_students` (`section_student_id`, `section_id`, `student_id`, `status`, `date_created`) VALUES
-(2, 1, 5, 1, '2024-09-30 00:17:18');
+(2, 1, 5, 1, '2024-09-30 00:17:18'),
+(3, 1, 9, 1, '2024-10-23 09:19:03');
 
 -- --------------------------------------------------------
 
@@ -310,7 +444,9 @@ CREATE TABLE `section_subjects` (
 --
 
 INSERT INTO `section_subjects` (`section_subject_id`, `section_id`, `subject_id`, `professor_id`, `schedule_id`, `status`, `date_created`) VALUES
-(1, 1, 1, 1, 1, 0, '2024-10-07 00:22:41');
+(1, 1, 1, 1, 1, 0, '2024-10-07 00:22:41'),
+(2, 1, 2, 2, 0, 0, '2024-10-23 09:15:42'),
+(3, 1, 3, 3, 0, 0, '2024-10-23 09:19:03');
 
 -- --------------------------------------------------------
 
@@ -337,6 +473,39 @@ INSERT INTO `staffs` (`staff_id`, `user_id`, `department_id`, `description`, `st
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `sticky_notes`
+--
+
+CREATE TABLE `sticky_notes` (
+  `sticky_note_id` int(11) NOT NULL,
+  `section_id` int(11) NOT NULL,
+  `professor_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `x` double NOT NULL,
+  `y` double NOT NULL,
+  `width` double NOT NULL,
+  `height` double NOT NULL,
+  `rotation` double NOT NULL,
+  `content` text NOT NULL,
+  `color` varchar(255) NOT NULL,
+  `locked` tinyint(1) NOT NULL,
+  `status` int(11) NOT NULL,
+  `date_created` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `sticky_notes`
+--
+
+INSERT INTO `sticky_notes` (`sticky_note_id`, `section_id`, `professor_id`, `user_id`, `x`, `y`, `width`, `height`, `rotation`, `content`, `color`, `locked`, `status`, `date_created`) VALUES
+(2, 1, 1, 4, 0.1723, 0.19, 0.267064, 0.284, 0, 'This is first stickyaaa ', 'rgb(255, 229, 180)', 0, 0, 0),
+(3, 1, 1, 4, 0.62699256110521, 0.061666666666667, 0.2125398512221, 0.33333333333333, 0, 'Yeeyy', 'rgb(242, 115, 115)', 0, 0, 0),
+(4, 1, 1, 4, 0.45377258235919, 0.51166666666667, 0.2125398512221, 0.33333333333333, 0, 'Lastt', 'rgb(174, 198, 207)', 0, 0, 0),
+(5, 1, 1, 5, 0.0896624, 0.528, 0.315599, 0.286, 0, 'Hello', 'rgb(230, 230, 250)', 0, 0, 0);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `subjects`
 --
 
@@ -354,7 +523,9 @@ CREATE TABLE `subjects` (
 --
 
 INSERT INTO `subjects` (`subject_id`, `subject_name`, `subject_code`, `course_id`, `status`, `date_created`) VALUES
-(1, 'Web Development', '12334', 1, 1, '2024-09-29 22:48:24');
+(1, 'Web Development', '12334', 1, 1, '2024-09-29 22:48:24'),
+(2, 'AB', 'AA', 1, 1, '2024-10-23 09:15:42'),
+(3, 'BB', 'AAA1', 1, 1, '2024-10-23 09:19:03');
 
 -- --------------------------------------------------------
 
@@ -369,6 +540,7 @@ CREATE TABLE `users` (
   `password` varchar(255) NOT NULL,
   `displayName` varchar(255) NOT NULL,
   `firstname` varchar(255) NOT NULL,
+  `middlename` varchar(255) NOT NULL,
   `lastname` varchar(255) NOT NULL,
   `birthdate` date NOT NULL,
   `gender` int(11) NOT NULL,
@@ -381,15 +553,25 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `no`, `email`, `password`, `displayName`, `firstname`, `lastname`, `birthdate`, `gender`, `user_type`, `date_created`, `status`) VALUES
-(1, '', 'dreiprojects2@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Drei Projects', 'Drei', 'Projects', '2002-03-21', 1, 4, '2024-09-22 18:45:18', 1),
-(3, '', 'jhonorlantero@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'aircon system', 'aircon', 'system', '2024-09-17', 0, 4, '2024-09-22 21:59:25', 1),
-(4, '', 'playwithorlan@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Prof Eman', '11', '22', '2024-09-25', 0, 2, '2024-09-22 22:05:00', 1),
-(5, '123456', 'kimberlytero940@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Jeen Dee', 'Jeen', 'Dee', '2024-09-30', 0, 1, '2024-09-29 23:46:18', 1);
+INSERT INTO `users` (`user_id`, `no`, `email`, `password`, `displayName`, `firstname`, `middlename`, `lastname`, `birthdate`, `gender`, `user_type`, `date_created`, `status`) VALUES
+(1, '', 'dreiprojects2@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Drei Projects', 'Drei', '', 'Projects', '2002-03-21', 1, 4, '2024-09-22 18:45:18', 1),
+(3, '', 'jhonorlantero@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'aircon system', 'aircon', '', 'system', '2024-09-17', 0, 4, '2024-09-22 21:59:25', 1),
+(4, '', 'playwithorlan@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Prof Eman', '11', '', '22', '2024-09-25', 0, 2, '2024-09-22 22:05:00', 1),
+(5, '123456', 'kimberlytero940@gmail.com', '827ccb0eea8a706c4c34a16891f84e7b', 'Jeen Dee', 'Jeen', '', 'Dee', '2024-09-30', 0, 1, '2024-09-29 23:46:18', 1),
+(6, '', 'bb@gmail.com', '172b9057f1e59ddcb93e8522b7968f09', 'BB BB', 'BB', '', 'BB', '0000-00-00', 0, 2, '2024-10-23 09:15:42', 1),
+(7, '', 'ar@gmail.com', 'd41d8cd98f00b204e9800998ecf8427e', '', 'Ariana', 'gg', 'aa', '0000-00-00', 0, 1, '2024-10-23 09:15:42', 1),
+(8, '', 'pr@gmail.com', '172b9057f1e59ddcb93e8522b7968f09', 'Pr Pr', 'Pr', '', 'Pr', '0000-00-00', 0, 2, '2024-10-23 09:19:03', 1),
+(9, '', 'sino@gmail.com', 'd41d8cd98f00b204e9800998ecf8427e', 'Sino Pala', 'Sino', 'Ka', 'Pala', '0000-00-00', 0, 1, '2024-10-23 09:19:03', 1);
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `activities`
+--
+ALTER TABLE `activities`
+  ADD PRIMARY KEY (`activity_id`);
 
 --
 -- Indexes for table `announcements`
@@ -422,10 +604,22 @@ ALTER TABLE `email_verifications`
   ADD PRIMARY KEY (`verification_id`);
 
 --
+-- Indexes for table `exams`
+--
+ALTER TABLE `exams`
+  ADD PRIMARY KEY (`exam_id`);
+
+--
 -- Indexes for table `posts`
 --
 ALTER TABLE `posts`
   ADD PRIMARY KEY (`post_id`);
+
+--
+-- Indexes for table `post_likes`
+--
+ALTER TABLE `post_likes`
+  ADD PRIMARY KEY (`post_like_id`);
 
 --
 -- Indexes for table `post_medias`
@@ -438,6 +632,18 @@ ALTER TABLE `post_medias`
 --
 ALTER TABLE `professors`
   ADD PRIMARY KEY (`professor_id`);
+
+--
+-- Indexes for table `resources`
+--
+ALTER TABLE `resources`
+  ADD PRIMARY KEY (`resources_id`);
+
+--
+-- Indexes for table `resources_groups`
+--
+ALTER TABLE `resources_groups`
+  ADD PRIMARY KEY (`resources_group_id`);
 
 --
 -- Indexes for table `schedules`
@@ -476,6 +682,12 @@ ALTER TABLE `staffs`
   ADD PRIMARY KEY (`staff_id`);
 
 --
+-- Indexes for table `sticky_notes`
+--
+ALTER TABLE `sticky_notes`
+  ADD PRIMARY KEY (`sticky_note_id`);
+
+--
 -- Indexes for table `subjects`
 --
 ALTER TABLE `subjects`
@@ -490,6 +702,12 @@ ALTER TABLE `users`
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `activities`
+--
+ALTER TABLE `activities`
+  MODIFY `activity_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `announcements`
@@ -519,13 +737,25 @@ ALTER TABLE `departments`
 -- AUTO_INCREMENT for table `email_verifications`
 --
 ALTER TABLE `email_verifications`
-  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+
+--
+-- AUTO_INCREMENT for table `exams`
+--
+ALTER TABLE `exams`
+  MODIFY `exam_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `posts`
 --
 ALTER TABLE `posts`
-  MODIFY `post_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `post_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `post_likes`
+--
+ALTER TABLE `post_likes`
+  MODIFY `post_like_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `post_medias`
@@ -537,7 +767,19 @@ ALTER TABLE `post_medias`
 -- AUTO_INCREMENT for table `professors`
 --
 ALTER TABLE `professors`
-  MODIFY `professor_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `professor_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `resources`
+--
+ALTER TABLE `resources`
+  MODIFY `resources_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `resources_groups`
+--
+ALTER TABLE `resources_groups`
+  MODIFY `resources_group_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `schedules`
@@ -561,13 +803,13 @@ ALTER TABLE `sections`
 -- AUTO_INCREMENT for table `section_students`
 --
 ALTER TABLE `section_students`
-  MODIFY `section_student_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `section_student_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `section_subjects`
 --
 ALTER TABLE `section_subjects`
-  MODIFY `section_subject_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `section_subject_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `staffs`
@@ -576,16 +818,22 @@ ALTER TABLE `staffs`
   MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `sticky_notes`
+--
+ALTER TABLE `sticky_notes`
+  MODIFY `sticky_note_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
 -- AUTO_INCREMENT for table `subjects`
 --
 ALTER TABLE `subjects`
-  MODIFY `subject_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `subject_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

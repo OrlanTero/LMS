@@ -2,14 +2,16 @@ import Popup from "../../../classes/components/Popup.js";
 import ImportWizard from '../../../classes/components/ImportWizard.js';
 import FileUploader from '../../../classes/components/FileUploader.js';
 import TableBulkEntryGenerator from '../../../classes/components/TableBulkEntryGenerator.js';
-import { ListenToForm, ManageComboBoxes, GetComboValue, MakeID, CreateComboBox, SetNewComboItems, ListenToThisCombo, ListenToCombo } from '../../../modules/component/Tool.js';
+import { ListenToForm, ManageComboBoxes, GetComboValue, MakeID, CreateComboBox, SetNewComboItems, ListenToThisCombo, ListenToCombo, SetComboValue } from '../../../modules/component/Tool.js';
 import { SelectSomething, SelectModel,SelectModels } from '../../../modules/app/Administrator.js';
+import { PostRequest } from '../../../modules/app/SystemFunctions.js';
 
 // Global variables to store data
 let tableBulkEntryGenerator;
 let subjectsArray = [];
 let sectionsArray = [];
 let professorsArray = [];
+let sectionSelected = null;
 let wizzard;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -63,6 +65,8 @@ function setupImportOptions() {
                 content.classList.toggle('active', content.classList.contains(option === 'manual' ? 'manual-entry' : 'file-upload'));
             });
             importOptions.classList.remove('show');
+
+            updateImportSummary();
         });
     });
 }
@@ -84,6 +88,7 @@ function setupSectionManagement() {
             const form = pop.ELEMENT.querySelector("form.form-control");
             const select = pop.ELEMENT.querySelector(".select-professor");
             const selectInput = pop.ELEMENT.querySelector("input[name=adviser_id]");
+            const semester = pop.ELEMENT.querySelector(".semester");
             const course_id = pop.ELEMENT.querySelector(".course_id");
 
             ListenToForm(form, function (data) {
@@ -92,12 +97,19 @@ function setupSectionManagement() {
                         section_id: MakeID(10),
                         course_name: course.course_name,
                         section_name: data.section_name,
+                        course_id: course.course_id,
+                        professor_id: selectInput.value,
+                        semester: GetComboValue(semester).value,
+                        flag: "uploaded",
                         students: []
                     }
 
                     sectionsArray.push(section);
+
                     const card = createSectionCard(section);
+
                     sectionCardsContainer.appendChild(card);
+                    
                     popup.Remove();
                 });
             });
@@ -109,6 +121,8 @@ function setupSectionManagement() {
             });
 
             ManageComboBoxes();
+
+            updateImportSummary();
         });
     }
 
@@ -141,6 +155,7 @@ function setupSubjectsAndProfessors() {
         newSubjectCard.className = 'subject-card';
         newSubjectCard.draggable = false;
         
+        console.log(subject);
         // Create the course combo box
         const courseComboBox = CreateComboBox('subject-course_name[]', 'Select course', [], false, subject ? { value: subject.course_id, text: subject.course_name } : null, false);
 
@@ -161,7 +176,7 @@ function setupSubjectsAndProfessors() {
                 <button type="button" class="btn-remove-subject"><i data-feather="x"></i></button>
             `;
             newSubjectCard.insertBefore(courseComboBox, newSubjectCard.querySelector('.assigned-professor'));
-            const newSubject = { name: '', code: '', course_name: '', course_id: '', professor: null };
+            const newSubject = { name: '', code: '', course_name: '', course_id: '', professor: null, flag: "created" };
             subjectsArray.push(newSubject);
         }
         
@@ -173,6 +188,10 @@ function setupSubjectsAndProfessors() {
 
         // Populate the course combo box
         populateCourseComboBox(courseComboBox, newSubjectCard);
+
+        if (subject) {
+            SetComboValue(courseComboBox, subject.course_name, subject.course_id);
+        }
     }
 
     function populateCourseComboBox(comboBox, newSubjectCard) {
@@ -208,14 +227,14 @@ function setupSubjectsAndProfessors() {
                 <button type="button" class="btn-remove-professor"><i data-feather="x"></i></button>
             `;
             newProfessorCard.insertBefore(mainCourseComboBox, newProfessorCard.querySelector('.btn-remove-professor'));
-            professorsArray.push(professor);
+            professorsArray.push({...professor, flag: 'uploaded'});
         } else {
             newProfessorCard.innerHTML = `
                 <input type="text" name="professor[]" class="primary-text" placeholder="Professor name" required>
                 <button type="button" class="btn-remove-professor"><i data-feather="x"></i></button>
             `;
             newProfessorCard.insertBefore(mainCourseComboBox, newProfessorCard.querySelector('.btn-remove-professor'));
-            const newProfessor = { displayName: '', main_course: '', main_course_id: '' };
+            const newProfessor = { displayName: '', main_course: '', main_course_id: '', flag: 'created' };
             professorsArray.push(newProfessor);
         }
         newProfessorCard.dataset.index = professorsArray.length - 1;
@@ -225,6 +244,11 @@ function setupSubjectsAndProfessors() {
 
         // Populate the main course combo box
         populateMainCourseComboBox(mainCourseComboBox, newProfessorCard);
+
+        SetComboValue(mainCourseComboBox, professor.main_course, professor.main_course_id);
+
+        updateImportSummary();
+
     }
 
     function populateMainCourseComboBox(comboBox, newProfessorCard) {
@@ -261,6 +285,9 @@ function setupSubjectsAndProfessors() {
             setupDragAndDrop(subjectCard);
         });
         feather.replace();
+
+        updateImportSummary();
+
     }
 
     function setupDragAndDrop(element) {
@@ -404,11 +431,45 @@ function setupSubjectsAndProfessors() {
     });
 }
 
+function getSummary() {
+    const selectedSectionRadio = document.querySelector('input[name="section"]:checked');
+
+    sectionSelected = null;
+
+    if (selectedSectionRadio) {
+        const sectionCard = selectedSectionRadio.closest('.section-card');
+        const sectionName = sectionCard.querySelector('h4').textContent;
+        const courseName = sectionCard.querySelector('p').textContent.replace('Course: ', '');
+        const section_id = sectionCard.querySelector('input[name="section"]').value;
+
+        const section = sectionsArray.find(section => section.section_id == section_id);
+
+        sectionSelected = {
+            section_name: sectionName,
+            course_name: courseName,
+            section_id: section_id,
+        }
+
+        if (section) {
+            sectionSelected = section;
+        } 
+    } else {
+        sectionSelected = null;
+    }
+
+    return {students: tableBulkEntryGenerator.getData(), subjects: subjectsArray, section: sectionSelected};
+}
+
+function ImportNowStudents(summary) {
+    return new Promise((resolve, reject) => {
+        PostRequest("ImportStudents", {summary: JSON.stringify(summary)}).then(res => {
+            resolve(res);
+        });
+    });
+}
+
 function setupImportSummary() {
-    const nextBtn = document.getElementById('nextBtn');
-    const studentCount = document.getElementById('studentCount');
-    const subjectsList = document.getElementById('subjectsList');
-    const selectedSection = document.getElementById('selectedSection');
+    const importBtn = document.getElementById('importBtn');
 
     wizzard.nextBtn.addEventListener('click', () => {
         const activeTab = document.querySelector('.tab-pane.active');
@@ -417,34 +478,43 @@ function setupImportSummary() {
         }
     });
 
-    tableBulkEntryGenerator.onStep(4, () => {
-        console.log(tableBulkEntryGenerator);
-        updateImportSummary();
+    importBtn.addEventListener('click', () => {
+        ImportNowStudents(getSummary()).then(() => {
+            window.location.reload();
+        });
     });
 
-    function updateImportSummary() {
-        // Update student count
-        const studentData = tableBulkEntryGenerator.getData();
-        studentCount.textContent = studentData.length;
+    tableBulkEntryGenerator.onStep(4, () => {
+        updateImportSummary();
+    });
+}
 
-        // Update subjects list
-        subjectsList.innerHTML = '';
-        subjectsArray.forEach(subject => {
-            const li = document.createElement('li');
-            li.textContent = `${subject.name} (${subject.code})`;
-            subjectsList.appendChild(li);
-        });
+function updateImportSummary() {
+    const studentCount = document.getElementById('studentCount');
+    const subjectsList = document.getElementById('subjectsList');
+    const selectedSection = document.getElementById('selectedSection');
+    
+    // Update student count
+    const studentData = tableBulkEntryGenerator.getData();
+    studentCount.textContent = studentData.length;
 
-        // Update selected section
-        const selectedSectionRadio = document.querySelector('input[name="section"]:checked');
-        if (selectedSectionRadio) {
-            const sectionCard = selectedSectionRadio.closest('.section-card');
-            const sectionName = sectionCard.querySelector('h4').textContent;
-            const courseName = sectionCard.querySelector('p').textContent.replace('Course: ', '');
-            selectedSection.textContent = `${sectionName} (${courseName})`;
-        } else {
-            selectedSection.textContent = 'None selected';
-        }
+    // Update subjects list
+    subjectsList.innerHTML = '';
+    subjectsArray.forEach(subject => {
+        const li = document.createElement('li');
+        li.textContent = `${subject.name} (${subject.code})`;
+        subjectsList.appendChild(li);
+    });
+
+    // Update selected section
+    const selectedSectionRadio = document.querySelector('input[name="section"]:checked');
+    if (selectedSectionRadio) {
+        const sectionCard = selectedSectionRadio.closest('.section-card');
+        const sectionName = sectionCard.querySelector('h4').textContent;
+        const courseName = sectionCard.querySelector('p').textContent.replace('Course: ', '');
+        selectedSection.textContent = `${sectionName} (${courseName})`;
+    } else {
+        selectedSection.textContent = 'None selected';
     }
 }
 

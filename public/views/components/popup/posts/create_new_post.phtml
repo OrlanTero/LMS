@@ -40,18 +40,20 @@ global $APPLICATION, $ALL_USER_TYPES,$SESSION;
                         </div>
                     </div>
 
-                    <div class="form-group-container flex other-content">
-                        <div class="form-group tooltip">
-                            <div class="tooltiptext">
-                                <span>Post Type</span>
-                            </div>
-                            <label for=""><span>Post Type</span></label>
+                    <?php if ($SESSION->user_type == 3 || $SESSION->user_type == 4): ?>
+                        <div class="form-group-container flex other-content">
+                            <div class="form-group tooltip">
+                                <div class="tooltiptext">
+                                    <span>Post Type</span>
+                                </div>
+                                <label for=""><span>Post Type</span></label>
 
-                            <div class="error-container">
-                                <?= CreateComboBox("post_type", "Post Type", CasesToCombo(PostTypes::cases())) ?>
+                                <div class="error-container">
+                                    <?= CreateComboBox("post_type", "Post Type", CasesToCombo(PostTypes::cases())) ?>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    <?php endif ?>
                 </div>
                 <div class="popup-footer">
                     <div class="form-group-container submit-group right-side">

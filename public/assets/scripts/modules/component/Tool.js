@@ -641,31 +641,29 @@ export function GetComboValue(combo) {
     return {value: input.getAttribute("data-value"), text: input.value};
 }
 
-export function SetNewComboItems(combo, items) {
+export function SetNewComboItems(combo, items, callback) {
     if (!combo) return;
 
     ResetListenerOfCombo(combo);
 
-    const floatingcon = combo.querySelector(".floating-container");
+    const floatingContainer = combo.querySelector(".floating-container");
+    floatingContainer.innerHTML = "";
 
-    floatingcon.innerHTML = "";
-
-    if (typeof items === "object" && (typeof items[0] !== "string" && typeof items[0].text !== "string")) {
-        for (let i = 0; i < items.text.length; i++) {
-            AddNewComboItem(combo, items.value[i], items.text[i]);
-        }
-    } else {
-        for (const item of items) {
-            if (typeof item == "string") {
+    if (Array.isArray(items) && items.length > 0) {
+        items.forEach(item => {
+            if (typeof item === "string") {
                 AddNewComboItem(combo, item, item);
-            }else {
+            } else if (typeof item === "object" && item.hasOwnProperty("value") && item.hasOwnProperty("text")) {
                 AddNewComboItem(combo, item.value, item.text);
             }
-        }
+        });
+    } else if (typeof items === "object" && items.hasOwnProperty("value") && items.hasOwnProperty("text")) {
+        items.value.forEach((value, index) => {
+            AddNewComboItem(combo, value, items.text[index]);
+        });
     }
 
-
-    ListenToThisCombo(combo);
+    ListenToThisCombo(combo, callback);
 }
 
 export function AddNewComboItem(combo, value, text) {
@@ -715,27 +713,22 @@ export function ManageComboBoxes() {
 }
 
 export function ListenToThisQuantityContainer(element, callback, {minimum = 1, maximum = 1000000000000000000000000000000000}) {
-    const left = element.querySelector(".left");
-    const right = element.querySelector(".right");
-    const text = element.querySelector(".text-input");
+    const [left, right, text] = ['left', 'right', 'text-input'].map(cls => element.querySelector(`.${cls}`));
+    let value = 1;
 
-    text.innerText = 1;
+    text.innerText = value;
 
-    left.addEventListener("click", function () {
-        if ((parseInt(text.innerText)) === minimum) return;
+    const updateValue = (delta) => {
+        const newValue = value + delta;
+        if (newValue >= minimum && newValue <= maximum) {
+            value = newValue;
+            text.innerText = value;
+            callback?.(value);
+        }
+    };
 
-        text.innerText = parseInt(text.innerText) - 1;
-
-        callback && callback(parseInt(text.innerText));
-    })
-
-    right.addEventListener("click", function () {
-        if ((parseInt(text.innerText)) === maximum) return;
-
-        text.innerText = parseInt(text.innerText) + 1;
-
-        callback && callback(parseInt(text.innerText));
-    })
+    left.addEventListener("click", () => updateValue(-1));
+    right.addEventListener("click", () => updateValue(1));
 }
 
 export function ManageQuantityContainers() {
@@ -765,167 +758,95 @@ export function ListenToThisCombo(combo, callback = false) {
     const items = floating.querySelectorAll(".item");
     const input = combo.querySelector("input");
 
-    let COMBOACTIVE = false;
-    let FROMSEARCH = false;
-    let SEARCHING = false;
-    let SELECTED = -1;
+    let isActive = false;
+    let selectedIndex = -1;
 
-    const reset = () => {
-        for (const item of items) {
-            item.classList.remove("hide");
-        }
-
-        SEARCHING = false;
+    const toggleActive = (active) => {
+        isActive = active;
+        combo.classList.toggle("show", active);
     };
 
-    const search = (toSearch) => {
-        if (toSearch.length) {
-            SEARCHING = true;
-            FROMSEARCH = false;
-            for (const item of items) {
-                const text = item.textContent.toLowerCase();
-                if (text.indexOf(toSearch.toLowerCase()) >= 0) {
-                    item.classList.remove("hide");
-                } else {
-                    if (!item.classList.contains("hide")) {
-                        item.classList.add("hide");
-                    }
-                }
-            }
-        } else reset();
+    const resetItems = () => {
+        items.forEach(item => item.classList.remove("hide", "select"));
     };
 
-    const isItemExist = (target = "") => {
-        target = target.toLowerCase();
-
-        let i = 0;
-
-        for (const item of items) {
-            if (item.textContent.toLowerCase() === target) {
-                return i;
-            }
-
-            i++;
-        }
-
-        return -1;
-    };
-
-    const resetSelect = () => {
-        for (const item of items) {
-            item.classList.remove("select");
-        }
-    };
-
-    const getActives = () => {
-        const active = [];
-
-        resetSelect();
-
-        for (const item of items) {
-            if (!item.classList.contains("hide")) {
-                active.push(item);
-            }
-        }
-
-        return active;
+    const filterItems = (searchText) => {
+        const lowerSearch = searchText.toLowerCase();
+        items.forEach(item => {
+            const shouldShow = item.textContent.toLowerCase().includes(lowerSearch);
+            item.classList.toggle("hide", !shouldShow);
+        });
     };
 
     const selectItem = (index) => {
-        const actives = getActives();
-
-        if (actives.length) {
-            const active = actives[index];
-
-            if (active) {
-                active.classList.add("select");
-                active.scrollIntoView();
-                input.value = active.textContent;
-            }
+        resetItems();
+        const activeItems = Array.from(items).filter(item => !item.classList.contains("hide"));
+        if (activeItems[index]) {
+            activeItems[index].classList.add("select");
+            activeItems[index].scrollIntoView({ block: "nearest", inline: "nearest" });
+            input.value = activeItems[index].textContent;
         }
     };
 
-    const setComboActive = (bool) => {
-        COMBOACTIVE = bool;
+    main.addEventListener("click", () => toggleActive(true));
 
-        if (bool) {
-            combo.classList.add("show")
-        } else {
-            combo.classList.remove("show")
-        }
-
-    }
-
-    main.addEventListener("click", () => combo.classList.add("show"));
-
-    let i = 0;
-    for (const item of items) {
+    items.forEach(item => {
         item.addEventListener("click", () => {
             input.value = item.textContent;
             input.setAttribute("data-value", item.getAttribute("value"));
-            setComboActive(false);
-            callback && callback(item.getAttribute("value"), item.textContent);
+            toggleActive(false);
+            if (callback) {
+                callback(item.getAttribute("value"), item.textContent);
+            }
         });
-
-        i++;
-    }
-
-    // input.addEventListener("change", () => {
-    //
-    // });
-
-    input.addEventListener("input", () => search(input.value));
-    input.addEventListener("focus", () => {
-        setComboActive(true);
     });
 
-    input.addEventListener("blur", () => {
-        if (input.value.length === 0) {
-            reset();
-        } else {
-
-        }
+    input.addEventListener("input", () => {
+        filterItems(input.value);
+        selectedIndex = -1;
     });
+
+    input.addEventListener("focus", () => toggleActive(true));
 
     combo.addEventListener("keydown", (e) => {
-        if (e.keyCode === 40) {
-            if (SELECTED + 1 === items.length) {
-                SELECTED = 0;
-            } else {
-                SELECTED++;
-            }
-        } else if (e.keyCode === 38) {
-            if (SELECTED >= 0) {
-                if (SELECTED - 1 < 0) {
-                    SELECTED = items.length - 1;
-                } else {
-                    SELECTED--;
-                }
+        const activeItems = Array.from(items).filter(item => !item.classList.contains("hide"));
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            selectedIndex = (selectedIndex + 1) % activeItems.length;
+            selectItem(selectedIndex);
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            selectedIndex = (selectedIndex - 1 + activeItems.length) % activeItems.length;
+            selectItem(selectedIndex);
+        } else if (e.key === "Enter" && selectedIndex !== -1) {
+            e.preventDefault();
+            const selectedItem = activeItems[selectedIndex];
+            input.value = selectedItem.textContent;
+            input.setAttribute("data-value", selectedItem.getAttribute("value"));
+            toggleActive(false);
+            if (callback) {
+                callback(selectedItem.getAttribute("value"), selectedItem.textContent);
             }
         }
-
-        selectItem(SELECTED);
     });
 
     FNOnClickOutside(combo, () => {
+        const new_items = floating.querySelectorAll(".item");
 
-        if (COMBOACTIVE) {
-            const ind = isItemExist(input.value);
-
-            if (ind < 0) {
-                reset();
-                input.value = "";
+        if (isActive) {
+            const matchedItem = Array.from(new_items).find(item => item.textContent.toLowerCase() === input.value.toLowerCase());
+            if (matchedItem) {
+                input.value = matchedItem.textContent;
+                input.setAttribute("data-value", matchedItem.getAttribute("value"));
+                if (callback) {
+                    callback(matchedItem.getAttribute("value"), matchedItem.textContent);
+                }
             } else {
-                input.value = items[ind].textContent;
-
-                callback && callback(items[ind].getAttribute("value"), items[ind].textContent);
+                input.value = "";
+                input.removeAttribute("data-value");
+                resetItems();
             }
-
-            if (!SEARCHING) {
-                setComboActive(false);
-            }
-
-            SEARCHING = false;
+            toggleActive(false);
         }
     }, [floating]);
 }

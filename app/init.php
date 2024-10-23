@@ -26,7 +26,12 @@ include_once "abstract/ScheduleItemAbstract.php";
 include_once "abstract/PostAbstract.php";
 include_once "abstract/PostMediaAbstract.php";
 include_once "abstract/AnnouncementAbstract.php";
-
+include_once "abstract/ResourcesAbstract.php";
+include_once "abstract/ResourcesGroupAbstract.php";
+include_once "abstract/ActivityAbstract.php";
+include_once "abstract/ExamAbstract.php";
+include_once "abstract/StickyNoteAbstract.php";
+include_once "abstract/PostLikeAbstract.php";
 // ALL MODELS
 include_once "models/User.php";
 include_once "models/UserProfile.php";
@@ -45,7 +50,12 @@ include_once "models/ScheduleItem.php";
 include_once "models/Post.php";
 include_once "models/PostMedia.php";
 include_once "models/Announcement.php";
-
+include_once "models/Resources.php";
+include_once "models/ResourcesGroup.php";
+include_once "models/Activity.php";
+include_once "models/Exam.php";
+include_once "models/StickyNote.php";
+include_once "models/PostLike.php";
 // APP CONTROLLERS
 include_once "controllers/app/Response.php";
 include_once "controllers/app/GlobalFunctions.php";
@@ -68,7 +78,12 @@ include_once "controllers/system/ScheduleItemControl.php";
 include_once "controllers/system/PostsControl.php";
 include_once "controllers/system/PostMediaControl.php";
 include_once "controllers/system/AnnouncementControl.php";
-
+include_once "controllers/system/ResourcesControl.php";
+include_once "controllers/system/ResourcesGroupControl.php";
+include_once "controllers/system/ActivityControl.php";
+include_once "controllers/system/ExamControl.php";
+include_once "controllers/system/StickyNoteControl.php";
+include_once "controllers/system/PostLikeControl.php";
 //include_once "controllers/app/SMSControl.php";
 
 // SYSTEM CONTROLLERS

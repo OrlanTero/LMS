@@ -453,21 +453,37 @@ function UploadFileFromFile($FILE, $TOPATH, $FILENAME = false)
 {
     $extension = pathinfo($FILE["name"], PATHINFO_EXTENSION);
     $fileTmpPath = $FILE['tmp_name'];
-    $fileName = $FILENAME && $FILENAME != 'false' ? $FILENAME . '.' . $extension : $FILE['name'];
+    $fileName = $FILENAME && $FILENAME !== 'false' ? $FILENAME . '.' . $extension : $FILE['name'];
     $dest_path = $TOPATH . $fileName;
-    $i = 1;
 
+    // Create directory if it doesn't exist
+    if (!file_exists($TOPATH) && !mkdir($TOPATH, 0777, true) && !is_dir($TOPATH)) {
+        return new Response(500, "Failed to create directory", ["path" => $TOPATH]);
+    }
+
+    // Add number to filename if it already exists
+    $i = 1;
     while (file_exists($dest_path)) {
-        $fn = pathinfo($fileName, PATHINFO_FILENAME);
-        $nfn = $fn . '(' . $i . ').' . $extension;
-        $dest_path = $TOPATH . $nfn;
+        $fileInfo = pathinfo($fileName);
+        $newFileName = $fileInfo['filename'] . '(' . $i . ').' . $fileInfo['extension'];
+        $dest_path = $TOPATH . $newFileName;
         $i++;
     }
 
     $upload = move_uploaded_file($fileTmpPath, $dest_path);
-    $message = 'File is successfully uploaded.';
-    $message1 = 'There was some error moving the file to upload directory. Please make sure the upload directory is writable by web server.';
-    return new Response($upload ? 200 : 204, $upload ? $message : $message1, ["path" => $dest_path, "basename" => pathinfo($dest_path, PATHINFO_BASENAME)]);
+    
+    if ($upload) {
+        $message = 'File is successfully uploaded.';
+        $responseCode = 200;
+    } else {
+        $message = 'There was an error moving the file to the upload directory. Please make sure the upload directory is writable by the web server.';
+        $responseCode = 500;
+    }
+
+    return new Response($responseCode, $message, [
+        "path" => $dest_path, 
+        "basename" => basename($dest_path)
+    ]);
 }
 
 function ObjectToItemList($objectArr = [])
@@ -696,4 +712,18 @@ function ParseTime($time)
         "minutes" => (int) $parsed[1],
         "seconds" => (int) $parsed[2],
     ];
+}
+
+function GenerateRandomReferenceNumber($length = 8, $prefix = 'REF') {
+    $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $randomString = '';
+    
+    for ($i = 0; $i < $length; $i++) {
+        $randomString .= $characters[rand(0, strlen($characters) - 1)];
+    }
+    
+    $timestamp = time();
+    $referenceNumber = $prefix . '-' . $timestamp . '-' . $randomString;
+    
+    return $referenceNumber;
 }

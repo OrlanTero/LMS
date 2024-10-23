@@ -1,1 +1,49 @@
-<?php
+
+<?php include "public/views/pages/structures/html_headings.phtml" ?>
+
+<title>Newsfeed</title>
+
+<link rel="stylesheet" href="/public/assets/scripts/libraries/splide-4.1.3/splide-4.1.3/dist/css/splide.min.css">
+<script type="module" src="/public/assets/scripts/libraries/ckeditor.js"></script>
+<script type="module" src="/public/assets/scripts/libraries/splide-4.1.3/splide-4.1.3/dist/js/splide.js"></script>
+
+<?php include "public/views/pages/structures/html_heading_closing.phtml" ?>
+
+<?php include "public/views/pages/structures/html_body_open.phtml" ?>
+
+<?php include "public/views/pages/structures/html_opening_parent.phtml" ?>
+
+<div class="left-content">
+
+    <?php include "public/views/pages/structures/html_navbar.phtml" ?>
+
+    <?php include "public/views/pages/structures/html_right_heading.phtml" ?>
+
+</div>
+
+<div class="right-content">
+    <div class="right-body">
+        <div class="main-body-content-parent">
+            <div class="main-body-header">
+                <div class="header-nav">
+                    <div class="left">
+                        <div class="title">
+                            <h2>Newsfeed</h2>
+                        </div>
+                    </div>
+                    <div class="right"></div>
+                </div>
+            </div>
+            <div class="main-body-body newsfeed-parent">
+                <?php include "public/views/pages/global/getNewsFeed.phtml" ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php include "public/views/pages/structures/html_pipes.phtml" ?>
+<script type="module" src="/public/assets/scripts/pages/superadmin/maintenance/newsfeed.js"></script>
+
+<?php include "public/views/pages/structures/html_closing_parent.phtml" ?>
+
+<?php include "public/views/pages/structures/html_body_closing.phtml" ?>

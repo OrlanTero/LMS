@@ -162,113 +162,41 @@ class Routes
                 // DITO KA MAG AADDD NG MGA FUNCTIONS NG BAWAT TABLE SA DATABASE
 
 
-                $KLEIN->with("/users", function () use ($KLEIN, $APPLICATION) {
-                    $KLEIN->respond("POST", "/addRecord", function () use ($APPLICATION) {
-                        return json_encode($APPLICATION->FUNCTIONS->{"USER_CONTROL"}->add(json_decode($_POST["data"], true)));
-                    });
-
-                    $KLEIN->respond("POST", "/editRecord", function () use ($APPLICATION) {
-                        return json_encode($APPLICATION->FUNCTIONS->{"USER_CONTROL"}->editRecord($_POST['id'], json_decode($_POST["data"], true)));
-                    });
-
-                    $KLEIN->respond("POST", "/removeRecords", function () use ($APPLICATION) {
-                        return json_encode($APPLICATION->FUNCTIONS->{"USER_CONTROL"}->removeRecords(json_decode($_POST["data"], true)));
-                    });
-                });
-
-                $KLEIN->with("/sections", function () use ($KLEIN, $APPLICATION) {
-                    $KLEIN->respond("POST", "/addRecord", function () use ($APPLICATION) {
-                        return json_encode($APPLICATION->FUNCTIONS->{"SECTION_CONTROL"}->addRecord(json_decode($_POST["data"], true)));
-                    });
-
-                    $KLEIN->respond("POST", "/editRecord", function () use ($APPLICATION) {
-                        return json_encode($APPLICATION->FUNCTIONS->{"SECTION_CONTROL"}->edit(json_decode($_POST["data"], true)));
-                    });
-
-                    $KLEIN->respond("POST", "/removeRecords", function () use ($APPLICATION) {
-                        return json_encode($APPLICATION->FUNCTIONS->{"SECTION_CONTROL"}->removeRecords(json_decode($_POST["data"], true)));
-                    });
-                });
-
-                $KLEIN->with("/posts", function () use ($KLEIN, $APPLICATION) {
-                    $KLEIN->respond("POST", "/addRecord", function () use ($APPLICATION) {
-                        return json_encode($APPLICATION->FUNCTIONS->{"POSTS_CONTROL"}->add(json_decode($_POST["data"], true)));
-                    });
-
-                    $KLEIN->respond("POST", "/editRecord", function () use ($APPLICATION) {
-                        return json_encode($APPLICATION->FUNCTIONS->{"POSTS_CONTROL"}->editRecord(json_decode($_POST["data"], true)));
-                    });
-
-                    $KLEIN->respond("POST", "/removeRecords", function () use ($APPLICATION) {
-                        return json_encode($APPLICATION->FUNCTIONS->{"POSTS_CONTROL"}->removeRecords(json_decode($_POST["data"], true)));
-                    });
-                });
-
-                $KLEIN->with("/announcements", function () use ($KLEIN, $APPLICATION) {
-                    $KLEIN->respond("POST", "/addRecord", function () use ($APPLICATION) {
-                        return json_encode($APPLICATION->FUNCTIONS->{"ANNOUNCEMENT_CONTROL"}->add(json_decode($_POST["data"], true)));
-                    });
-
-                    $KLEIN->respond("POST", "/editRecord", function () use ($APPLICATION) {
-                        return json_encode($APPLICATION->FUNCTIONS->{"ANNOUNCEMENT_CONTROL"}->editRecord(json_decode($_POST["data"], true)));
-                    });
-
-                    $KLEIN->respond("POST", "/removeRecords", function () use ($APPLICATION) {
-                        return json_encode($APPLICATION->FUNCTIONS->{"ANNOUNCEMENT_CONTROL"}->removeRecords(json_decode($_POST["data"], true)));
-                    });
-                });
-
-                $ALL_SAME_FUNCTIONS = [
-                    [
-                        "path" => "/courses",
-                        "control" => "COURSE_CONTROL"
-                    ],
-                    [
-                        "path" => "/professors",
-                        "control" => "PROFESSOR_CONTROL"
-                    ],
-                    [
-                        "path" => "/classrooms",
-                        "control" => "CLASSROOM_CONTROL"
-                    ],
-                    [
-                        "path" => "/subjects",
-                        "control" => "SUBJECT_CONTROL"
-                    ],
-                    [
-                        "path" => "/departments",
-                        "control" => "DEPARTMENT_CONTROL"
-                    ],
-                    [
-                        "path" => "/section_subjects",
-                        "control" => "SECTION_SUBJECT_CONTROL"
-                    ],
-                    [
-                        "path" => "/staffs",
-                        "control" => "STAFF_CONTROL"
-                    ],
-                    [
-                        "path" => "/schedules",
-                        "control" => "SCHEDULE_CONTROL"
-                    ],
-                    [
-                        "path" => "/schedule_items",
-                        "control" => "SCHEDULE_ITEM_CONTROL"
-                    ],
+                $routes = [
+                    "/users" => ["USER_CONTROL", "add", "editRecord", "removeRecords"],
+                    "/sections" => ["SECTION_CONTROL", "addRecord", "edit", "removeRecords"],
+                    "/posts" => ["POSTS_CONTROL", "add", "editRecord", "removeRecords"],
+                    "/announcements" => ["ANNOUNCEMENT_CONTROL", "add", "editRecord", "removeRecords"],
+                    "/courses" => ["COURSE_CONTROL", "addRecord", "editRecord", "removeRecords"],
+                    "/professors" => ["PROFESSOR_CONTROL", "addRecord", "editRecord", "removeRecords"],
+                    "/classrooms" => ["CLASSROOM_CONTROL", "addRecord", "editRecord", "removeRecords"],
+                    "/subjects" => ["SUBJECT_CONTROL", "addRecord", "editRecord", "removeRecords"],
+                    "/departments" => ["DEPARTMENT_CONTROL", "addRecord", "editRecord", "removeRecords"],
+                    "/section_subjects" => ["SECTION_SUBJECT_CONTROL", "addRecord", "editRecord", "removeRecords"],
+                    "/staffs" => ["STAFF_CONTROL", "addRecord", "editRecord", "removeRecords"],
+                    "/schedules" => ["SCHEDULE_CONTROL", "addRecord", "editRecord", "removeRecords"],
+                    "/schedule_items" => ["SCHEDULE_ITEM_CONTROL", "addRecord", "editRecord", "removeRecords"],
+                    "/resource_groups" => ["RESOURCES_GROUP_CONTROL", "addRecord", "editRecord", "removeRecords"],
+                    "/resources" => ["RESOURCES_CONTROL", "add", "editRecord", "removeRecords"],
+                    "/activities" => ["ACTIVITY_CONTROL", "addRecord", "editRecord", "removeRecords"],
+                    "/exams" => ["EXAM_CONTROL", "addRecord", "editRecord", "removeRecords"],
+                    "/sticky_notes" => ["STICKY_NOTE_CONTROL", "add", "editRecord", "removeRecords"],
+                    "/post_likes" => ["POST_LIKE_CONTROL", "add", "editRecord", "removeRecords"],
                 ];
-//
-                foreach ($ALL_SAME_FUNCTIONS as $FUNCTION) {
-                    $KLEIN->with($FUNCTION['path'], function () use ($KLEIN, $APPLICATION, $FUNCTION) {
-                        $KLEIN->respond("POST", "/addRecord", function () use ($APPLICATION, $FUNCTION) {
-                            return json_encode($APPLICATION->FUNCTIONS->{$FUNCTION['control']}->addRecord(json_decode($_POST["data"], true)));
+
+                foreach ($routes as $path => [$control, $addMethod, $editMethod, $removeMethod]) {
+                    $KLEIN->with($path, function () use ($KLEIN, $APPLICATION, $control, $addMethod, $editMethod, $removeMethod) {
+                        $KLEIN->respond("POST", "/addRecord", function () use ($APPLICATION, $control, $addMethod) {
+                            return json_encode($APPLICATION->FUNCTIONS->$control->$addMethod(json_decode($_POST["data"], true)));
                         });
 
-                        $KLEIN->respond("POST", "/editRecord", function () use ($APPLICATION, $FUNCTION) {
-                            return json_encode($APPLICATION->FUNCTIONS->{$FUNCTION['control']}->editRecord($_POST['id'], json_decode($_POST["data"], true)));
+                        $KLEIN->respond("POST", "/editRecord", function () use ($APPLICATION, $control, $editMethod) {
+                            $args = ($control === "USER_CONTROL") ? [$_POST['id'], json_decode($_POST["data"], true)] : [json_decode($_POST["data"], true)];
+                            return json_encode($APPLICATION->FUNCTIONS->$control->$editMethod(...$args));
                         });
 
-                        $KLEIN->respond("POST", "/removeRecords", function () use ($APPLICATION, $FUNCTION) {
-                            return json_encode($APPLICATION->FUNCTIONS->{$FUNCTION['control']}->removeRecords(json_decode($_POST["data"], true)));
+                        $KLEIN->respond("POST", "/removeRecords", function () use ($APPLICATION, $control, $removeMethod) {
+                            return json_encode($APPLICATION->FUNCTIONS->$control->$removeMethod(json_decode($_POST["data"], true)));
                         });
                     });
                 }

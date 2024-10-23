@@ -70,11 +70,30 @@ class PostControl
         $filter = json_decode($_POST["filter"], true);
         $controller = $_POST['controller'];
 
-        if (empty($filter) || !is_array($filter) || count($filter) == 0 || !isset($filter)) {
+        if (empty($filter) || !is_array($filter)) {
             return $APPLICATION->FUNCTIONS->{$controller}->getAllRecords(true);
         }
 
         return $APPLICATION->FUNCTIONS->{$controller}->filterRecords($filter, true);
+    }
+
+    public function SaveStickyNotes()
+    {
+        global $APPLICATION;
+        $stickyNotes = json_decode($_POST['stickyNotes'], true);
+        $section_id = $_POST['section_id'];
+        $professor_id = $_POST['professor_id'];
+
+        return $APPLICATION->FUNCTIONS->STICKY_NOTE_CONTROL->add($stickyNotes, $section_id, $professor_id);
+    }
+
+    public function ImportStudents()
+    {
+        global $APPLICATION;
+
+        $summary = json_decode($_POST['summary'], true);
+
+        return $APPLICATION->FUNCTIONS->STUDENT_CONTROL->importStudents($summary);
     }
 
     public function SendVerificationToEmail()

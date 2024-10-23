@@ -115,6 +115,18 @@ export function FilterRecords(target, data) {
     })
 }
 
+export function PostRequest(request, data) {
+    return new Promise((resolve, reject) => {
+        Ajax({
+            url: `${__HOSTNAME}/api/post/${request}`,
+            type: "POST",
+            data: data,
+            success: (data) => resolve(data),
+            error: reject,
+        });
+    })
+}
+
 export function PostContainerRequest(target,file, data) {
     return new Promise((resolve, reject) => {
         Ajax({

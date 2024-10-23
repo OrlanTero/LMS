@@ -105,7 +105,7 @@ $fourthYears = f(array_filter($classes, function ($section) {
                                                 $section = $sectionSubject->getSection();
                                                 $students = $section->getAllStudents();
                                                 ?>
-                                                <div class="card-flex-container" data-id="<?= $section->section_id ?>">
+                                                <div class="card-flex-container" data-id="<?= $section->section_id ?>" data-professor_id="<?= $sectionSubject->professor_id ?>">
                                                     <div class="title">
                                                         <h2><?= $section->section_name ?></h2>
                                                         <p><?= count($students) ?> Students</p>

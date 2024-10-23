@@ -1,19 +1,7 @@
-<?php
 
-global $APPLICATION, $USER_HEADER_BODY, $SESSION;
-
-$control = $APPLICATION->FUNCTIONS->USER_CONTROL;
-$postControl = $APPLICATION->FUNCTIONS->POSTS_CONTROL;
-$RECORDS = $control->filterRecords(['user_type' => 2],true);
-
-$POSTS = $postControl->getLatestRecords(false,true);
-
-$ANNOUNCEMENTS = $APPLICATION->FUNCTIONS->ANNOUNCEMENT_CONTROL->getAllRecords(true);
-
-?>
 <?php include "public/views/pages/structures/html_headings.phtml" ?>
 
-<title>Students</title>
+<title>Newsfeed</title>
 
 <link rel="stylesheet" href="/public/assets/scripts/libraries/splide-4.1.3/splide-4.1.3/dist/css/splide.min.css">
 <script type="module" src="/public/assets/scripts/libraries/ckeditor.js"></script>
@@ -34,7 +22,6 @@ $ANNOUNCEMENTS = $APPLICATION->FUNCTIONS->ANNOUNCEMENT_CONTROL->getAllRecords(tr
 </div>
 
 <div class="right-content">
-
     <div class="right-body">
         <div class="main-body-content-parent">
             <div class="main-body-header">
@@ -48,120 +35,15 @@ $ANNOUNCEMENTS = $APPLICATION->FUNCTIONS->ANNOUNCEMENT_CONTROL->getAllRecords(tr
                 </div>
             </div>
             <div class="main-body-body newsfeed-parent">
-               <div class="newsfeed-flex">
-                   <div class="newsfeed-main-container">
-
-                       <div class="post-creator-container">
-                           <div class="creator-head">
-                               <div class="photo">
-                                   <div class="image">
-                                       <img src="<?= $SESSION->getPhotoURL()?>" alt="">
-                                   </div>
-                               </div>
-                               <div class="texts">
-                                   <p class="primary">Create a Post</p>
-                                   <p class="secondary">What's on your mind, <?= $SESSION->displayName ?>?</p>
-                               </div>
-                           </div>
-                           <div class="creator-body">
-                               <div class="textarea-container">
-                                   <span>Create a Post</span>
-                               </div>
-                           </div>
-                       </div>
-
-
-                       <?php foreach ($POSTS as $POST): ?>
-                           <div class="post-container">
-                               <div class="post-head">
-                                   <div class="photo">
-                                       <div class="image">
-                                           <img src="<?= $POST->author->photoURL ?>" alt="">
-                                       </div>
-                                   </div>
-                                   <div class="texts">
-                                       <p class="primary"><?= $POST->author->displayName ?></p>
-                                       <p class="secondary"><?= $POST->date_created ?></p>
-                                   </div>
-                               </div>
-                               <div class="post-body">
-                                   <div class="post-content">
-                                      <?= $POST->content ?>
-                                   </div>
-                                   <div class="post-media">
-                                       <section class="splide user-post-gallery">
-                                           <div class="splide__track">
-                                               <ul class="splide__list">
-                                                   <?php foreach ($POST->medias as $media): ?>
-                                                       <img src="/<?= $media->filepath ?>" class="post-img" alt="">
-                                                   <?php endforeach; ?>
-                                               </ul>
-                                           </div>
-                                       </section>
-                                   </div>
-                               </div>
-                               <div class="post-footer">
-                                   <div class="reaction-container">
-                                       <div class="date-content">
-                                           <small>Thu, Apr 11, 2024 at 11:55 am</small>
-                                       </div>
-                                       <div class="reaction-content">
-                                           <div class="text-button">
-                                               <div class="text">
-                                                   <span>Like</span>
-                                               </div>
-                                           </div>
-                                       </div>
-                                   </div>
-                                   <div class="reaction-content-result">
-                                       <span>13 People like this</span>
-                                   </div>
-                               </div>
-                           </div>
-                       <?php endforeach ?>
-
-
-                   </div>
-                   <div class="newsfeed-announcement">
-                       <div class="announcement-title">
-                           <h2>Announcements</h2>
-                       </div>
-
-                       <div class="announcement-creator">
-                           <div class="photo">
-                               <div class="circle">
-                                   <?= UseIcon('plus-thin') ?>
-                               </div>
-                           </div>
-                           <div class="text">
-                               <p> New Announcement</p>
-                           </div>
-                       </div>
-
-                       <div class="announcement-contents">
-                          <?php foreach ($ANNOUNCEMENTS as $ANNOUNCEMENT): ?>
-                              <div class="announcement-container">
-                                  <div class="announcement-header">
-                                      <div class="title">
-                                          <p class="primary"><?= $ANNOUNCEMENT->title ?></p>
-                                          <p class="secondary"><?= $ANNOUNCEMENT->date_created ?></p>
-                                      </div>
-                                  </div>
-                                  <div class="announcement-body">
-                                     <?= $ANNOUNCEMENT->content ?>
-                                  </div>
-                              </div>
-                           <?php endforeach; ?>
-                       </div>
-                   </div>
-               </div>
+                <?php include "public/views/pages/global/getNewsFeed.phtml" ?>
             </div>
         </div>
     </div>
+</div>
 
-    <?php include "public/views/pages/structures/html_pipes.phtml" ?>
-    <script type="module" src="/public/assets/scripts/pages/superadmin/maintenance/newsfeed.js"></script>
+<?php include "public/views/pages/structures/html_pipes.phtml" ?>
+<script type="module" src="/public/assets/scripts/pages/superadmin/maintenance/newsfeed.js"></script>
 
-    <?php include "public/views/pages/structures/html_closing_parent.phtml" ?>
+<?php include "public/views/pages/structures/html_closing_parent.phtml" ?>
 
-    <?php include "public/views/pages/structures/html_body_closing.phtml" ?>
+<?php include "public/views/pages/structures/html_body_closing.phtml" ?>
