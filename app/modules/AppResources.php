@@ -6,8 +6,10 @@
 
 
 use Application\controllers\system\CourseControl;
+use Application\controllers\system\DepartmentControl;
 use Application\controllers\system\ProfessorControl;
 use Application\controllers\system\SubjectControl;
+use Application\controllers\system\UserControl;
 
 $GENDERS = array_column(GenderType::cases(), "value");
 
@@ -34,13 +36,29 @@ $COURSE_HEADER_BODY = [
 
 $PROFESSORS_HEADER_BODY = [
     "header" => ["No","Name","Description","Main Course","Status", "Date Created"],
-    "body" => ["no","user_id","description","main_course_id","status", "date_created"]
+    "body" => ["no",[
+        "primary" => "user_id",
+        "controller" => UserControl::class,
+        "value" =>  "displayName"
+    ],"description",[
+        "primary" => "main_course_id",
+        "controller" => CourseControl::class,
+        "value" =>  "course_name"
+    ],"status", "date_created"]
 ];
 
 
 $STAFFS_HEADER_BODY = [
     "header" => ["No","Name","Description","Department","Status", "Date Created"],
-    "body" => ["no","user_id","description","department_id","status", "date_created"]
+    "body" => ["no",[
+        "primary" => "user_id",
+        "controller" => UserControl::class,
+        "value" =>  "displayName"
+    ],"description",[
+        "primary" => "department_id",
+        "controller" => DepartmentControl::class,
+        "value" =>  "department_name"
+    ],"status", "date_created"]
 ];
 
 $CLASSROOMS_HEADER_BODY = [
@@ -69,7 +87,11 @@ $SECTIONS_HEADER_BODY = [
 
 $SUBJECTS_HEADER_BODY = [
     "header" => ["No","Name","Code","Course","Status", "Date Created"],
-    "body" => ["no","subject_name","subject_code","course_id","status", "date_created"]
+    "body" => ["no","subject_name","subject_code",[
+        "primary" => "course_id",
+        "controller" => CourseControl::class,
+        "value" =>  "course_name"
+    ],"status", "date_created"]
 ];
 
 $DEPARTMENTS_HEADER_BODY = [
