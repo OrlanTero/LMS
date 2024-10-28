@@ -259,50 +259,6 @@ $STUDENT = array(
         "path" => '/me/classes',
         "icon" => '<i data-feather="book"></i>'
     ],
-    [
-        "text" => "My Section",
-        "path" => '/me/section',
-        "icon" => '<i data-feather="users"></i>'
-    ],
-    [
-        "text" => "Resources",
-        "path" => '/resources',
-        "icon" => '<i data-feather="folder"></i>',
-        "sub-content" => [
-            [
-                "text" => "Slot 1",
-                "path" => '/inventory/slot1',
-                "icon" => '<i data-feather="file"></i>'
-            ],
-            [
-                "text" => "Slot 2",
-                "path" => '/inventory/slot2',
-                "icon" => '<i data-feather="file"></i>'
-            ],
-        ]
-    ],
-    [
-        "text" => "Events & Announcements",
-        "path" => '/maintenance',
-        "icon" => '<i data-feather="bell"></i>',
-        "sub-content" => [
-            [
-                "text" => "Events",
-                "path" => '/maintenance/events',
-                "icon" => '<i data-feather="calendar"></i>'
-            ],
-            [
-                "text" => "Slot 1",
-                "path" => '/maintenance/slot1',
-                "icon" => '<i data-feather="info"></i>'
-            ],
-            [
-                "text" => "Slot 1",
-                "path" => '/maintenance/slot2',
-                "icon" => '<i data-feather="info"></i>'
-            ],
-        ]
-    ],
 );
 
 $isProfessor =  $SESSION->user_type == 2 && !empty($SESSION->getAsProfessor());

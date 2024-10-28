@@ -52,6 +52,387 @@ function Exams() {
     }
 }
 
+function Grades() {
+    const table = document.querySelector('.grading-table');
+    let passingScores = {};
+    let categories = [
+        { name: 'Written Works', percentage: 30 },
+        { name: 'Performance Tasks', percentage: 50 },
+        { name: 'Exams', percentage: 20 }
+    ];
+                                    
+    table.addEventListener('input', function(e) {
+        if (e.target.classList.contains('grade-input')) {
+            const category = e.target.dataset.category;
+            const column = e.target.dataset.column;
+            const passingScore = passingScores[`${category}-${column}`] || 100;
+            let value = parseFloat(e.target.textContent);
+
+            if (isNaN(value)) {
+                e.target.textContent = '';
+            } else {
+                value = Math.min(value, passingScore);
+                e.target.textContent = value;
+                updateTotals(e.target);
+            }
+        }
+    });
+
+    function updateTotals(input) {
+        const row = input.closest('tr');
+        const category = parseInt(input.dataset.category);
+        const inputs = row.querySelectorAll(`.grade-input[data-category="${category}"]`);
+        let total = 0;
+
+        inputs.forEach(inp => {
+            total += Number(inp.textContent) || 0;
+        });
+
+        const wsCell = row.querySelector(`.ws[data-category="${category}"]`);
+        const weight = categories[category - 1].percentage / 100;
+        const ws = (total / inputs.length) * weight;
+        wsCell.textContent = ws.toFixed(2);
+
+        updateFinalGrade(row);
+    }
+
+    function updateFinalGrade(row) {
+        const wsCells = row.querySelectorAll('.ws');
+        let finalGrade = 0;
+        wsCells.forEach(cell => {
+            finalGrade += parseFloat(cell.textContent) || 0;
+        });
+        row.querySelector('.final-grade').textContent = finalGrade.toFixed(2);
+    }
+
+    // Initialize grades on page load
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const inputs = row.querySelectorAll('.grade-input');
+        inputs.forEach(input => {
+            input.textContent = input.textContent.replace(/[^\d.]/g, '');
+            updateTotals(input);
+        });
+    });
+
+    // Add click event listeners to score headers
+    const scoreHeaders = document.querySelectorAll('.score-header');
+    scoreHeaders.forEach(header => {
+        header.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-column')) return;
+            const category = this.dataset.category;
+            const column = this.dataset.column;
+            
+            // Remove any existing floating containers
+            const existingContainer = document.querySelector('.floating-container');
+            if (existingContainer) {
+                existingContainer.remove();
+            }
+
+            // Create and position the floating container
+            const container = document.createElement('div');
+            container.className = 'floating-container';
+            container.innerHTML = `
+                <input type="number" value="${passingScores[`${category}-${column}`] || 100}" min="0" max="100">
+                <button>Save</button>
+            `;
+            document.body.appendChild(container);
+
+            const rect = this.getBoundingClientRect();
+            container.style.top = `${rect.bottom + window.scrollY}px`;
+            container.style.left = `${rect.left + window.scrollX}px`;
+
+            // Add event listener to the save button
+            const saveButton = container.querySelector('button');
+            saveButton.addEventListener('click', function() {
+                const passingScore = parseFloat(container.querySelector('input').value);
+                passingScores[`${category}-${column}`] = passingScore;
+                console.log(`Passing score for category ${category}, column ${column}: ${passingScore}`);
+                container.remove();
+
+                // Update all grades in this column to be at most the passing score
+                const gradeInputs = table.querySelectorAll(`.grade-input[data-category="${category}"][data-column="${column}"]`);
+                gradeInputs.forEach(input => {
+                    let value = parseFloat(input.textContent);
+                    if (!isNaN(value)) {
+                        value = Math.min(value, passingScore);
+                        input.textContent = value;
+                        updateTotals(input);
+                    }
+                });
+            });
+
+            // Add event listener to remove container when clicking outside
+            document.addEventListener('click', function removeContainer(event) {
+                if (!container.contains(event.target) && event.target !== header) {
+                    container.remove();
+                    document.removeEventListener('click', removeContainer);
+                }
+            });
+        });
+    });
+
+    // Add column functionality
+    table.addEventListener('click', function(e) {
+        if (e.target.classList.contains('add-column')) {
+            const category = e.target.dataset.category;
+            const headers = table.querySelectorAll(`th[data-category="${category}"]`);
+            const newColumnNumber = headers.length;
+            
+            // Add new header
+            const newHeader = document.createElement('th');
+            newHeader.classList.add('score-header');
+            newHeader.dataset.category = category;
+            newHeader.dataset.column = newColumnNumber;
+            newHeader.innerHTML = `${newColumnNumber} <button class="remove-column" data-category="${category}" data-column="${newColumnNumber}">-</button>`;
+            e.target.parentNode.before(newHeader);
+            
+            // Add new cell for each student
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const newCell = document.createElement('td');
+                newCell.innerHTML = `<span class="grade-input" contenteditable="true" data-student="${row.querySelector('.grade-input').dataset.student}" data-category="${category}" data-column="${newColumnNumber}">0</span>`;
+                row.querySelector(`td[data-category="${category}"]`).before(newCell);
+            });
+            
+            updateColumnNumbers(category);
+            updateHeaderColspan(category);
+        }
+    });
+
+    // Remove column functionality
+    table.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-column')) {
+            const category = e.target.dataset.category;
+            const column = e.target.dataset.column;
+            
+            // Remove header
+            e.target.closest('th').remove();
+            
+            // Remove corresponding cell for each student
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                row.querySelector(`td .grade-input[data-category="${category}"][data-column="${column}"]`).closest('td').remove();
+            });
+            
+            // Remove passing score for this column
+            delete passingScores[`${category}-${column}`];
+            
+            updateColumnNumbers(category);
+            updateHeaderColspan(category);
+        }
+    });
+
+    function updateColumnNumbers(category) {
+        const headers = table.querySelectorAll(`th[data-category="${category}"]`);
+        headers.forEach((header, index) => {
+            if (header.classList.contains('score-header')) {
+                const oldColumn = header.dataset.column;
+                const newColumn = index + 1;
+                header.dataset.column = newColumn;
+                header.firstChild.textContent = newColumn;
+                header.querySelector('.remove-column').dataset.column = newColumn;
+
+                // Update passing scores object
+                if (passingScores[`${category}-${oldColumn}`]) {
+                    passingScores[`${category}-${newColumn}`] = passingScores[`${category}-${oldColumn}`];
+                    delete passingScores[`${category}-${oldColumn}`];
+                }
+            }
+        });
+
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            const cells = row.querySelectorAll(`td .grade-input[data-category="${category}"]`);
+            cells.forEach((cell, index) => {
+                cell.dataset.column = index + 1;
+            });
+            // Ensure the WS cell is always present
+            let wsCell = row.querySelector(`.ws[data-category="${category}"]`);
+            if (!wsCell) {
+                wsCell = document.createElement('td');
+                wsCell.className = 'ws';
+                wsCell.dataset.category = category;
+                wsCell.textContent = '0.00';
+                row.insertBefore(wsCell, row.querySelector(`.ws[data-category="${parseInt(category) + 1}"]`) || row.querySelector('.final-grade'));
+            }
+        });
+
+        // Update totals after column changes
+        rows.forEach(row => {
+            const inputs = row.querySelectorAll(`.grade-input[data-category="${category}"]`);
+            if (inputs.length > 0) {
+                updateTotals(inputs[0]);
+            }
+        });
+    }
+
+    function updateHeaderColspan(category) {
+        const headerRow = table.querySelector('thead tr:first-child');
+        const categoryHeader = headerRow.querySelector(`th[data-category="${category}"]`);
+        const columnCount = table.querySelectorAll(`th[data-category="${category}"]`).length;
+        categoryHeader.colSpan = columnCount + 1; // +1 for the "+" button column
+    }
+
+    // Edit header functionality
+    table.addEventListener('click', function(e) {
+        if (e.target.closest('.edit-header')) {
+            const categoryHeader = e.target.closest('.category-header');
+            const category = parseInt(categoryHeader.dataset.category);
+            
+            const container = document.createElement('div');
+            container.className = 'floating-container';
+            container.innerHTML = `
+                <input type="text" value="${categories[category - 1].name}" placeholder="Category Name">
+                <input type="number" value="${categories[category - 1].percentage}" min="0" max="100" placeholder="Percentage">
+                <button>Save</button>
+            `;
+            document.body.appendChild(container);
+
+            const rect = categoryHeader.getBoundingClientRect();
+            container.style.top = `${rect.bottom + window.scrollY}px`;
+            container.style.left = `${rect.left + window.scrollX}px`;
+
+            container.querySelector('button').addEventListener('click', function() {
+                const newName = container.querySelector('input[type="text"]').value;
+                const newPercentage = parseInt(container.querySelector('input[type="number"]').value);
+
+                if (newName && !isNaN(newPercentage)) {
+                    categories[category - 1].name = newName;
+                    categories[category - 1].percentage = newPercentage;
+                    updateCategoryHeaders();
+                    adjustPercentages();
+                }
+
+                container.remove();
+            });
+        }
+    });
+
+    // Add new category functionality
+    table.addEventListener('click', function(e) {
+        if (e.target.closest('.add-category')) {
+            const container = document.createElement('div');
+            container.className = 'floating-container';
+            container.innerHTML = `
+                <input type="text" placeholder="New Category Name">
+                <input type="number" placeholder="Percentage" min="0" max="100">
+                <button>Add</button>
+            `;
+            document.body.appendChild(container);
+
+            const rect = e.target.closest('th').getBoundingClientRect();
+            container.style.top = `${rect.bottom + window.scrollY}px`;
+            container.style.left = `${rect.left + window.scrollX}px`;
+
+            container.querySelector('button').addEventListener('click', function() {
+                const newName = container.querySelector('input[type="text"]').value;
+                const newPercentage = parseInt(container.querySelector('input[type="number"]').value);
+
+                if (newName && !isNaN(newPercentage)) {
+                    categories.push({ name: newName, percentage: newPercentage });
+                    addNewCategoryToTable();
+                    adjustPercentages();
+                }
+
+                container.remove();
+            });
+        }
+    });
+
+    function updateCategoryHeaders() {
+        const headerRow = table.querySelector('thead tr:first-child');
+        categories.forEach((category, index) => {
+            const categoryHeader = headerRow.querySelector(`th[data-category="${index + 1}"]`);
+            if (categoryHeader) {
+                categoryHeader.innerHTML = `
+                    ${category.name} (${category.percentage}%)
+                    <span class="edit-header" title="Edit Header">
+                        <?= UseIcon("pencil-thin") ?>
+                    </span>
+                `;
+            }
+        });
+    }
+
+    function adjustPercentages() {
+        const total = categories.reduce((sum, category) => sum + category.percentage, 0);
+        if (total !== 100) {
+            const factor = 100 / total;
+            categories.forEach(category => {
+                category.percentage = Math.round(category.percentage * factor);
+            });
+            updateCategoryHeaders();
+        }
+        // Recalculate all grades
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            const inputs = row.querySelectorAll('.grade-input');
+            inputs.forEach(input => updateTotals(input));
+        });
+    }
+
+    function addNewCategoryToTable() {
+        const newCategoryIndex = categories.length;
+        const headerRow = table.querySelector('thead tr:first-child');
+        const subHeaderRow = table.querySelector('thead tr:last-child');
+        
+        // Add new category header
+        const newCategoryHeader = document.createElement('th');
+        newCategoryHeader.className = 'category-header';
+        newCategoryHeader.dataset.category = newCategoryIndex;
+        newCategoryHeader.colSpan = 5; // 4 columns + 1 add column button
+        newCategoryHeader.innerHTML = `
+            ${categories[newCategoryIndex - 1].name} (${categories[newCategoryIndex - 1].percentage}%)
+            <span class="edit-header" title="Edit Header">
+                <?= UseIcon("pencil-thin") ?>
+            </span>
+        `;
+        headerRow.insertBefore(newCategoryHeader, headerRow.lastElementChild);
+        
+        // Add new sub-headers
+        for (let i = 1; i <= 4; i++) {
+            const newSubHeader = document.createElement('th');
+            newSubHeader.className = 'score-header';
+            newSubHeader.dataset.category = newCategoryIndex;
+            newSubHeader.dataset.column = i;
+            newSubHeader.innerHTML = `
+                ${i}
+                <button class="remove-column" data-category="${newCategoryIndex}" data-column="${i}">-</button>
+            `;
+            subHeaderRow.insertBefore(newSubHeader, subHeaderRow.lastElementChild);
+        }
+        
+        // Add 'Add Column' button
+        const addColumnHeader = document.createElement('th');
+        addColumnHeader.innerHTML = `<button class="add-column" data-category="${newCategoryIndex}">+</button>`;
+        subHeaderRow.insertBefore(addColumnHeader, subHeaderRow.lastElementChild);
+        
+        // Add new cells for each student
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            for (let i = 1; i <= 4; i++) {
+                const newCell = document.createElement('td');
+                newCell.innerHTML = `<span class="grade-input" contenteditable="true" data-student="${row.querySelector('.grade-input').dataset.student}" data-category="${newCategoryIndex}" data-column="${i}">0</span>`;
+                row.insertBefore(newCell, row.lastElementChild);
+            }
+            
+            // Add WS cell
+            const wsCell = document.createElement('td');
+            wsCell.className = 'ws';
+            wsCell.dataset.category = newCategoryIndex;
+            wsCell.textContent = '0.00';
+            row.insertBefore(wsCell, row.lastElementChild);
+        });
+        
+        // Update final grade calculations
+        rows.forEach(row => {
+            const inputs = row.querySelectorAll('.grade-input');
+            inputs.forEach(input => updateTotals(input));
+        });
+    }
+}
+
 function NewActivity(section_id) {    
     return new Promise((resolve) => {
         const popup = new Popup(`${"activities"}/add_new_activity`, {section_id},{
@@ -739,6 +1120,7 @@ function Cards() {
                 Resources();
                 Activities();
                 Exams();
+                Grades();
                 StickyNotes();
             })
         })

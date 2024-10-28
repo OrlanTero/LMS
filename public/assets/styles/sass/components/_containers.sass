@@ -134,169 +134,218 @@
   padding: 0px 40px
   h2
     color: $textgray
-
 .main-two-flex-container
   padding: 20px
   display: flex
-  .main-flex-container
-    width: 100%
-    height: 100%
-    background: #ffffff
-    border-radius: 15px
-    margin: 10px
-    box-shadow: $global_boxshadow
-    min-height: 400px
-    padding: 20px
-    &.column-flex
-      display: flex
-      justify-content: center
-      flex-direction: row
-      .container-head, .container-body
-        width: 100%
-        height: 100%
+  flex-wrap: wrap // Add flex-wrap for better responsiveness
 
-    .title
-      padding: 10px
-      h2
-        color: $textgray
+.main-flex-container
+  flex: 1 1 calc(50% - 20px) // Use flex-grow, flex-shrink, and flex-basis for better responsiveness
+  min-width: 300px // Set a minimum width to prevent containers from becoming too narrow
+  background: #ffffff
+  border-radius: 15px
+  margin: 10px
+  box-shadow: $global_boxshadow
+  min-height: 400px
+  padding: 20px
+  display: flex
+  flex-direction: column // Change to column layout by default
+  
+  &.column-flex
+    flex-direction: row
+    .container-head, .container-body
+      flex: 1 // Use flex: 1 to distribute space evenly
+
+  .title
+    padding: 10px
+    h2
+      color: $textgray
+
 .newsfeed-parent
   width: 100%
   min-height: 100%
   display: flex
   justify-content: center
-  .newsfeed-flex
-    display: flex
-    gap: 10px
+  flex-wrap: wrap // Add flex-wrap for better responsiveness
+
+.newsfeed-flex
+  display: flex
+  flex-wrap: wrap // Add flex-wrap for better responsiveness
+  gap: 20px // Increase gap for better spacing
+  max-width: 1200px // Set a max-width for better readability on large screens
+  width: 100%
+
 .newsfeed-main-container
-  width: 800px
+  flex: 1 1 600px // Use flex-grow, flex-shrink, and flex-basis for better responsiveness
   min-height: 85%
   padding: 20px
   border-radius: 6px
   background: #ffffff
   box-shadow: $global_boxshadow
+
 .newsfeed-announcement
+  flex: 1 1 300px // Use flex-grow, flex-shrink, and flex-basis for better responsiveness
   padding: 20px
-  width: 350px
   height: 800px
   border-radius: 6px
-  //background: #ffffff
-  //box-shadow: $global_boxshadow
-  position: sticky !important
+  position: sticky
   top: 30px
+  align-self: flex-start // Align to the top of the container
 
 .post-container
   padding: 20px
   border-radius: 6px
   background: #ffffff
   box-shadow: $component_boxshadow
-  margin: 20px 10px
+  margin: 20px 0 // Change margin to vertical only
+  
   .post-head
     display: flex
+    align-items: center // Align items vertically
+    
     .photo
-      margin-right: 10px
+      margin-right: 15px // Increase margin for better spacing
+      flex-shrink: 0 // Prevent image from shrinking
+      
       .image
         width: 50px
         height: 50px
-        border-radius: 4px
+        border-radius: 50% // Make image circular
         background: #ebeeee
+        overflow: hidden // Hide overflow for circular image
+        
         img
           width: 100%
           height: 100%
-          border-radius: 4px
+          object-fit: cover // Ensure image covers the entire area
+    
     .texts
       color: $textgray
-
+      flex-grow: 1 // Allow text to take up remaining space
+      
       p.primary
         font-size: 18px
         font-weight: 600
+        margin-bottom: 5px // Add margin between primary and secondary text
+      
       p.secondary
         font-size: 14px
+  
   .post-body
-    padding: 10px 0
+    padding: 15px 0
     font-size: 16px
-    line-height: 18px
+    line-height: 1.5 // Improve readability with increased line height
+    
     .post-content
-      padding: 20px 10px
+      padding: 0 // Remove unnecessary padding
+  
   .post-footer
     padding: 10px 0
+    border-top: 1px solid #ebeeee // Add a separator line
+    
     .reaction-container
       display: flex
       align-items: center
+      justify-content: space-between // Spread items across the container
+      
       .date-content
-        padding: 10px 0
         small
           color: $textgray
+      
       .reaction-content
-        margin-left: 20px
         .text-button
           .text span
-            font-size: 13px !important
+            font-size: 14px // Slightly increase font size for better readability
+    
     .reaction-content-result
+      margin-top: 10px // Add margin to separate from reaction buttons
       padding: 10px 20px
-      font-size: 13px
+      font-size: 14px // Increase font size slightly
       color: $textgray
       border-radius: 4px
-      background: lightgray
+      background: #f0f2f5 // Use a lighter background color
+  
   .post-media
+    margin-top: 15px // Add margin to separate from post content
+    
     .post-img
-      width: 100% !important
-      height: auto !important
+      width: 100%
+      height: auto
+      border-radius: 4px // Add border radius to images
 
 .post-creator-popup
-  width: 500px !important
-  min-width: 600px !important
-  min-height: 300px !important
+  width: 90% // Use percentage width for better responsiveness
+  max-width: 600px // Set a max-width
+  min-height: 300px
+  
   .popup-bot
-    min-height: 500px !important
-    height: 500px !important
+    min-height: 500px
+    height: 500px
+
 .post-creator-container
   padding: 20px
   border-radius: 6px
   background: #ffffff
   box-shadow: $component_boxshadow
-  margin: 20px 10px
+  margin: 20px 0 // Change margin to vertical only
+  
   .creator-head
     display: flex
+    align-items: center // Align items vertically
+    margin-bottom: 15px // Add margin to separate from body
+    
     .photo
-      margin-right: 10px
+      margin-right: 15px // Increase margin for better spacing
+      flex-shrink: 0 // Prevent image from shrinking
+      
       .image
         width: 50px
         height: 50px
-        border-radius: 4px
+        border-radius: 50% // Make image circular
         background: #ebeeee
+        overflow: hidden // Hide overflow for circular image
+        
         img
           width: 100%
           height: 100%
-          border-radius: 4px
+          object-fit: cover // Ensure image covers the entire area
+    
     .texts
       color: $textgray
-
+      flex-grow: 1 // Allow text to take up remaining space
+      
       p.primary
         font-size: 18px
         font-weight: 600
+        margin-bottom: 5px // Add margin between primary and secondary text
+      
       p.secondary
         font-size: 14px
+  
   .creator-body
-    padding: 10px 0
     .textarea-container
       border-radius: 4px
       background: #F0F2F5
       padding: 20px
-      height: 100px
-      cursor: pointer
-
+      min-height: 100px // Use min-height instead of fixed height
+      cursor: text // Change cursor to text for better UX
 
 .main-creator
   .post-content
     width: 100%
-    max-height: 500px !important
-    overflow-y: auto !important
-    overflow-x: hidden !important
+    max-height: 500px
+    overflow-y: auto
+    overflow-x: hidden
+    padding-right: 10px // Add padding to account for scrollbar
+  
   .other-content
-    padding: 10px 15px
+    padding: 15px // Increase padding slightly
+  
   .creator-upload
     width: 100%
     min-height: 100px
+    margin-top: 15px // Add margin to separate from other content
+    
     #drop_zone
       width: 100%
       height: 100%
@@ -305,16 +354,23 @@
       min-height: 100px
       display: flex
       justify-content: center
-      align-content: center
       align-items: center
+      border: 2px dashed #ccc // Add dashed border for better visual cue
+      transition: background-color 0.3s ease // Add transition for hover effect
+      
+      &:hover
+        background-color: #e4e6e9 // Add hover effect
+  
   .post-gallery
     display: none
+    margin-top: 15px // Add margin when displayed
+    
     &.show
-      display: block !important
+      display: block
 
 .announcement-creator
-  padding: 10px
-  margin: 10px 0
+  padding: 15px // Increase padding slightly
+  margin: 15px 0 // Increase margin slightly
   border-radius: 4px
   background: #ffffff
   box-shadow: $component_boxshadow
@@ -322,39 +378,53 @@
   align-items: center
   cursor: pointer
   user-select: none
+  transition: transform 0.2s ease // Smooth out the transform
+  
   &:active
-    transform: scale(0.8)
+    transform: scale(0.95) // Less dramatic scale effect
+  
   .photo
     margin-right: 20px
+    
     .circle
       width: 40px
       height: 40px
-      border-radius: 100%
+      border-radius: 50%
       background: #ebeeee
       display: flex
       justify-content: center
       align-items: center
+      overflow: hidden // Hide overflow for circular image
+      
       img
         width: 100%
         height: 100%
-        border-radius: 100%
+        object-fit: cover // Ensure image covers the entire area
+      
       svg
         width: 24px
         height: auto
+
 .announcement-container
-  padding: 10px
+  padding: 15px // Increase padding slightly
   border-radius: 4px
   box-shadow: $component_boxshadow
   background: #fff
   margin: 20px 0
+  
   .announcement-header
     border-bottom: 1px solid #ebeeee
-    padding-bottom: 10px
+    padding-bottom: 15px // Increase padding slightly
+    margin-bottom: 15px // Add margin to separate from body
+    
     .primary
       font-size: 18px
       font-weight: 600
+      margin-bottom: 5px // Add margin between primary and secondary text
+    
     .secondary
       font-size: 14px
       color: $textgray
+  
   .announcement-body
-    padding: 10px
+    padding: 0 // Remove unnecessary padding

@@ -79,6 +79,7 @@ function CreateNewPost() {
 
         sp.mount();
 
+       
         ClassicEditor
             .create( editor )
             .catch( error => {
