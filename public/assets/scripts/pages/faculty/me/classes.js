@@ -52,7 +52,6 @@ function Exams() {
     }
 }
 
-
 function Grades() {
     const table = document.querySelector('.grading-table');
     let passingScores = {
@@ -77,99 +76,34 @@ function Grades() {
         if (!grading_platform) return;
 
         // Reset existing structures
+        categories = [];
         studentScores = {};
         columnStructure = {};
-        
-        // First, initialize student scores structure for all students
-        const rows = table.querySelectorAll('tbody tr');
-        rows.forEach(row => {
-            const studentID = row.querySelector('.grade-input').dataset.student;
-            studentScores[studentID] = {
-                scores: {},
-                scoreIds: {},
-                weightedScores: {},
-                finalGrade: 0,
-                collegeGrade: 0,
-                status: {}
-            };
-            
-            // Initialize categories for this student
-            grading_platform.categories.forEach(category => {
-                const categoryID = category.grading_category_id;
-                studentScores[studentID].scores[categoryID] = {};
-                studentScores[studentID].scoreIds[categoryID] = {};
-                studentScores[studentID].weightedScores[categoryID] = 0;
-            });
-        });
+        passingScores = { scores: {}, status: {} };
 
-        // Then process categories and columns
+        // Process categories and their columns
         if (grading_platform.categories) {
-            categories = grading_platform.categories.map(cat => ({
-                id: cat.grading_category_id,
-                name: cat.name,
-                percentage: cat.percentage,
-                status: cat.status || 'original'
-            }));
-
-            // Initialize column structure for each category
             grading_platform.categories.forEach(category => {
                 const categoryId = category.grading_category_id;
-                columnStructure[categoryId] = {
-                    columns: [],
-                    columnStatus: {},
-                    columnIds: [],
-                    totalColumns: 0
-                };
 
-                // Process columns for this category
+                addNewCategory(category.name, category.percentage, categoryId);
+
                 if (category.columns && Array.isArray(category.columns)) {
                     category.columns.forEach(col => {
-                        const columnId = col.grading_score_column_id;
-                        const columnNumber = col.column_number;
-
-                        columnStructure[categoryId].columns.push(columnNumber);
-                        columnStructure[categoryId].columnIds.push(columnId);
-                        columnStructure[categoryId].columnStatus[columnId] = col.status || 'original';
-                        columnStructure[categoryId].totalColumns++;
-
-                        // Process scores for this column
-                        if (col.scores && Array.isArray(col.scores)) {
-                            col.scores.forEach(score => {
-                                const studentID = score.student_id;
-                                const scoreValue = parseFloat(score.score) || 0;
-                                const scoreId = score.grading_score_id;
-
-                                if (studentScores[studentID]) {
-                                    studentScores[studentID].scores[categoryId][columnId] = scoreValue;
-                                    studentScores[studentID].scoreIds[categoryId][columnId] = scoreId;
-                                    studentScores[studentID].status[`${studentID}-${categoryId}-${columnId}`] = score.status || 'original';
-
-                                    // Update UI
-                                    const scoreCell = table.querySelector(
-                                        `.grade-input[data-student="${studentID}"][data-category="${categoryId}"][data-column="${columnNumber}"]`
-                                    );
-                                    if (scoreCell) {
-                                        scoreCell.dataset.columnId = columnId;
-                                        scoreCell.dataset.scoreId = scoreId;
-                                        scoreCell.dataset.column = columnNumber;
-                                        scoreCell.textContent = scoreValue;
-                                    }
-                                }
-                            });
-                        }
+                        addColumn(categoryId, col);
                     });
                 }
             });
         }
 
         // Update UI and recalculate grades
-        initializeOriginalGrades();
+        // initializeOriginalGrades();
         updateCategoryHeaders();
         
-        // Recalculate grades for all rows
-        table.querySelectorAll('tbody tr').forEach(row => {
-            recalculateGrades(row);
-        });
+        // // Recalculate grades for all rows
+        // table.querySelectorAll('tbody tr').forEach(row => {
+        //     recalculateGrades(row);
+        // });
     }
         
 
@@ -182,7 +116,7 @@ function Grades() {
     // Initialize original grades
     function initializeOriginalGrades() {
         table.querySelectorAll('tbody tr').forEach(row => {
-            const userId = row.querySelector('.grade-input').dataset.student;
+            const userId = row.dataset.student;
             // Check if studentScores[userId] exists before copying
             if (studentScores[userId]) {
                 originalGrades[userId] = JSON.parse(JSON.stringify(studentScores[userId]));
@@ -210,16 +144,16 @@ function Grades() {
             section_subject_id: table.dataset.sectionSubjectId,
             categories: categories
                 .map((cat) => ({
-                    id: cat.id,
+                    id: cat.category_id,
                     name: cat.name,
                     percentage: cat.percentage,
                     status: cat.status,
-                    columns: columnStructure[cat.id].columnIds
+                    columns: columnStructure[cat.category_id].columnIds
                         .map((columnId, index) => ({
                             id: columnId,
-                            column_number: columnStructure[cat.id].columns[index],
-                            passing_score: passingScores.scores[`${cat.id}-${columnId}`],
-                            passing_score_status: passingScores.status[`${cat.id}-${columnId}`]
+                            column_number: columnStructure[cat.category_id].columns[index],
+                            passing_score: passingScores.scores[`${cat.category_id}-${columnId}`],
+                            passing_score_status: passingScores.status[`${cat.category_id}-${columnId}`]
                         }))
                 })),
             student_grades: Object.entries(studentScores)
@@ -251,10 +185,9 @@ function Grades() {
         };
 
         return new Promise((resolve) => {
-            console.log(gradesData);
-            // PostRequest("SaveGrades", {data: JSON.stringify(gradesData)}).then((res) => {
-            //     resolve(res);
-            // });
+            PostRequest("SaveGrades", {data: JSON.stringify(gradesData)}).then((res) => {
+                resolve(res);
+            });
         });
     }
 
@@ -310,14 +243,13 @@ function Grades() {
             if (!studentScores[userId].scores[category]) {
                 studentScores[userId].scores[category] = {};
                 studentScores[userId].scoreIds[category] = {}; // Initialize score IDs
+                studentScores[userId].status = studentScores[userId].status || {}; // Initialize status object if needed
             }
 
             // Update score
             studentScores[userId].scores[category][columnId] = value;
 
-            // Generate new ID if this is a new score
-            if (!studentScores[userId].scoreIds[category][columnId]) {
-                studentScores[userId].scoreIds[category][columnId] = MakeID(10);
+            if (!studentScores[userId].status[scoreKey]) {
                 studentScores[userId].status[scoreKey] = 'created';
             } else if (studentScores[userId].status[scoreKey] === 'original') {
                 studentScores[userId].status[scoreKey] = 'edited';
@@ -343,152 +275,36 @@ function Grades() {
         });
     });
 
-    discardGradesBtn.addEventListener('click', () => {
-        if (confirm('Are you sure you want to discard all changes?')) {
-            discardGrades();
-        }
-    });
-
-    // Initialize original grades when the component loads
-    initializeOriginalGrades();
-
-    // Add warning when leaving page with unsaved changes
-    window.addEventListener('beforeunload', (e) => {
-        if (hasUnsavedChanges) {
-            e.preventDefault();
-            e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
-        }
-    });
-
-
-    categories.forEach((_, index) => {
-        const categoryIndex = index + 1;
-        columnStructure[categoryIndex] = {
-            columns: [],
-            columnStatus: {},
-            totalColumns: 0
-        };
-    });
-
-    // Initialize column tracking
-    function initializeColumns() {
-        const headers = table.querySelectorAll('.score-header');
-        headers.forEach(header => {
-            const category = header.dataset.category;
-            const column = header.dataset.column;
-            const columnId = header.dataset.columnId;
-            
-            if (!columnStructure[category]) {
-                columnStructure[category] = {
-                    columns: [],
-                    columnStatus: {},
-                    columnIds: [],
-                    totalColumns: 0
-                };
-            }
-
-            if (!columnStructure[category].columns.includes(column)) {
-                columnStructure[category].columns.push(column);
-                columnStructure[category].columnIds.push(columnId);
-                columnStructure[category].columnStatus[columnId] = 'original';
-            }
-        });
-
-        // Update total columns
-        for (let category in columnStructure) {
-            columnStructure[category].totalColumns = columnStructure[category].columns.length;
-        }
-
-        // Initialize student scores
-        table.querySelectorAll('tbody tr').forEach(row => {
-            const inputs = row.querySelectorAll('.grade-input');
-            if (!inputs.length) return; // Skip if no inputs found
-            
-            const userId = inputs[0].dataset.student;
-            
-            // Initialize student structure
-            studentScores[userId] = {
-                scores: {},
-                weightedScores: {},
-                finalGrade: 0,
-                collegeGrade: 0,
-                status: {}
-            };
-
-            // Initialize categories for this student
-            for (let category in columnStructure) {
-                studentScores[userId].scores[category] = {};
-                studentScores[userId].weightedScores[category] = 0;
-            }
-
-            // Process each input
-            inputs.forEach(input => {
-                const category = input.dataset.category;
-                const column = input.dataset.column;
-                const columnId = input.dataset.columnId;
-                const scoreKey = `${userId}-${category}-${columnId}`;
-                const value = input.textContent === '' ? 0 : parseFloat(input.textContent);
-                
-                if (!studentScores[userId].scores[category]) {
-                    studentScores[userId].scores[category] = {};
-                    studentScores[userId].scoreIds[category] = {}; // Initialize score IDs
-                }
-                
-                studentScores[userId].scores[category][columnId] = value;
-                // Don't generate new IDs here as these are existing scores
-                studentScores[userId].status[`${userId}-${category}-${columnId}`] = 'original';
-            });
-        });
-    }
-
-    // Handle grade input with passing score check
-    table.addEventListener('input', function(e) {
-        if (e.target.classList.contains('grade-input')) {
-            const category = e.target.dataset.category;
-            const column = e.target.dataset.column;
-            const userId = e.target.dataset.student;
-            const passingScore = passingScores[`${category}-${column}`] || 100;
-            let value = e.target.textContent === '' ? 0 : parseFloat(e.target.textContent);
-
-            if (isNaN(value)) {
-                e.target.textContent = '0';
-                studentScores[userId].scores[category][column] = 0;
-            } else {
-                value = Math.min(value, passingScore);
-                e.target.textContent = value;
-                studentScores[userId].scores[category][column] = value;
-                recalculateGrades(e.target.closest('tr'));
-            }
-        }
-    });
-
     // Recalculate all grades for a row
     function recalculateGrades(row) {
-        const userId = row.querySelector('.grade-input').dataset.student;
+        const userId = row.dataset.student;
 
-        categories.forEach((category, index) => {
-            const categoryIndex = index + 1;
-            const inputs = row.querySelectorAll(`.grade-input[data-category="${categoryIndex}"]`);
+        categories.forEach((category) => {
+            const category_id = category.category_id;
+            const inputs = row.querySelectorAll(`.grade-input[data-category="${category_id}"]`);
             let total = 0;
             let validInputs = inputs.length; // Count all inputs as valid
 
             inputs.forEach(input => {
-                const value = studentScores[userId].scores[categoryIndex][input.dataset.column];
+                const value = studentScores[userId].scores[category_id][input.dataset.column];
                 total += (value === undefined || value === '') ? 0 : value;
             });
 
-            const wsCell = row.querySelector(`.ws[data-category="${categoryIndex}"]`);
+            const wsCell = row.querySelector(`.ws[data-category="${category_id}"]`);
             const average = validInputs > 0 ? total / validInputs : 0;
             const weightedScore = average * (category.percentage / 100);
-            wsCell.textContent = weightedScore.toFixed(2);
-            studentScores[userId].weightedScores[categoryIndex] = weightedScore;
+
+            if (wsCell) {
+                wsCell.textContent = weightedScore.toFixed(2);
+                studentScores[userId].weightedScores[category_id] = weightedScore;
+            }
         });
 
         updateFinalGrade(row);
     }
 
     function updateFinalGrade(row) {
-        const userId = row.querySelector('.grade-input').dataset.student;
+        const userId = row.dataset.student;
         let finalGrade = 0;
         
         Object.values(studentScores[userId].weightedScores).forEach(score => {
@@ -502,7 +318,7 @@ function Grades() {
     }
 
     function updateCollegeGrade(row, finalGrade, finalGradeCell) {
-        const userId = row.querySelector('.grade-input').dataset.student;
+        const userId = row.dataset.student;
         const collegeGradeCell = row.querySelector('.college-grade');
         let collegeGrade;
         if (finalGrade >= 95) {
@@ -529,23 +345,18 @@ function Grades() {
         }
     }
 
-    // Manage passing scores
-    table.addEventListener('click', function(e) {
-        if (e.target.classList.contains('score-header')) {
-            const category = e.target.dataset.category;
-            const column = e.target.dataset.column;
-            showPassingScoreEditor(e.target, category, column);
-        }
-    });
-
     function showPassingScoreEditor(header, category, column) {
         const existingContainer = document.querySelector('.floating-container');
         if (existingContainer) existingContainer.remove();
 
+        // Get the columnId from the header
+        const columnId = header.dataset.columnId;
+        const scoreKey = `${category}-${columnId}`;
+
         const container = document.createElement('div');
         container.className = 'floating-container';
         container.innerHTML = `
-            <input type="number" value="${passingScores[`${category}-${column}`] || 100}" min="0" max="100">
+            <input type="number" value="${passingScores.scores[scoreKey] || 100}" min="0" max="100">
             <button>Save</button>
         `;
 
@@ -554,13 +365,13 @@ function Grades() {
         container.style.left = `${rect.left + window.scrollX}px`;
         document.body.appendChild(container);
 
-        setupPassingScoreEvents(container, category, column);
+        setupPassingScoreEvents(container, category, columnId); // Pass columnId instead of column number
     }
 
-    function setupPassingScoreEvents(container, category, column) {
+    function setupPassingScoreEvents(container, category, columnId) {
         container.querySelector('button').addEventListener('click', function() {
             const passingScore = parseFloat(container.querySelector('input').value);
-            const scoreKey = `${category}-${column}`;
+            const scoreKey = `${category}-${columnId}`;
             
             // Store the score
             passingScores.scores[scoreKey] = passingScore;
@@ -573,7 +384,9 @@ function Grades() {
             }
             
             // Update grades to respect new passing score
-            const inputs = table.querySelectorAll(`.grade-input[data-category="${category}"][data-column="${column}"]`);
+            const inputs = table.querySelectorAll(
+                `.grade-input[data-category="${category}"][data-column-id="${columnId}"]`
+            );
             inputs.forEach(input => {
                 let value = input.textContent === '' ? 0 : parseFloat(input.textContent);
                 if (!isNaN(value)) {
@@ -596,16 +409,6 @@ function Grades() {
         });
     }
 
-    // Category management
-    table.addEventListener('click', function(e) {
-        if (e.target.closest('.edit-header')) {
-            const categoryHeader = e.target.closest('.category-header');
-            const category = parseInt(categoryHeader.dataset.category);
-            showCategoryEditor(categoryHeader, category);
-        } else if (e.target.closest('.add-category')) {
-            showNewCategoryEditor(e.target.closest('.add-category'));
-        }
-    });
 
     function showNewCategoryEditor(button) {
         const existingContainer = document.querySelector('.floating-container');
@@ -643,22 +446,27 @@ function Grades() {
         });
     }
 
-    function addNewCategory(name, percentage) {
-        const newCategoryIndex = categories.length + 1;
-        categories.push({ name, percentage, status: 'created' });
-        columnStructure[newCategoryIndex] = {
+    function addNewCategory(name, percentage, category_id = null) {
+
+        let status = category_id ? 'original' : 'created';
+
+        category_id = category_id ?? MakeID(10);
+
+        categories.push({ name, percentage, status, category_id});
+
+        columnStructure[category_id] = {
             columns: [],
             columnIds: [], // Add columnIds array
             columnStatus: {},
-            totalColumns: 0
+            totalColumns: 0,
         };
 
         // Add new category header
         const headerRow = table.querySelector('thead tr:first-child');
         const newHeader = document.createElement('th');
         newHeader.classList.add('category-header');
-        newHeader.dataset.category = newCategoryIndex;
-        newHeader.colSpan = 3; // 3 columns + 1 weighted score
+        newHeader.dataset.category = category_id;
+        newHeader.colSpan = 0; 
 
         newHeader.innerHTML = `
             ${name} (${percentage}%)
@@ -666,59 +474,37 @@ function Grades() {
                 <?= UseIcon("pencil-thin") ?>
             </span>
         `;
+        
         headerRow.insertBefore(newHeader, headerRow.querySelector('th:nth-last-child(3)'));
 
         // Add column headers
         const subHeaderRow = table.querySelector('thead tr:last-child');
-        const insertBeforeElement = subHeaderRow.querySelector('th:nth-last-child(0)');
-        
-        // Add three scoring columns
-        for(let i = 1; i <= 3; i++) {
-            const columnId = MakeID(20);
-            const column = document.createElement('th');
-            column.classList.add('score-header');
-            column.dataset.category = newCategoryIndex;
-            column.dataset.column = i.toString();
-            column.dataset.columnId = columnId;
-            column.innerHTML = `${i} <button class="remove-column" data-category="${newCategoryIndex}" data-column="${i}">-</button>`;
-            subHeaderRow.insertBefore(column, insertBeforeElement);
-    
-            columnStructure[newCategoryIndex].columns.push(i);
-            columnStructure[newCategoryIndex].columnIds.push(columnId);
-            columnStructure[newCategoryIndex].columnStatus[columnId] = 'created';
-        }
+        const insertBeforeElement = subHeaderRow.querySelector(`th.add-column-header[data-category="${category_id}"]`);
 
-        // Add add-column button
         const addColumnHeader = document.createElement('th');
-        addColumnHeader.innerHTML = `<button class="add-column" data-category="${newCategoryIndex}">+</button>`;
-        subHeaderRow.insertBefore(addColumnHeader, insertBeforeElement);
+        addColumnHeader.classList.add('add-column-header');
+        addColumnHeader.dataset.category = category_id;
+        addColumnHeader.innerHTML = `<button class="add-column" data-category="${category_id}">+</button>`;
+        subHeaderRow.insertBefore(addColumnHeader, insertBeforeElement ? insertBeforeElement.nextSibling : null);
 
         // Add cells to each row
         table.querySelectorAll('tbody tr').forEach(row => {
             const insertBeforeCell = row.querySelector('td:nth-last-child(2)');
-            const userId = row.querySelector('.grade-input').dataset.student;
-            
-            // Initialize scores for new category
-            studentScores[userId].scores[newCategoryIndex] = {};
-            studentScores[userId].weightedScores[newCategoryIndex] = 0;
-            
-            // Add three scoring cells
-            for(let i = 1; i <= 3; i++) {
-                const columnId = columnStructure[newCategoryIndex].columnIds[i-1];
-                const cell = document.createElement('td');
-                cell.innerHTML = `<span class="grade-input" contenteditable="true" 
-                    data-student="${userId}" 
-                    data-category="${newCategoryIndex}" 
-                    data-column="${i}"
-                    data-column-id="${columnId}">0</span>`;
-                row.insertBefore(cell, insertBeforeCell);
-                studentScores[userId].scores[newCategoryIndex][columnId] = 0;
+            const userId = row.dataset.student;
+
+            // Initialize scores for new category if not already initialized
+            if (!studentScores[userId]) {
+                studentScores[userId] = { scores: {}, weightedScores: {}, status: {} };
             }
 
+            studentScores[userId].scores[category_id] = {};
+            studentScores[userId].weightedScores[category_id] = 0;
+            studentScores[userId].status[category_id] = 'created';
+       
             // Add weighted score cell
             const wsCell = document.createElement('td');
             wsCell.className = 'ws';
-            wsCell.dataset.category = newCategoryIndex;
+            wsCell.dataset.category = category_id;
             wsCell.textContent = '0.00';
             row.insertBefore(wsCell, insertBeforeCell);
             
@@ -726,11 +512,11 @@ function Grades() {
         });
 
         // Update column structure
-        columnStructure[newCategoryIndex].columns = [1, 2, 3];
-        columnStructure[newCategoryIndex].totalColumns = 3;
+        columnStructure[category_id].columns = [];
+        columnStructure[category_id].totalColumns = 0;
 
-        reindexColumns(newCategoryIndex);
-        updateHeaderColspan(newCategoryIndex);
+        reindexColumns(category_id);
+        updateHeaderColspan(category_id);
         setUnsavedChanges(true);
     }
 
@@ -792,30 +578,23 @@ function Grades() {
         return container;
     }
 
-    // Initialize on page load
-    initializeColumns();
-    table.querySelectorAll('tbody tr').forEach(row => {
-        recalculateGrades(row);
-    });
-
-    // Add/Remove column functionality
-    table.addEventListener('click', function(e) {
-        if (e.target.classList.contains('add-column')) {
-            addColumn(e.target.dataset.category);
-        } else if (e.target.classList.contains('remove-column')) {
-            removeColumn(e.target.dataset.category, e.target.dataset.column);
-        }
-    });
-
-    function addColumn(category) {
+    function addColumn(category, column = null) {
         columnStructure[category].totalColumns++;
         const newColumnNum = columnStructure[category].totalColumns;
         columnStructure[category].columns.push(newColumnNum);
+        
         // Add status for new column
-        const newColumnId = MakeID(20); // Generate a unique ID for the new column
+        const status = column ? 'original' : 'created';
+        const newColumnId = column?.grading_score_column_id ?? MakeID(20);
         columnStructure[category].columnIds.push(newColumnId);
-        columnStructure[category].columnStatus[newColumnId] = 'created';
+        columnStructure[category].columnStatus[newColumnId] = status;
 
+        // Initialize passing score for the new column
+        const scoreKey = `${category}-${newColumnId}`;
+        passingScores.scores[scoreKey] = column?.passing_score ?? 100; // Default passing score
+        passingScores.status[scoreKey] = status;
+
+        // Create header
         const headerRow = table.querySelector('thead tr:last-child');
         const newHeader = document.createElement('th');
         newHeader.classList.add('score-header');
@@ -823,28 +602,32 @@ function Grades() {
         newHeader.dataset.column = newColumnNum;
         newHeader.dataset.columnId = newColumnId;
         newHeader.innerHTML = `${newColumnNum} <button class="remove-column" data-category="${category}" data-column="${newColumnNum}">-</button>`;
-        
-        // Find the last header cell for this category
-        const lastHeaderCell = Array.from(headerRow.querySelectorAll(`th.score-header[data-category="${category}"]`)).pop();
-        
-        if (lastHeaderCell) {
-            // Insert after the last header cell for this category
-            if (lastHeaderCell.nextElementSibling) {
-                headerRow.insertBefore(newHeader, lastHeaderCell.nextElementSibling);
-            } else {
-                headerRow.appendChild(newHeader);
-            }
-        } else {
-            // If no existing headers for this category, insert before the weighted score column
-            const wsHeader = headerRow.querySelector(`.ws[data-category="${category}"]`);
-            headerRow.insertBefore(newHeader, wsHeader);
-        }
+
+        // Add header to table
+        const addColumnHeader = headerRow.querySelector(`.add-column[data-category="${category}"]`).parentElement;
+        headerRow.insertBefore(newHeader, addColumnHeader);
 
         // Add new cell in each row before the weighted score cell for this category
         const rows = table.querySelectorAll('tbody tr');
+
+        const getScore = (userId) => {
+            if (column) {
+                for (const score of column.scores) {
+                    if (score.student_id == userId) {
+                        return score;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+
         rows.forEach(row => {
-            const userId = row.querySelector('.grade-input').dataset.student;
-            const newScoreId = MakeID(10);  // Generate new score ID for new column
+            const userId = row.dataset.student;
+            const score = getScore(userId);
+            const newScoreId = score ? score.grading_score_id : MakeID(10);
+
             
             // Initialize scoreIds structure if needed
             if (!studentScores[userId].scoreIds) {
@@ -861,13 +644,14 @@ function Grades() {
                 data-category="${category}" 
                 data-column="${newColumnNum}"
                 data-column-id="${newColumnId}"
-                data-score-id="${newScoreId}">0</span>`;
+                data-score-id="${newScoreId}">${score ? score.score : 0}</span>`;
             
             const wsCell = row.querySelector(`.ws[data-category="${category}"]`);
             row.insertBefore(newCell, wsCell);
             
             studentScores[userId].scores[category][newColumnId] = 0;
             studentScores[userId].scoreIds[category][newColumnId] = newScoreId;
+       
             recalculateGrades(row);
         });
 
@@ -880,17 +664,14 @@ function Grades() {
         const columnId = table.querySelector(`th.score-header[data-category="${category}"][data-column="${column}"]`)
         .dataset.columnId;
     
-        columnStructure[category].columnStatus[columnId] = 'removed';
-        columnStructure[category].columnIds = columnStructure[category].columnIds
-            .filter(id => id !== columnId);
-        columnStructure[category].columns = columnStructure[category].columns
-            .filter(col => col != column);
-        columnStructure[category].totalColumns--;
-
-        // Update passing scores using columnId
+        // Update passing scores status
         const scoreKey = `${category}-${columnId}`;
         if (passingScores.status[scoreKey] === 'original') {
             passingScores.status[scoreKey] = 'removed';
+        } else if (passingScores.status[scoreKey] === 'created') {
+            // If the column was newly created, remove it completely
+            delete passingScores.scores[scoreKey];
+            delete passingScores.status[scoreKey];
         }
 
         // Remove elements and update scores using columnId
@@ -936,8 +717,8 @@ function Grades() {
     }
 
     function updateCategoryHeaders() {
-        categories.forEach((category, index) => {
-            const header = table.querySelector(`th[data-category="${index + 1}"]`);
+        categories.forEach(category => {
+            const header = table.querySelector(`th[data-category="${category.category_id}"]`);
             if (header) {
                 header.classList.add('category-header');
                 header.innerHTML = `
@@ -950,41 +731,85 @@ function Grades() {
         });
     }
 
-    // Export functions to access and import student scores
-    window.getStudentScores = function() {
-        return studentScores;
-    };
+    // Handle grade input with passing score check
+    table.addEventListener('input', function(e) {
+        if (e.target.classList.contains('grade-input')) {
+            const category = e.target.dataset.category;
+            const column = e.target.dataset.column;
+            const userId = e.target.dataset.student;
+            const passingScore = passingScores[`${category}-${column}`] || 100;
+            let value = e.target.textContent === '' ? 0 : parseFloat(e.target.textContent);
 
-    window.importStudentScores = function(scores) {
-        studentScores = scores;
-        table.querySelectorAll('tbody tr').forEach(row => {
-            const userId = row.querySelector('.grade-input').dataset.student;
-            if (studentScores[userId]) {
-                Object.keys(studentScores[userId].scores).forEach(category => {
-                    Object.keys(studentScores[userId].scores[category]).forEach(columnId => {
-                        const input = row.querySelector(
-                            `.grade-input[data-student="${userId}"][data-category="${category}"][data-column-id="${columnId}"]`
-                        );
-                        if (input) {
-                            input.textContent = studentScores[userId].scores[category][columnId];
-                        }
-                    });
-                });
-                recalculateGrades(row);
+            if (isNaN(value)) {
+                e.target.textContent = '0';
+                studentScores[userId].scores[category][column] = 0;
+            } else {
+                value = Math.min(value, passingScore);
+                e.target.textContent = value;
+                studentScores[userId].scores[category][column] = value;
+                recalculateGrades(e.target.closest('tr'));
             }
-        });
-    };
+        }
+    });
+
+    // Manage passing scores
+    table.addEventListener('click', function(e) {
+        if (e.target.classList.contains('score-header')) {
+            const category = e.target.dataset.category;
+            const column = e.target.dataset.column;
+            showPassingScoreEditor(e.target, category, column);
+        }
+    });
+    
+
+    // Category management
+    table.addEventListener('click', function(e) {
+        if (e.target.closest('.edit-header')) {
+            const categoryHeader = e.target.closest('.category-header');
+            const category = parseInt(categoryHeader.dataset.category);
+            showCategoryEditor(categoryHeader, category);
+        } else if (e.target.closest('.add-category')) {
+            showNewCategoryEditor(e.target.closest('.add-category'));
+        }
+    });
+    
+    // Add/Remove column functionality
+    table.addEventListener('click', function(e) {
+        if (e.target.classList.contains('add-column')) {
+            addColumn(e.target.dataset.category);
+        } else if (e.target.classList.contains('remove-column')) {
+            removeColumn(e.target.dataset.category, e.target.dataset.column);
+        }
+    });
+
+    discardGradesBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to discard all changes?')) {
+            discardGrades();
+        }
+    });
+
+    // Add warning when leaving page with unsaved changes
+    window.addEventListener('beforeunload', (e) => {
+        if (hasUnsavedChanges) {
+            e.preventDefault();
+            e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+        }
+    });
+
+
+    // Initialize original grades when the component loads
+    // initializeOriginalGrades();
 
     // Move Load call before initializeColumns
     Load(table.dataset.section_subject_id);
 
     // Initialize columns after loading data
-    initializeColumns();
+    // initializeColumns();
 
     // Update grades after initialization
-    table.querySelectorAll('tbody tr').forEach(row => {
-        recalculateGrades(row);
-    });
+    // table.querySelectorAll('tbody tr').forEach(row => {
+    //     recalculateGrades(row);
+    // });
 
 }
 

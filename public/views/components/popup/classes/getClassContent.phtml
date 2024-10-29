@@ -305,24 +305,7 @@ foreach ($SUBJECTS as $subject) {
                                     <thead>
                                         <tr>
                                             <th rowspan="2">Student Name</th>
-                                            <th colspan="5" class="category-header" data-category="1">
-                                                Written Works (30%)
-                                                <span class="edit-header" title="Edit Header">
-                                                    <?= UseIcon("pencil-thin") ?>
-                                                </span>
-                                            </th>
-                                            <th colspan="5" class="category-header" data-category="2">
-                                                Performance Tasks (50%)
-                                                <span class="edit-header" title="Edit Header">
-                                                    <?= UseIcon("pencil-thin") ?>
-                                                </span>
-                                            </th>
-                                            <th colspan="5" class="category-header" data-category="3">
-                                                Exams (20%)
-                                                <span class="edit-header" title="Edit Header">
-                                                    <?= UseIcon("pencil-thin") ?>
-                                                </span>
-                                            </th>
+                                            <span class="category-headers"></span>
                                             <th rowspan="2">Final</th>
                                             <th rowspan="2">E</th>
                                             <th rowspan="2">
@@ -330,29 +313,14 @@ foreach ($SUBJECTS as $subject) {
                                             </th>
                                         </tr>
                                         <tr>
-                                            <?php for ($i = 1; $i <= 3; $i++): ?>
-                                                <?php for ($j = 1; $j <= 4; $j++): ?>
-                                                    <th class="score-header" data-category="<?= $i ?>" data-column="<?= $j ?>">
-                                                        <?= $j ?>
-                                                        <button class="remove-column" data-category="<?= $i ?>" data-column="<?= $j ?>">-</button>
-                                                    </th>
-                                                <?php endfor; ?>
-                                                <th>
-                                                    <button class="add-column" data-category="<?= $i ?>">+</button>
-                                                </th>
-                                            <?php endfor; ?>
+                                            
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php foreach ($RECORDS as $student): ?>
-                                            <tr>
+                                            <tr data-student="<?= $student['user_id'] ?>">
                                                 <td><?= $student['displayName'] ?></td>
-                                                <?php for ($i = 1; $i <= 3; $i++): ?>
-                                                    <?php for ($j = 1; $j <= 4; $j++): ?>
-                                                        <td><span class="grade-input" contenteditable="true" data-student="<?= $student['user_id'] ?>" data-category="<?= $i ?>" data-column="<?= $j ?>">0</span></td>
-                                                    <?php endfor; ?>
-                                                    <td class="ws" data-category="<?= $i ?>">0.00</td>
-                                                <?php endfor; ?>
+                                                <span class="scores-body"></span>
                                                 <td class="final-grade">0.00</td>
                                                 <td class="college-grade">0.00</td>
                                             </tr>
