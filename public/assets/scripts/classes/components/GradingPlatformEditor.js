@@ -237,9 +237,13 @@ export default class GradingPlatformEditor {
 
             inputs.forEach(input => {
                 const columnId = input.dataset.columnId;
-                const value = parseFloat(this.studentScores[userId].scores[category_id][columnId]);
-                if (!isNaN(value)) {
-                    total += value;
+                const score = parseFloat(this.studentScores[userId].scores[category_id][columnId]);
+                const passingScore = this.passingScores.scores[`${category_id}-${columnId}`];
+                
+                if (!isNaN(score) && passingScore > 0) {
+                    // Calculate percentage based on passing score
+                    const percentage = (score / passingScore) * 100;
+                    total += percentage;
                     validInputs++;
                 }
             });
@@ -329,6 +333,7 @@ export default class GradingPlatformEditor {
             const passingScore = parseFloat(container.querySelector('input').value);
             const scoreKey = `${category}-${columnId}`;
 
+            // Update passing score
             this.passingScores.scores[scoreKey] = passingScore;
 
             if (!this.passingScores.status[scoreKey]) {
@@ -337,16 +342,31 @@ export default class GradingPlatformEditor {
                 this.passingScores.status[scoreKey] = 'edited';
             }
 
+            // Get all inputs for this column
             const inputs = this.table.querySelectorAll(
                 `.grade-input[data-category="${category}"][data-column-id="${columnId}"]`
             );
+
+            // Update each input and recalculate
             inputs.forEach(input => {
-                let value = input.textContent === '' ? 0 : parseFloat(input.textContent);
-                if (!isNaN(value)) {
-                    value = Math.min(value, passingScore);
-                    input.textContent = value;
-                    this.recalculateGrades(input.closest('tr'));
+                const userId = input.dataset.student;
+                let currentScore = this.studentScores[userId].scores[category][columnId];
+                
+                // Ensure score doesn't exceed new passing score
+                if (currentScore > passingScore) {
+                    currentScore = passingScore;
+                    this.studentScores[userId].scores[category][columnId] = currentScore;
+                    input.textContent = currentScore;
+                    
+                    // Mark as edited if score was changed
+                    const scoreKey = `${userId}-${category}-${columnId}`;
+                    if (this.studentScores[userId].status[scoreKey] !== 'created') {
+                        this.studentScores[userId].status[scoreKey] = 'edited';
+                    }
                 }
+                
+                // Recalculate grades for this student
+                this.recalculateGrades(input.closest('tr'));
             });
 
             container.remove();
