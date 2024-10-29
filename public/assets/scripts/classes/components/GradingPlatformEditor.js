@@ -14,9 +14,11 @@ export default class GradingPlatformEditor {
         this.columnStructure = {};
         this.originalGrades = {};
         this.hasUnsavedChanges = false;
+        this.sectionSubjectId = null;
     }
 
     Load(section_subject_id) {
+        this.sectionSubjectId = section_subject_id;
         SelectModelByFilter(JSON.stringify({ section_subject_id: section_subject_id }), "GRADING_PLATFORM_CONTROL")
             .then(res => {
                 this.LoadGradingPlatform(res[0]);
@@ -167,7 +169,7 @@ export default class GradingPlatformEditor {
 
     saveGrades() {
         const gradesData = {
-            section_subject_id: this.table.dataset.sectionSubjectId,
+            section_subject_id: this.sectionSubjectId,
             categories: this.categories.map(cat => ({
                 id: cat.category_id,
                 name: cat.name,
@@ -186,8 +188,9 @@ export default class GradingPlatformEditor {
                     category_id: categoryId,
                     scores: Object.entries(scores)
                         .filter(([columnId]) => data.status[`${studentId}-${categoryId}-${columnId}`] !== 'original')
+                        .filter(([columnId]) => data.status[`${studentId}-${categoryId}-${columnId}`] !== undefined)
                         .map(([columnId, score]) => ({
-                            id: data.scoreIds?.[categoryId]?.[columnId] || MakeID(10),
+                            id: data.scoreIds?.[categoryId]?.[columnId],
                             column_id: columnId,
                             score: score,
                             status: data.status[`${studentId}-${categoryId}-${columnId}`]
@@ -198,14 +201,20 @@ export default class GradingPlatformEditor {
             })).filter(student => student.category_scores.length > 0)
         };
 
-        return PostRequest("SaveGrades", { data: JSON.stringify(gradesData) })
-        .then((res) => {
-            res = JSON.parse(res);
-            if (res.code === 200) {
-                alert('Grades saved successfully!');
-            } else {
-                alert('Failed to save grades. Please try again .');
-            }
+        console.log(gradesData);
+        return new Promise((resolve, reject) => {
+            PostRequest("SaveGrades", { data: JSON.stringify(gradesData) })
+            .then((res) => {
+                res = JSON.parse(res);
+                
+                if (res.code === 200) {
+                    alert('Grades saved successfully!');
+                    resolve(true);
+                } else {
+                    alert('Failed to save grades. Please try again .');
+                    resolve(false);
+                }
+            });
         });
     }
 
@@ -423,8 +432,9 @@ export default class GradingPlatformEditor {
 
     addNewCategory(name, percentage, category_id = null) {
         category_id = category_id ?? MakeID(10);
+        let status = category_id ? 'original' : 'created';
 
-        this.categories.push({ name, percentage, status: 'created', category_id });
+        this.categories.push({ name, percentage, status, category_id });
 
         this.columnStructure[category_id] = {
             columns: [],
@@ -736,6 +746,17 @@ export default class GradingPlatformEditor {
                 this.discardGrades();
             }
         });
+
+        if (this.saveGradesBtn) {
+            this.saveGradesBtn.addEventListener('click', () => {
+                this.saveGrades().then((res) => {
+                    if (res) {
+                        this.initializeOriginalGrades(); // Initialize original grades after loading
+                        this.setUnsavedChanges(false); // Set initial state of save changes
+                    }
+                });
+            });
+        }
 
         window.addEventListener('beforeunload', (e) => {
             if (this.hasUnsavedChanges) {

@@ -53,7 +53,6 @@ function Exams() {
 }
 
 function Grades() {
-
     const menuItems = document.querySelectorAll('.grades-menu li');
     const gradeContainers = document.querySelectorAll('.subject-grades');
     

@@ -148,17 +148,25 @@ class GradingPlatformControl extends ControlDefaultFunctions
                     "grading_score_column_id" => $category_map['columns'][$score['column_id']]
                 ];
 
+                $mainScore = $control->get($score['id'], false);
+
                 switch ($score['status']) {
                     case 'created':
                         $control->addRecord($score_data);
                         break;
 
                     case 'edited':
-                        $control->editRecord($score['id'], $score_data);
+                        if ($mainScore) {
+                            $control->editRecord($score['id'], $score_data);
+                        } else {
+                            $control->addRecord($score_data);
+                        }
                         break;
 
                     case 'deleted':
-                        $control->removeRecord($score['id']);
+                        if ($mainScore) {
+                            $control->removeRecord($score['id']);
+                        }
                         break;
                 }
             }
