@@ -18,7 +18,11 @@ export default class GradingPlatformEditor {
 
     Load(section_subject_id) {
         SelectModelByFilter(JSON.stringify({ section_subject_id: section_subject_id }), "GRADING_PLATFORM_CONTROL")
-            .then(res => this.LoadGradingPlatform(res[0]));
+            .then(res => {
+                this.LoadGradingPlatform(res[0]);
+                this.initializeOriginalGrades(); // Initialize original grades after loading
+                this.setUnsavedChanges(false); // Set initial state of save changes
+            });
     }
 
     reconstructTable(container,students) {
@@ -308,6 +312,7 @@ export default class GradingPlatformEditor {
 
     showPassingScoreEditor(header, category, column) {
         const existingContainer = document.querySelector('.floating-container');
+
         if (existingContainer) existingContainer.remove();
 
         const columnId = header.dataset.columnId;
@@ -436,8 +441,8 @@ export default class GradingPlatformEditor {
 
         newHeader.innerHTML = `
             ${name} (${percentage}%)
-            <span class="edit-header" title="Edit Header">
-                <?= UseIcon("pencil-thin") ?>
+            <span class="edit-header" title="Edit Header" style="font-size: 10px;">
+            Edit
             </span>
         `;
 
@@ -482,17 +487,24 @@ export default class GradingPlatformEditor {
         this.setUnsavedChanges(true);
     }
 
-    showCategoryEditor(header, categoryIndex) {
+    showCategoryEditor(header, categoryId) {
         const existingContainer = document.querySelector('.floating-container');
         if (existingContainer) existingContainer.remove();
 
+        // Convert categoryId to string for consistent comparison
+        const category = this.categories.find(cat => cat.category_id.toString() === categoryId.toString());
+        if (!category) return;
+
         const container = this.createFloatingEditor(
             header,
-            this.categories[categoryIndex - 1].name,
-            this.categories[categoryIndex - 1].percentage,
+            category.name,
+            category.percentage,
             (newName, newPercentage) => {
-                this.categories[categoryIndex - 1].name = newName;
-                this.categories[categoryIndex - 1].percentage = newPercentage;
+                // Update the found category
+                category.name = newName;
+                category.percentage = newPercentage;
+                category.status = category.status === 'original' ? 'edited' : category.status;
+                
                 this.updateCategoryHeaders();
                 this.table.querySelectorAll('tbody tr').forEach(row => {
                     this.recalculateGrades(row);
@@ -703,8 +715,9 @@ export default class GradingPlatformEditor {
         this.table.addEventListener('click', (e) => {
             if (e.target.closest('.edit-header')) {
                 const categoryHeader = e.target.closest('.category-header');
-                const category = parseInt(categoryHeader.dataset.category);
-                this.showCategoryEditor(categoryHeader, category);
+                // Get category ID as string
+                const categoryId = categoryHeader.dataset.category.toString();
+                this.showCategoryEditor(categoryHeader, categoryId);
             } else if (e.target.closest('.add-category')) {
                 this.showNewCategoryEditor(e.target.closest('.add-category'));
             }
