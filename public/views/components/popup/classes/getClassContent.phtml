@@ -294,42 +294,91 @@ foreach ($SUBJECTS as $subject) {
                         <?php if($SESSION->user_type == 1): ?>
 
                         <?php else: ?>
-                        <div class="grades-container" >
-                            <div class="grading-system">
-                            <div class="grade-actions">
-                                <button class="btn btn-success" id="save-grades" disabled>Save Grades</button>
-                            <button class="btn btn-danger" id="discard-grades" disabled>Discard Changes</button>
-                            </div>
-                           
-                                <table class="grading-table" data-section-subject-id="<?= $SUBJECTS[0]->section_subject_id ?>">
-                                    <thead>
-                                        <tr>
-                                            <th rowspan="2">Student Name</th>
-                                            <span class="category-headers"></span>
-                                            <th rowspan="2">Final</th>
-                                            <th rowspan="2">E</th>
-                                            <th rowspan="2">
-                                                <button class="add-category" title="Add Category">+</button>
-                                            </th>
-                                        </tr>
-                                        <tr>
-                                            
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($RECORDS as $student): ?>
-                                            <tr data-student="<?= $student['user_id'] ?>">
-                                                <td><?= $student['displayName'] ?></td>
-                                                <span class="scores-body"></span>
-                                                <td class="final-grade">0.00</td>
-                                                <td class="college-grade">0.00</td>
-                                            </tr>
+                        <div class="grades-container">
+                            <div class="grades-content">
+                                <div class="grades-menu">
+                                    <ul>
+                                        <?php foreach($SUBJECTS as $index => $subject): ?>
+                                            <li class="<?= $index === 0 ? 'active' : '' ?>" data-subject="<?= $subject->subject_name ?>">
+                                                <?= $subject->subject_name ?>
+                                            </li>
                                         <?php endforeach; ?>
-                                    </tbody>
-                                </table>
+                                    </ul>
+                                </div>
+                                <div class="grades-list">
+                                    <?php foreach($SUBJECTS as $index => $subject): ?>
+                                        <div class="subject-grades <?= $index === 0 ? 'active' : '' ?>" data-subject="<?= $subject->subject_name ?>">
+                                            <div class="grade-actions">
+                                                <button class="btn btn-success save-grades" disabled>Save Grades</button>
+                                                <button class="btn btn-danger discard-grades" disabled>Discard Changes</button>
+                                            </div>
+                                            <div class="grading-platform-container" data-section-subject-id="<?= $subject->section_subject_id ?>">
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
                             </div>
+                        </div>
+                        <?php endif ?>
+                        </div>
 
-                            <style>
+                        <div class="tab-pane" id="options">
+                            <div class="options-container">
+                                <h3>Class Options</h3>
+                                <div class="option-group">
+                                    <h4>Notifications</h4>
+                                    <div class="option-item">
+                                        <label for="email-notifications">
+                                            <input type="checkbox" id="email-notifications" name="email-notifications">
+                                            Receive email notifications
+                                        </label>
+                                    </div>
+                                    <div class="option-item">
+                                        <label for="push-notifications">
+                                            <input type="checkbox" id="push-notifications" name="push-notifications">
+                                            Receive push notifications
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="option-group">
+                                    <h4>Display Settings</h4>
+                                    <div class="option-item">
+                                        <label for="theme-select">Theme:</label>
+                                        <select id="theme-select" name="theme">
+                                            <option value="light">Light</option>
+                                            <option value="dark">Dark</option>
+                                            <option value="high-contrast">High Contrast</option>
+                                        </select>
+                                    </div>
+                                    <div class="option-item">
+                                        <label for="font-size">Font Size:</label>
+                                        <input type="range" id="font-size" name="font-size" min="12" max="24" step="2">
+                                    </div>
+                                </div>
+                                <div class="option-group">
+                                    <h4>Privacy</h4>
+                                    <div class="option-item">
+                                        <label for="profile-visibility">
+                                            <input type="checkbox" id="profile-visibility" name="profile-visibility">
+                                            Make profile visible to classmates
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="option-actions">
+                                    <button class="btn btn-primary" id="save-options">Save Changes</button>
+                                    <button class="btn btn-secondary" id="reset-options">Reset to Default</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
                                 .grade-actions {
                                     display: flex;
                                     gap: 10px;
@@ -353,6 +402,62 @@ foreach ($SUBJECTS as $subject) {
                                     border-radius: 8px;
                                     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
                                 }
+
+                                .grades-content {
+                                    display: flex;
+                                    gap: 20px;
+                                }
+
+                                .grades-menu {
+                                    width: 200px;
+                                    background: #fff;
+                                    border-radius: 8px;
+                                    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                                }
+
+                                .grades-menu ul {
+                                    list-style: none;
+                                    padding: 0;
+                                    margin: 0;
+                                }
+
+                                .grades-menu li {
+                                    padding: 12px 15px;
+                                    cursor: pointer;
+                                    border-bottom: 1px solid #eee;
+                                    transition: all 0.3s ease;
+                                }
+
+                                .grades-menu li:last-child {
+                                    border-bottom: none;
+                                }
+
+                                .grades-menu li:hover {
+                                    background-color: #f8f9fa;
+                                }
+
+                                .grades-menu li.active {
+                                    background-color: #007bff;
+                                    color: #fff;
+                                    font-weight: 500;
+                                }
+
+                                .grades-list {
+                                    flex: 1;
+                                }
+
+                                .subject-grades {
+                                    display: none;
+                                    background: #fff;
+                                    padding: 20px;
+                                    border-radius: 8px;
+                                    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                                }
+
+                                .subject-grades.active {
+                                    display: block;
+                                }
+
                                 .grading-system {
                                     overflow-x: auto;
                                     margin-bottom: 20px;
@@ -453,64 +558,6 @@ foreach ($SUBJECTS as $subject) {
                                     color: #F29B9B;
                                 }
                             </style>
-                           
-                        <?php endif ?>
-                        </div>
-                        <div class="tab-pane" id="options">
-                            <div class="options-container">
-                                <h3>Class Options</h3>
-                                <div class="option-group">
-                                    <h4>Notifications</h4>
-                                    <div class="option-item">
-                                        <label for="email-notifications">
-                                            <input type="checkbox" id="email-notifications" name="email-notifications">
-                                            Receive email notifications
-                                        </label>
-                                    </div>
-                                    <div class="option-item">
-                                        <label for="push-notifications">
-                                            <input type="checkbox" id="push-notifications" name="push-notifications">
-                                            Receive push notifications
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="option-group">
-                                    <h4>Display Settings</h4>
-                                    <div class="option-item">
-                                        <label for="theme-select">Theme:</label>
-                                        <select id="theme-select" name="theme">
-                                            <option value="light">Light</option>
-                                            <option value="dark">Dark</option>
-                                            <option value="high-contrast">High Contrast</option>
-                                        </select>
-                                    </div>
-                                    <div class="option-item">
-                                        <label for="font-size">Font Size:</label>
-                                        <input type="range" id="font-size" name="font-size" min="12" max="24" step="2">
-                                    </div>
-                                </div>
-                                <div class="option-group">
-                                    <h4>Privacy</h4>
-                                    <div class="option-item">
-                                        <label for="profile-visibility">
-                                            <input type="checkbox" id="profile-visibility" name="profile-visibility">
-                                            Make profile visible to classmates
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="option-actions">
-                                    <button class="btn btn-primary" id="save-options">Save Changes</button>
-                                    <button class="btn btn-secondary" id="reset-options">Reset to Default</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <style>
 .tab-container {

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 29, 2024 at 05:20 AM
+-- Generation Time: Oct 29, 2024 at 01:22 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.1.12
 
@@ -244,6 +244,14 @@ CREATE TABLE `grading_scores` (
   `date_created` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `grading_scores`
+--
+
+INSERT INTO `grading_scores` (`grading_score_id`, `grading_score_column_id`, `student_id`, `score`, `status`, `date_created`) VALUES
+(1, 1, 5, 100, 0, '2024-10-29 09:49:21'),
+(2, 2, 9, 100, 0, '2024-10-29 09:49:21');
+
 -- --------------------------------------------------------
 
 --
@@ -258,6 +266,14 @@ CREATE TABLE `grading_score_columns` (
   `status` int(11) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `grading_score_columns`
+--
+
+INSERT INTO `grading_score_columns` (`grading_score_column_id`, `grading_category_id`, `column_number`, `passing_score`, `status`, `date_created`) VALUES
+(1, 1, '1', 100, 0, '2024-10-29 09:49:21'),
+(2, 2, '1', 100, 0, '2024-10-29 09:49:21');
 
 -- --------------------------------------------------------
 
@@ -859,13 +875,13 @@ ALTER TABLE `grading_platforms`
 -- AUTO_INCREMENT for table `grading_scores`
 --
 ALTER TABLE `grading_scores`
-  MODIFY `grading_score_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `grading_score_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `grading_score_columns`
 --
 ALTER TABLE `grading_score_columns`
-  MODIFY `grading_score_column_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `grading_score_column_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `posts`
