@@ -41,7 +41,7 @@ export default class GradingPlatformEditor {
                                 }),
                                 CreateElement({
                                     el: "TH",
-                                    text: "Final",
+                                    text: "F",
                                     attr: {
                                         rowspan: 2
                                     }
@@ -595,8 +595,17 @@ export default class GradingPlatformEditor {
         const columnId = this.table.querySelector(`th.score-header[data-category="${category}"][data-column="${column}"]`)
             .dataset.columnId;
 
+        // Update column structure
+        const columnIndex = this.columnStructure[category].columns.indexOf(parseInt(column));
+        if (columnIndex > -1) {
+            this.columnStructure[category].columns.splice(columnIndex, 1);
+            this.columnStructure[category].columnIds.splice(columnIndex, 1);
+            this.columnStructure[category].totalColumns--;
+        }
+
         this.passingScores.status[`${category}-${columnId}`] = 'removed';
 
+        // Remove header and cells
         this.table.querySelector(`th.score-header[data-category="${category}"][data-column="${column}"]`).remove();
         this.table.querySelectorAll(`td .grade-input[data-category="${category}"][data-column="${column}"]`)
             .forEach(input => {
@@ -614,28 +623,34 @@ export default class GradingPlatformEditor {
     }
 
     reindexColumns(category) {
-        const headers = this.table.querySelectorAll(`th.score-header[data-category="${category}"]`);
+        // Update headers
+        const headers = Array.from(this.table.querySelectorAll(`th.score-header[data-category="${category}"]`));
         headers.forEach((header, index) => {
             const newColumn = index + 1;
             const oldColumn = header.dataset.column;
+            const columnId = header.dataset.columnId;
+            
+            // Update header
             header.dataset.column = newColumn;
             header.innerHTML = `${newColumn} <button class="remove-column" data-category="${category}" data-column="${newColumn}">-</button>`;
 
+            // Update all corresponding grade inputs
             this.table.querySelectorAll(`.grade-input[data-category="${category}"][data-column="${oldColumn}"]`)
                 .forEach(input => {
-                    const userId = input.dataset.student;
                     input.dataset.column = newColumn;
-                    if (this.studentScores[userId].scores[category][oldColumn] !== undefined) {
-                        this.studentScores[userId].scores[category][newColumn] = this.studentScores[userId].scores[category][oldColumn];
-                        delete this.studentScores[userId].scores[category][oldColumn];
-                    }
                 });
         });
+
+        // Update column structure
+        this.columnStructure[category].columns = headers.map((_, index) => index + 1);
     }
 
     updateHeaderColspan(category) {
         const categoryHeader = this.table.querySelector(`thead tr:first-child th[data-category="${category}"]`);
-        categoryHeader.colSpan = this.columnStructure[category].totalColumns + 1;
+        if (categoryHeader) {
+            // Add 1 to account for the weighted score column
+            categoryHeader.colSpan = this.columnStructure[category].totalColumns + 1;
+        }
     }
 
     updateCategoryHeaders() {
