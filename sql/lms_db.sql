@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 23, 2024 at 11:45 AM
+-- Generation Time: Oct 29, 2024 at 05:20 AM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.1.12
 
@@ -152,9 +152,9 @@ CREATE TABLE `email_verifications` (
 
 INSERT INTO `email_verifications` (`verification_id`, `user_id`, `verification`, `date_created`) VALUES
 (6, '1', '529649', '2024-09-22 21:34:47'),
-(18, '4', '975854', '2024-10-22 12:39:44'),
-(19, '5', '694906', '2024-10-23 06:06:10'),
-(20, '3', '776231', '2024-10-23 07:43:39');
+(21, '5', '960728', '2024-10-27 00:45:41'),
+(22, '3', '935804', '2024-10-27 13:25:45'),
+(23, '4', '255458', '2024-10-27 13:27:23');
 
 -- --------------------------------------------------------
 
@@ -184,6 +184,80 @@ CREATE TABLE `exams` (
 
 INSERT INTO `exams` (`exam_id`, `section_id`, `section_subject_id`, `title`, `description`, `count_items`, `duration`, `date_start`, `due_date`, `file`, `exam_status`, `status`, `date_created`) VALUES
 (1, 1, 1, 'Exam 1', '', 100, '30 Minutes', '2024-10-24 11:25:48', '2024-10-25', 'public/assets/media/uploads/exams/cmdc.sql.sql', 0, 0, '2024-10-23 03:21:56');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `grading_categories`
+--
+
+CREATE TABLE `grading_categories` (
+  `grading_category_id` int(11) NOT NULL,
+  `grading_platform_id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `percentage` float NOT NULL,
+  `status` int(11) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `grading_categories`
+--
+
+INSERT INTO `grading_categories` (`grading_category_id`, `grading_platform_id`, `name`, `percentage`, `status`, `date_created`) VALUES
+(1, 1, 'Written Works', 30, 0, '2024-10-29 01:16:42'),
+(2, 1, 'Performance Tasks', 50, 0, '2024-10-29 01:16:42'),
+(3, 1, 'Exams', 20, 0, '2024-10-29 01:16:42');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `grading_platforms`
+--
+
+CREATE TABLE `grading_platforms` (
+  `grading_platform_id` int(11) NOT NULL,
+  `section_subject_id` int(11) NOT NULL,
+  `status` int(11) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `grading_platforms`
+--
+
+INSERT INTO `grading_platforms` (`grading_platform_id`, `section_subject_id`, `status`, `date_created`) VALUES
+(1, 1, 0, '2024-10-29 01:16:42');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `grading_scores`
+--
+
+CREATE TABLE `grading_scores` (
+  `grading_score_id` int(11) NOT NULL,
+  `grading_score_column_id` int(11) NOT NULL,
+  `student_id` int(11) NOT NULL,
+  `score` float NOT NULL,
+  `status` int(11) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `grading_score_columns`
+--
+
+CREATE TABLE `grading_score_columns` (
+  `grading_score_column_id` int(11) NOT NULL,
+  `grading_category_id` int(11) NOT NULL,
+  `column_number` varchar(255) NOT NULL,
+  `passing_score` float NOT NULL,
+  `status` int(11) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -610,6 +684,30 @@ ALTER TABLE `exams`
   ADD PRIMARY KEY (`exam_id`);
 
 --
+-- Indexes for table `grading_categories`
+--
+ALTER TABLE `grading_categories`
+  ADD PRIMARY KEY (`grading_category_id`);
+
+--
+-- Indexes for table `grading_platforms`
+--
+ALTER TABLE `grading_platforms`
+  ADD PRIMARY KEY (`grading_platform_id`);
+
+--
+-- Indexes for table `grading_scores`
+--
+ALTER TABLE `grading_scores`
+  ADD PRIMARY KEY (`grading_score_id`);
+
+--
+-- Indexes for table `grading_score_columns`
+--
+ALTER TABLE `grading_score_columns`
+  ADD PRIMARY KEY (`grading_score_column_id`);
+
+--
 -- Indexes for table `posts`
 --
 ALTER TABLE `posts`
@@ -737,13 +835,37 @@ ALTER TABLE `departments`
 -- AUTO_INCREMENT for table `email_verifications`
 --
 ALTER TABLE `email_verifications`
-  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `exams`
 --
 ALTER TABLE `exams`
   MODIFY `exam_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `grading_categories`
+--
+ALTER TABLE `grading_categories`
+  MODIFY `grading_category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `grading_platforms`
+--
+ALTER TABLE `grading_platforms`
+  MODIFY `grading_platform_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `grading_scores`
+--
+ALTER TABLE `grading_scores`
+  MODIFY `grading_score_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `grading_score_columns`
+--
+ALTER TABLE `grading_score_columns`
+  MODIFY `grading_score_column_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `posts`
@@ -755,7 +877,7 @@ ALTER TABLE `posts`
 -- AUTO_INCREMENT for table `post_likes`
 --
 ALTER TABLE `post_likes`
-  MODIFY `post_like_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `post_like_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `post_medias`
