@@ -51,6 +51,35 @@ class Connection
         }
     }
 
+    public function NewTransaction()
+    {
+        try {
+            return $this->CONNECTION->beginTransaction();
+        } catch (Throwable $th) {
+            throw $th;
+            return false;
+        }
+    }
+
+    public function RollBack() 
+    {
+        try {
+            return $this->CONNECTION->rollBack();
+        } catch (Throwable $th) {
+            throw $th;
+            return false;
+        }
+    }
+
+    public function Commit()
+    {
+        try {
+            return $this->CONNECTION->commit();
+        } catch (Throwable $th) {
+            throw $th;
+            return false;
+        }
+    }
     public function Query($query, $fetchAll = false, $some = "")
     {
         $stmt = $this->CONNECTION->prepare($query . ' ' . $some);

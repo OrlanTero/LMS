@@ -32,6 +32,10 @@ include_once "abstract/ActivityAbstract.php";
 include_once "abstract/ExamAbstract.php";
 include_once "abstract/StickyNoteAbstract.php";
 include_once "abstract/PostLikeAbstract.php";
+include_once "abstract/grading/GradingScoreAbstract.php";
+include_once "abstract/grading/GradingScoreColumnAbstract.php";
+include_once "abstract/grading/GradingPlatformAbstract.php";
+include_once "abstract/grading/GradingCategoriesAbstract.php";
 // ALL MODELS
 include_once "models/User.php";
 include_once "models/UserProfile.php";
@@ -56,6 +60,11 @@ include_once "models/Activity.php";
 include_once "models/Exam.php";
 include_once "models/StickyNote.php";
 include_once "models/PostLike.php";
+include_once "models/GradingCategory.php";
+include_once "models/GradingScore.php";
+include_once "models/GradingScoreColumn.php";
+include_once "models/GradingPlatform.php";
+
 // APP CONTROLLERS
 include_once "controllers/app/Response.php";
 include_once "controllers/app/GlobalFunctions.php";
@@ -84,10 +93,12 @@ include_once "controllers/system/ActivityControl.php";
 include_once "controllers/system/ExamControl.php";
 include_once "controllers/system/StickyNoteControl.php";
 include_once "controllers/system/PostLikeControl.php";
-//include_once "controllers/app/SMSControl.php";
+include_once "controllers/system/GradingCategoryControl.php";
+include_once "controllers/system/GradingScoreControl.php";
+include_once "controllers/system/GradingScoreColumnControl.php";
+include_once "controllers/system/GradingPlatformControl.php";
 
 // SYSTEM CONTROLLERS
-//include_once "controllers/system/UserControl.php";
 
 // APPLICATION CORE
 include_once "core/Session.php";

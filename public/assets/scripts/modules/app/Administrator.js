@@ -127,6 +127,23 @@ export function SelectModel(id, controller) {
     })
 }
 
+export function SelectModelByFilter(filter, controller) {
+    return new Promise((resolve) => {
+        Ajax({
+            url: "/api/post/SelectModelByFilter",
+            type: "POST",
+            data: {filter, controller},
+            success: (res) => {
+                try {
+                    resolve(JSON.parse(res));
+                } catch (e) {
+                    resolve(null);
+                }
+            }
+        })
+    })
+}
+
 export function SelectModels(controller, filter) {
     return new Promise((resolve) => {
         Ajax({

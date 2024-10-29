@@ -25,6 +25,10 @@ use Application\controllers\system\ActivityControl;
 use Application\controllers\system\ExamControl;
 use Application\controllers\system\StickyNoteControl;
 use Application\controllers\system\PostLikeControl;
+use Application\controllers\system\GradingCategoryControl;
+use Application\controllers\system\GradingScoreControl;
+use Application\controllers\system\GradingScoreColumnControl;
+use Application\controllers\system\GradingPlatformControl;
 use Application\models\Professor;
 use Application\models\Section;
 
@@ -83,6 +87,14 @@ class GlobalFunctions
 
     public $POST_LIKE_CONTROL;
 
+    public $GRADING_CATEGORY_CONTROL;
+
+    public $GRADING_SCORE_CONTROL;
+
+    public $GRADING_SCORE_COLUMN_CONTROL;
+
+    public $GRADING_PLATFORM_CONTROL;
+
     public function __construct($SESSION)
     {
         global $CONNECTION;
@@ -140,5 +152,13 @@ class GlobalFunctions
         $this->STICKY_NOTE_CONTROL = new StickyNoteControl();
 
         $this->POST_LIKE_CONTROL = new PostLikeControl();
+
+        $this->GRADING_CATEGORY_CONTROL = new GradingCategoryControl();
+
+        $this->GRADING_SCORE_CONTROL = new GradingScoreControl();
+
+        $this->GRADING_SCORE_COLUMN_CONTROL = new GradingScoreColumnControl();
+
+        $this->GRADING_PLATFORM_CONTROL = new GradingPlatformControl();
     }
 }

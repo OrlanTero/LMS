@@ -63,6 +63,16 @@ class PostControl
         return $APPLICATION->FUNCTIONS->{$controller}->get($id, true);
     }
 
+    public function SelectModelByFilter()
+    {
+        global $APPLICATION;
+
+        $filter = json_decode($_POST["filter"], true);
+        $controller = $_POST['controller'];
+
+        return $APPLICATION->FUNCTIONS->{$controller}->filterRecords($filter, true);
+    }
+
     public function SelectModels()
     {
         global $APPLICATION;
@@ -112,5 +122,14 @@ class PostControl
         $controller = new EmailControl();
 
         return $controller->confirmVerificationToUser($user_id, $code);
+    }
+
+    public function SaveGrades()
+    {
+        global $APPLICATION;
+
+        $data = json_decode($_POST['data'], true);
+
+        return $APPLICATION->FUNCTIONS->GRADING_PLATFORM_CONTROL->saveGrades($data);
     }
 }
