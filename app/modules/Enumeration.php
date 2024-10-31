@@ -80,6 +80,13 @@ enum UserTypes : string
     case SUPER_ADMIN = "Super Admin";
 }
 
+enum PassingTypes : string
+{
+    case LINK = "Link";
+    case FILE = "File";
+    case TEXT = "Text";
+}
+
 enum UserTypesMini : string
 {
     case STUDENT = "student";

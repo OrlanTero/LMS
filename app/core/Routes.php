@@ -203,7 +203,8 @@ class Routes
             });
 
             $this->KLEIN->with("/post", function () use ($KLEIN, $APPLICATION) {
-                $KLEIN->respond("POST", "/[:request]", function ($req) use ($APPLICATION) {
+                $KLEIN->respond("POST", "/[:request]", function ($req, $res) use ($APPLICATION) {
+                    $APPLICATION->FUNCTIONS->POST_CONTROL->RESPONSE = $res;
                     return json_encode($APPLICATION->FUNCTIONS->POST_CONTROL->run($req->param("request")));
                 });
             });

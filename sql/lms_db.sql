@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 29, 2024 at 01:22 PM
+-- Generation Time: Oct 31, 2024 at 09:52 AM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.1.12
 
@@ -32,8 +32,9 @@ CREATE TABLE `activities` (
   `section_subject_id` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
   `description` text NOT NULL,
-  `due_date` date NOT NULL,
+  `due_date` date DEFAULT NULL,
   `file` varchar(255) DEFAULT NULL,
+  `passing_type` varchar(255) NOT NULL,
   `activity_status` varchar(255) NOT NULL DEFAULT 'On Going',
   `status` int(11) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT current_timestamp()
@@ -43,8 +44,11 @@ CREATE TABLE `activities` (
 -- Dumping data for table `activities`
 --
 
-INSERT INTO `activities` (`activity_id`, `section_subject_id`, `title`, `description`, `due_date`, `file`, `activity_status`, `status`, `date_created`) VALUES
-(1, 1, 'Activity 1', 'This is sample activity description', '2024-10-31', NULL, 'On Going', 0, '2024-10-23 01:45:05');
+INSERT INTO `activities` (`activity_id`, `section_subject_id`, `title`, `description`, `due_date`, `file`, `passing_type`, `activity_status`, `status`, `date_created`) VALUES
+(1, 1, 'Activity 1', 'This is sample activity description', NULL, NULL, 'File', 'On Going', 0, '2024-10-23 01:45:05'),
+(2, 1, 'Activity 2', 'Nanaman?', NULL, NULL, 'Link', 'On Going', 0, '2024-10-31 06:46:03'),
+(3, 1, 'Activity 3', 'Text lang naman to', '0000-00-00', NULL, 'Text', 'On Going', 0, '2024-10-31 06:49:44'),
+(4, 1, 'A', 'aw', NULL, NULL, 'Link', 'On Going', 0, '2024-10-31 06:52:08');
 
 -- --------------------------------------------------------
 
@@ -154,7 +158,7 @@ INSERT INTO `email_verifications` (`verification_id`, `user_id`, `verification`,
 (6, '1', '529649', '2024-09-22 21:34:47'),
 (21, '5', '960728', '2024-10-27 00:45:41'),
 (22, '3', '935804', '2024-10-27 13:25:45'),
-(23, '4', '255458', '2024-10-27 13:27:23');
+(24, '4', '235723', '2024-10-30 13:47:25');
 
 -- --------------------------------------------------------
 
@@ -249,8 +253,10 @@ CREATE TABLE `grading_scores` (
 --
 
 INSERT INTO `grading_scores` (`grading_score_id`, `grading_score_column_id`, `student_id`, `score`, `status`, `date_created`) VALUES
-(1, 1, 5, 100, 0, '2024-10-29 09:49:21'),
-(2, 2, 9, 100, 0, '2024-10-29 09:49:21');
+(3, 2, 5, 100, 0, '2024-10-29 13:10:13'),
+(4, 3, 5, 100, 0, '2024-10-31 01:38:27'),
+(9, 14, 5, 50, 0, '2024-10-31 02:20:39'),
+(10, 15, 5, 100, 0, '2024-10-31 05:18:46');
 
 -- --------------------------------------------------------
 
@@ -273,7 +279,10 @@ CREATE TABLE `grading_score_columns` (
 
 INSERT INTO `grading_score_columns` (`grading_score_column_id`, `grading_category_id`, `column_number`, `passing_score`, `status`, `date_created`) VALUES
 (1, 1, '1', 100, 0, '2024-10-29 09:49:21'),
-(2, 2, '1', 100, 0, '2024-10-29 09:49:21');
+(2, 2, '1', 100, 0, '2024-10-29 09:49:21'),
+(3, 1, '2', 100, 0, '2024-10-31 01:38:27'),
+(14, 1, '3', 100, 0, '2024-10-31 02:20:39'),
+(15, 1, '4', 100, 0, '2024-10-31 05:18:46');
 
 -- --------------------------------------------------------
 
@@ -580,7 +589,7 @@ CREATE TABLE `sticky_notes` (
   `color` varchar(255) NOT NULL,
   `locked` tinyint(1) NOT NULL,
   `status` int(11) NOT NULL,
-  `date_created` int(11) NOT NULL
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -588,10 +597,10 @@ CREATE TABLE `sticky_notes` (
 --
 
 INSERT INTO `sticky_notes` (`sticky_note_id`, `section_id`, `professor_id`, `user_id`, `x`, `y`, `width`, `height`, `rotation`, `content`, `color`, `locked`, `status`, `date_created`) VALUES
-(2, 1, 1, 4, 0.1723, 0.19, 0.267064, 0.284, 0, 'This is first stickyaaa ', 'rgb(255, 229, 180)', 0, 0, 0),
-(3, 1, 1, 4, 0.62699256110521, 0.061666666666667, 0.2125398512221, 0.33333333333333, 0, 'Yeeyy', 'rgb(242, 115, 115)', 0, 0, 0),
-(4, 1, 1, 4, 0.45377258235919, 0.51166666666667, 0.2125398512221, 0.33333333333333, 0, 'Lastt', 'rgb(174, 198, 207)', 0, 0, 0),
-(5, 1, 1, 5, 0.0896624, 0.528, 0.315599, 0.286, 0, 'Hello', 'rgb(230, 230, 250)', 0, 0, 0);
+(2, 1, 1, 4, 0.193506, 0.12, 0.267064, 0.284, 0, 'This is first sticky ', 'rgb(255, 229, 180)', 0, 0, '0000-00-00 00:00:00'),
+(3, 1, 1, 4, 0.62699256110521, 0.061666666666667, 0.2125398512221, 0.33333333333333, 0, 'Yeeyy', 'rgb(242, 115, 115)', 0, 0, '0000-00-00 00:00:00'),
+(4, 1, 1, 4, 0.45377258235919, 0.51166666666667, 0.2125398512221, 0.33333333333333, 0, 'Lastt', 'rgb(174, 198, 207)', 0, 0, '0000-00-00 00:00:00'),
+(5, 1, 1, 5, 0.0896624, 0.528, 0.315599, 0.286, 0, 'Hello', 'rgb(230, 230, 250)', 0, 0, '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -821,7 +830,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `activities`
 --
 ALTER TABLE `activities`
-  MODIFY `activity_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `activity_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `announcements`
@@ -851,7 +860,7 @@ ALTER TABLE `departments`
 -- AUTO_INCREMENT for table `email_verifications`
 --
 ALTER TABLE `email_verifications`
-  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `exams`
@@ -863,25 +872,25 @@ ALTER TABLE `exams`
 -- AUTO_INCREMENT for table `grading_categories`
 --
 ALTER TABLE `grading_categories`
-  MODIFY `grading_category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `grading_category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `grading_platforms`
 --
 ALTER TABLE `grading_platforms`
-  MODIFY `grading_platform_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `grading_platform_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `grading_scores`
 --
 ALTER TABLE `grading_scores`
-  MODIFY `grading_score_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `grading_score_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `grading_score_columns`
 --
 ALTER TABLE `grading_score_columns`
-  MODIFY `grading_score_column_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `grading_score_column_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `posts`

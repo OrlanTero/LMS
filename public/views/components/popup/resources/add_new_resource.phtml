@@ -4,6 +4,11 @@ global $APPLICATION, $ALL_USER_TYPES,$SESSION;
 $data = json_decode($_POST['data'], true);
 
 $section_id = $data['section_id'];
+$professor_id = $data['professor_id'];
+
+$section = $APPLICATION->FUNCTIONS->SECTION_CONTROL->get($section_id, true);
+
+
 
 $sectionSubjectControl = $APPLICATION->FUNCTIONS->SECTION_SUBJECT_CONTROL;
 $groupControl = $APPLICATION->FUNCTIONS->RESOURCES_GROUP_CONTROL;
@@ -17,7 +22,7 @@ $groups = [
 
 $groups = array_merge($groups, $groupControl->filterRecords(['section_id' => $section_id], false));
 
-$subjects = $sectionSubjectControl->filterRecords(['section_id' => $section_id], true);
+$subjects = $section->getSubjectForProfessor($professor_id);
 $subjects = array_map(function($subject) {
     return [
         "section_subject_id" => $subject->section_subject_id,

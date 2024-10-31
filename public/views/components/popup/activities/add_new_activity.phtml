@@ -4,8 +4,11 @@ global $APPLICATION, $ALL_USER_TYPES,$SESSION;
 $data = json_decode($_POST['data'], true);
 
 $section_id = $data['section_id'];
+$professor_id = $data['professor_id'];
 
-$subjects = $APPLICATION->FUNCTIONS->SECTION_SUBJECT_CONTROL->filterRecords(['section_id' => $section_id], true);
+$section = $APPLICATION->FUNCTIONS->SECTION_CONTROL->get($section_id, true);
+
+$subjects = $section->getSubjectForProfessor($professor_id);
 
 $subjects = array_map(function($subject) {
     return [
@@ -15,6 +18,13 @@ $subjects = array_map(function($subject) {
 }, $subjects);
 
 $subjects = ObjectToCombo("subject_name", "section_subject_id", $subjects);
+
+$passing_types = array_map(function($passing_type) {
+    return [
+        "value" => $passing_type->name,
+        "text" => $passing_type->value
+    ];
+}, PassingTypes::cases());
 ?>
 <div class="main-popup-container">
     <div class="popup-background"></div>
@@ -57,6 +67,18 @@ $subjects = ObjectToCombo("subject_name", "section_subject_id", $subjects);
                             <label for=""><span>Title</span></label>
                             <div class="error-container">
                                 <input type="text" name="title" placeholder="Title" >
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group-container flex">
+                        <div class="form-group tooltip">
+                            <div class="tooltiptext">
+                                <span>Passing Types</span>
+                            </div>
+                            <label for=""><span>Passing Types</span></label>
+
+                            <div class="error-container">
+                                <?= CreateComboBox("passing_type", "Passing Types", $passing_types) ?>
                             </div>
                         </div>
                     </div>

@@ -99,7 +99,7 @@ foreach ($SUBJECTS as $subject) {
                             <div class="resources-container">
                                 <div class="resources-actions">
                                     <?php if ($SESSION->user_type == 2): ?>
-                                        <button class="btn btn-primary upload-resource-btn" data-section_id="<?= $section->section_id ?>">Upload Resource</button>
+                                        <button class="btn btn-primary upload-resource-btn" data-section_id="<?= $section->section_id ?>" data-professor_id="<?= $professor_id ?>">Upload Resource</button>
                                     <?php endif; ?>
                                 </div>
                                 <div class="resources-content">
@@ -116,7 +116,7 @@ foreach ($SUBJECTS as $subject) {
                                                 <h3><?= $subject ?> Resources</h3>
                                                 <div class="accordion">
                                                     <?php foreach ($subjectResources as $index => $resource): ?>
-                                                        <div class="accordion-item">
+                                                        <div class="accordion-item <?= $index === 0 ? 'active' : '' ?>" data-id="<?= $resource['resources_group_id'] ?>" data-title="<?= $resource['title'] ?>">
                                                             <div class="accordion-header">
                                                                 <h4><?= $resource['title'] ?></h4>
                                                                 <span class="accordion-icon">+</span>
@@ -124,8 +124,18 @@ foreach ($SUBJECTS as $subject) {
                                                             <div class="accordion-content">
                                                                 <p><?= $resource['description'] ?></p>
                                                                 <small>Date: <?= date('l, F j, Y \a\t h:i:s A', strtotime($resource['date_created'])) ?></small>
+                                                                <div class="resource-actions">
+                                                                    <div class="icon-button download-resource-group-btn" title="Download">
+                                                                        <div class="icon">
+                                                                            <?= UseIcon("download-thin") ?>
+                                                                        </div>
+                                                                        <div class="text">
+                                                                            <span>Download Resource Group</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                                 <?php foreach ($resource['contents'] as $content): ?>
-                                                                    <div class="resource-item">
+                                                                    <div class="resource-item" data-id="<?= $content['resources_id'] ?>" data-title="<?= $content['title'] ?>">
                                                                         <h5><?= $content['title'] ?></h5>
                                                                         <p><?= $content['description'] ?></p>
                                                                         <small>
@@ -135,20 +145,12 @@ foreach ($SUBJECTS as $subject) {
                                                                             Date: <?= date('l, F j, Y \a\t h:i:s A', strtotime($content['date_created'])) ?>
                                                                         </small>
                                                                         <div class="resource-actions">
-                                                                            <div class="icon-button" title="Download">
+                                                                            <div class="icon-button download-resource-btn" title="Download">
                                                                                 <div class="icon">
                                                                                     <?= UseIcon("download-thin") ?>
                                                                                 </div>
                                                                                 <div class="text">
                                                                                     <span>Download</span>
-                                                                                </div>
-                                                                            </div>
-                                                                            <div class="icon-button" title="View">
-                                                                                <div class="icon">
-                                                                                    <?= UseIcon("eye-thin") ?>
-                                                                                </div>
-                                                                                <div class="text">
-                                                                                    <span>View</span>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -169,7 +171,7 @@ foreach ($SUBJECTS as $subject) {
                             <div class="activities-container">
                                 <div class="activities-actions">
                                     <?php if ($SESSION->user_type == 2): ?>
-                                        <button class="btn btn-primary add-activity-btn" data-section_id="<?= $section->section_id ?>">Add Activity</button>
+                                        <button class="btn btn-primary add-activity-btn" data-section_id="<?= $section->section_id ?>" data-professor_id="<?= $professor_id ?>">Add Activity</button>
                                     <?php endif; ?>
                                 </div>
                                 <div class="activities-content">
@@ -184,36 +186,37 @@ foreach ($SUBJECTS as $subject) {
                                         <?php foreach ($ACTIVITIES as $subject => $subjectActivities): ?>
                                             <div class="subject-activities <?= $subject === array_key_first($ACTIVITIES) ? 'active' : '' ?>" data-subject="<?= $subject ?>">
                                                 <h3><?= $subject ?> Activities</h3>
-                                                <?php foreach ($subjectActivities as $activity): ?>
-                                                    <div class="activity-item">
-                                                        <div class="activity-info">
-                                                            <h4><?= $activity['title'] ?></h4>
-                                                            <p><?= $activity['description'] ?></p>
-                                                            <small>
-                                                                Due: <?= $activity['due_date'] ?> | 
-                                                                Status: <?= $activity['activity_status'] ?>
-                                                            </small>
-                                                        </div>
-                                                        <div class="activity-actions">
-                                                            <div class="icon-button" title="Edit">
-                                                                <div class="icon">
-                                                                <?= UseIcon("pencil-thin") ?>
-                                                                </div>
-                                                                <div class="text">
-                                                                    <span>Edit</span>
-                                                                </div>
-                                                            </div>
-                                                            <div class="icon-button" title="View">
-                                                                <div class="icon">
-                                                                    <?= UseIcon("eye-thin") ?>
-                                                                </div>
-                                                                <div class="text">
-                                                                    <span>View</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                                                <?php if(empty($subjectActivities)): ?>
+                                                    <div class="no-activities">
+                                                        <p>No activities found for this subject.</p>
                                                     </div>
-                                                <?php endforeach; ?>
+                                                <?php else: ?>
+                                                    <?php foreach ($subjectActivities as $activity): ?>
+                                                        <div class="activity-item" data-id="<?= $activity['activity_id'] ?>">
+                                                            <div class="activity-info">
+                                                                <h4><?= htmlspecialchars($activity['title']) ?></h4>
+                                                                <p><?= htmlspecialchars($activity['description']) ?></p>
+                                                                <small>
+                                                                    <?php if (!empty($activity['due_date']) && strtotime($activity['due_date'])): ?>
+                                                                        Due: <?= date('F j, Y \a\t h:i A', strtotime($activity['due_date'])) ?> | 
+                                                                    <?php endif; ?>
+                                                                    Type: <?= ucwords(strtolower($activity['passing_type'])) ?> |
+                                                                    Status: <span class="status-badge <?= strtolower($activity['activity_status']) ?>"><?= $activity['activity_status'] ?></span>
+                                                                </small>
+                                                            </div>
+                                                            <div class="activity-actions">
+                                                                <div class="icon-button view-activity-btn" title="View" data-activity-id="<?= $activity['activity_id'] ?>">
+                                                                    <div class="icon">
+                                                                        <?= UseIcon("eye-thin") ?>
+                                                                    </div>
+                                                                    <div class="text">
+                                                                        <span>View</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
                                             </div>
                                         <?php endforeach; ?>
                                     </div>
@@ -278,15 +281,7 @@ foreach ($SUBJECTS as $subject) {
                             </div>
                         </div>
                         <div class="tab-pane" id="notes">
-                            <div class="notes-container">
-                                <div class="notes-actions">
-                                    <button class="btn btn-primary" id="add-note" data-section_id="<?= $section->section_id ?>" data-professor_id="<?= $professor_id ?>">Add Note</button>
-                                    <button class="btn btn-success" id="save-notes" disabled>Save</button>
-                                    <button class="btn btn-danger" id="discard-changes" disabled>Discard</button>
-                                </div>
-                                <div class="notes-board" id="notes-board" style="width: 100%; height: 500px; position: relative;">
-                                    <!-- Notes will be dynamically added here -->
-                                </div>
+                            <div class="sticky-note-editor-container" data-user_id="<?= $SESSION->user_id ?>" data-section_id="<?= $section->section_id ?>" data-professor_id="<?= $professor_id ?>">
                             </div>
                         </div>
                         <div class="tab-pane" id="grades">
@@ -379,186 +374,298 @@ foreach ($SUBJECTS as $subject) {
 </div>
 
 <style>
-                                .grade-actions {
-                                    display: flex;
-                                    gap: 10px;
-                                    padding: 10px;
-                                    background-color: #f8f9fa;
-                                    border-radius: 4px;
-                                    margin-bottom: 15px;
-                                }
+    .grading-platform-container {
+        width: 100%;
+        overflow-x: auto;
+    }
 
-                                .grade-actions button {
-                                    min-width: 120px;
-                                }
+    /* Custom Scrollbar Styling */
+    .grading-platform-container::-webkit-scrollbar,
+    .grades-content::-webkit-scrollbar,
+    .grades-list::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
 
-                                .grade-actions button:disabled {
-                                    opacity: 0.6;
-                                    cursor: not-allowed;
-                                }
-                                .grades-container {
-                                    padding: 20px;
-                                    background-color: #f9f9f9;
-                                    border-radius: 8px;
-                                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                                }
+    .grading-platform-container::-webkit-scrollbar-track,
+    .grades-content::-webkit-scrollbar-track,
+    .grades-list::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
 
-                                .grades-content {
-                                    display: flex;
-                                    gap: 20px;
-                                }
+    .grading-platform-container::-webkit-scrollbar-thumb,
+    .grades-content::-webkit-scrollbar-thumb,
+    .grades-list::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+        border: 2px solid #f1f1f1;
+    }
 
-                                .grades-menu {
-                                    width: 200px;
-                                    background: #fff;
-                                    border-radius: 8px;
-                                    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-                                }
+    .grading-platform-container::-webkit-scrollbar-thumb:hover,
+    .grades-content::-webkit-scrollbar-thumb:hover,
+    .grades-list::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
 
-                                .grades-menu ul {
-                                    list-style: none;
-                                    padding: 0;
-                                    margin: 0;
-                                }
+    .grade-actions {
+        display: flex;
+        gap: 10px;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        margin-bottom: 15px;
+    }
 
-                                .grades-menu li {
-                                    padding: 12px 15px;
-                                    cursor: pointer;
-                                    border-bottom: 1px solid #eee;
-                                    transition: all 0.3s ease;
-                                }
+    .grade-actions button {
+        min-width: 120px;
+    }
 
-                                .grades-menu li:last-child {
-                                    border-bottom: none;
-                                }
+    .grade-actions button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    .grades-container {
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
 
-                                .grades-menu li:hover {
-                                    background-color: #f8f9fa;
-                                }
+    .grades-content {
+        display: flex;
+        gap: 20px;
+        overflow-x: auto;
+    }
 
-                                .grades-menu li.active {
-                                    background-color: #007bff;
-                                    color: #fff;
-                                    font-weight: 500;
-                                }
+    .grades-menu {
+        width: 200px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
 
-                                .grades-list {
-                                    flex: 1;
-                                }
+    .grades-menu ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
 
-                                .subject-grades {
-                                    display: none;
-                                    background: #fff;
-                                    padding: 20px;
-                                    border-radius: 8px;
-                                    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-                                }
+    .grades-menu li {
+        padding: 12px 15px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+        transition: all 0.3s ease;
+    }
 
-                                .subject-grades.active {
-                                    display: block;
-                                }
+    .grades-menu li:last-child {
+        border-bottom: none;
+    }
 
-                                .grading-system {
-                                    overflow-x: auto;
-                                    margin-bottom: 20px;
-                                }
-                                .grading-table {
-                                    width: 100%;
-                                    border-collapse: separate;
-                                    border-spacing: 0;
-                                    background-color: #fff;
-                                    border-radius: 8px;
-                                    overflow: hidden;
-                                }
-                                .grading-table th, .grading-table td {
-                                    border: 1px solid #e0e0e0;
-                                    padding: 12px;
-                                    text-align: center;
-                                }
-                                .grading-table th {
-                                    background-color: #f2f2f2;
-                                    font-weight: bold;
-                                    text-transform: uppercase;
-                                    font-size: 0.9em;
-                                }
-                                .grading-table tr:nth-child(even) {
-                                    background-color: #f8f8f8;
-                                }
-                                .grade-input {
-                                    display: inline-block;
-                                    width: 40px;
-                                    text-align: center;
-                                    border: 1px solid #ddd;
-                                    border-radius: 4px;
-                                    padding: 6px;
-                                    transition: border-color 0.3s;
-                                }
-                                .grade-input:focus {
-                                    border-color: #007bff;
-                                    outline: none;
-                                    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
-                                }
-                                .ws, .final-grade, .college-grade {
-                                    font-weight: bold;
-                                    background-color: #e9ecef;
-                                }
-                                .score-header {
-                                    cursor: pointer;
-                                    position: relative;
-                                }
-                                .floating-container {
-                                    position: absolute;
-                                    background-color: white;
-                                    border: 1px solid #ddd;
-                                    padding: 10px;
-                                    border-radius: 4px;
-                                    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-                                    z-index: 1000;
-                                }
-                                .floating-container input {
-                                    width: 60px;
-                                    padding: 5px;
-                                    border: 1px solid #ccc;
-                                    border-radius: 4px;
-                                }
-                                .add-column, .remove-column, .edit-header, .add-category {
-                                    background: none;
-                                    border: none;
-                                    cursor: pointer;
-                                    font-size: 1.2em;
-                                    padding: 0 5px;
-                                }
+    .grades-menu li:hover {
+        background-color: #f8f9fa;
+    }
 
-                                .add-column svg, .remove-column svg, .edit-header svg, .add-category svg {
-                                    width: 16px;
-                                    height: 16px;
-                                }
+    .grades-menu li.active {
+        background-color: #007bff;
+        color: #fff;
+        font-weight: 500;
+    }
 
-                                .add-column, .add-category {
-                                    color: green;
-                                }
-                                .remove-column {
-                                    color: red;
-                                    position: absolute;
-                                    top: 2px;
-                                    right: 2px;
-                                    display: none;
-                                }
-                                .score-header:hover .remove-column {
-                                    display: block;
-                                }
-                                .edit-header {
-                                    color: #007bff;
-                                    margin-left: 5px;
-                                }
-                                .category-header {
-                                    position: relative;
-                                }
-                                .failed-grade {
-                                    color: #F29B9B;
-                                }
-                            </style>
+    .grades-list {
+        flex: 1;
+        overflow-x: auto;
+        width: 100% !important; 
+    }
 
+    .subject-grades {
+        display: none;
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .subject-grades.active {
+        display: block;
+    }
+
+    .grading-system {
+        overflow-x: auto;
+        margin-bottom: 20px;
+    }
+    .grading-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background-color: #fff;
+        border-radius: 8px;
+    }
+    .grading-table th, .grading-table td {
+        border: 1px solid #e0e0e0;
+        padding: 12px;
+        text-align: center;
+    }
+    .grading-table th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.9em;
+    }
+    .grading-table tr:nth-child(even) {
+        background-color: #f8f8f8;
+    }
+    .grade-input {
+        display: inline-block;
+        width: 40px;
+        text-align: center;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 6px;
+        transition: border-color 0.3s;
+    }
+    .grade-input:focus {
+        border-color: #007bff;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+    }
+    .ws, .final-grade, .college-grade {
+        font-weight: bold;
+        background-color: #e9ecef;
+    }
+    .score-header {
+        cursor: pointer;
+        position: relative;
+    }
+    .floating-container {
+        position: absolute;
+        background-color: white;
+        border: none;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        z-index: 1000;
+        min-width: 250px;
+        animation: fadeIn 0.2s ease-in-out;
+    }
+
+    /* Add fade-in animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .floating-container input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .floating-container input:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        outline: none;
+    }
+
+    .floating-container button {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .floating-container .save-category,
+    .floating-container button:not(.delete-category) {
+        background-color: #007bff;
+        color: white;
+        margin-bottom: 8px;
+    }
+
+    .floating-container .save-category:hover,
+    .floating-container button:not(.delete-category):hover {
+        background-color: #0056b3;
+        transform: translateY(-1px);
+    }
+
+    .floating-container .delete-category {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .floating-container .delete-category:hover {
+        background-color: #c82333;
+        transform: translateY(-1px);
+    }
+
+    /* Label styles for inputs */
+    .floating-container label {
+        display: block;
+        margin-bottom: 6px;
+        color: #666;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    /* Container title */
+    .floating-container h3 {
+        margin: 0 0 15px 0;
+        color: #333;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    /* Divider between buttons */
+    .floating-container .button-divider {
+        height: 1px;
+        background-color: #e0e0e0;
+        margin: 12px 0;
+    }
+
+    .add-column, .remove-column, .edit-header, .add-category {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.2em;
+        padding: 0 5px;
+    }
+
+    .add-column svg, .remove-column svg, .edit-header svg, .add-category svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .add-column, .add-category {
+        color: green;
+    }
+    .remove-column {
+        color: red;
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        display: none;
+    }
+    .score-header:hover .remove-column {
+        display: block;
+    }
+    .edit-header {
+        color: #007bff;
+        margin-left: 5px;
+    }
+    .category-header {
+        position: relative;
+    }
+    .failed-grade {
+        color: #F29B9B;
+    }
+</style>
 <style>
 .tab-container {
     width: 100%;
@@ -679,6 +786,7 @@ foreach ($SUBJECTS as $subject) {
     display: flex;
     justify-content: flex-start;
     gap: 10px;
+    padding: 10px;
 }
 
 .resources-content,
@@ -759,6 +867,8 @@ foreach ($SUBJECTS as $subject) {
     border-radius: 5px;
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 10px;
+    margin-top: 10px;
 }
 
 .activity-item:last-child,
@@ -908,7 +1018,6 @@ foreach ($SUBJECTS as $subject) {
 .color-picker {
     display: flex;
     justify-content: space-between;
-    margin-top: 10px;
 }
 
 .color-option {

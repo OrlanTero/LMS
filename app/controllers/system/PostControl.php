@@ -8,6 +8,8 @@ use Application\core\Authentication;
 
 class PostControl
 {
+    public $RESPONSE;
+
     public function run($request)
     {
         return $this->$request();
@@ -131,5 +133,21 @@ class PostControl
         $data = json_decode($_POST['data'], true);
 
         return $APPLICATION->FUNCTIONS->GRADING_PLATFORM_CONTROL->saveGrades($data);
+    }
+
+    public function DownloadResourceGroup()
+    {
+        global $APPLICATION;
+
+        $id = $_POST['id'];
+
+        return $APPLICATION->FUNCTIONS->RESOURCES_GROUP_CONTROL->downloadResourceGroup($id);
+    }
+
+    public function DownloadResource() {
+        global $APPLICATION;
+
+        $id = $_POST['id'];
+        return $APPLICATION->FUNCTIONS->RESOURCES_GROUP_CONTROL->downloadResource($id);
     }
 }

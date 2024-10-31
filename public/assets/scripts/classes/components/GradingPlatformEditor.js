@@ -4,6 +4,8 @@ import { addHtml, append, CreateElement, MakeID } from "../../modules/component/
 
 export default class GradingPlatformEditor {
     constructor({ container, students = [], buttons = { save: null, discard: null } }) {
+        this.container = container;
+        this.students = students;
         this.table = this.reconstructTable(container, students);
         this.saveGradesBtn = buttons.save;
         this.discardGradesBtn = buttons.discard;
@@ -15,10 +17,13 @@ export default class GradingPlatformEditor {
         this.originalGrades = {};
         this.hasUnsavedChanges = false;
         this.sectionSubjectId = null;
+        this.removedColumns = {};
+        this.removedCategories = [];
     }
 
     Load(section_subject_id) {
         this.sectionSubjectId = section_subject_id;
+
         SelectModelByFilter(JSON.stringify({ section_subject_id: section_subject_id }), "GRADING_PLATFORM_CONTROL")
             .then(res => {
                 this.LoadGradingPlatform(res[0]);
@@ -170,50 +175,117 @@ export default class GradingPlatformEditor {
     saveGrades() {
         const gradesData = {
             section_subject_id: this.sectionSubjectId,
-            categories: this.categories.map(cat => ({
-                id: cat.category_id,
-                name: cat.name,
-                percentage: cat.percentage,
-                status: cat.status,
-                columns: this.columnStructure[cat.category_id].columnIds.map((columnId, index) => ({
-                    id: columnId,
-                    column_number: this.columnStructure[cat.category_id].columns[index],
-                    passing_score: this.passingScores.scores[`${cat.category_id}-${columnId}`],
-                    passing_score_status: this.passingScores.status[`${cat.category_id}-${columnId}`]
-                }))
-            })),
-            student_grades: Object.entries(this.studentScores).map(([studentId, data]) => ({
-                student_id: studentId,
-                category_scores: Object.entries(data.scores).map(([categoryId, scores]) => ({
-                    category_id: categoryId,
-                    scores: Object.entries(scores)
-                        .filter(([columnId]) => data.status[`${studentId}-${categoryId}-${columnId}`] !== 'original')
-                        .filter(([columnId]) => data.status[`${studentId}-${categoryId}-${columnId}`] !== undefined)
-                        .map(([columnId, score]) => ({
-                            id: data.scoreIds?.[categoryId]?.[columnId],
-                            column_id: columnId,
-                            score: score,
-                            status: data.status[`${studentId}-${categoryId}-${columnId}`]
-                        }))
-                })).filter(category => category.scores.length > 0),
-                final_grade: data.finalGrade,
-                college_grade: data.collegeGrade
-            })).filter(student => student.category_scores.length > 0)
+            removed_categories: this.removedCategories,
+            categories: this.categories
+                .filter(cat => this.columnStructure[cat.category_id])
+                .map(cat => ({
+                    id: cat.category_id,
+                    name: cat.name,
+                    percentage: cat.percentage,
+                    status: cat.status,
+                    columns: this.columnStructure[cat.category_id].columnIds.map((columnId, index) => ({
+                        id: columnId,
+                        column_number: this.columnStructure[cat.category_id].columns[index],
+                        passing_score: this.passingScores.scores[`${cat.category_id}-${columnId}`],
+                        passing_score_status: this.passingScores.status[`${cat.category_id}-${columnId}`]
+                    })),
+                    removed_columns: this.removedColumns[cat.category_id] || []
+                })),
+            student_grades: Object.entries(this.studentScores)
+                .map(([studentId, data]) => ({
+                    student_id: studentId,
+                    category_scores: Object.entries(data.scores)
+                        .filter(([categoryId]) => this.columnStructure[categoryId])
+                        .map(([categoryId, scores]) => ({
+                            category_id: categoryId,
+                            scores: Object.entries(scores)
+                                .filter(([columnId]) => data.status[`${studentId}-${categoryId}-${columnId}`] !== 'original')
+                                .filter(([columnId]) => data.status[`${studentId}-${categoryId}-${columnId}`] !== undefined)
+                                .map(([columnId, score]) => ({
+                                    id: data.scoreIds?.[categoryId]?.[columnId],
+                                    column_id: columnId,
+                                    score: score,
+                                    status: data.status[`${studentId}-${categoryId}-${columnId}`]
+                                }))
+                        })).filter(category => category.scores.length > 0),
+                    final_grade: data.finalGrade,
+                    college_grade: data.collegeGrade
+                })).filter(student => student.category_scores.length > 0)
         };
 
         console.log(gradesData);
         return new Promise((resolve, reject) => {
             PostRequest("SaveGrades", { data: JSON.stringify(gradesData) })
             .then((res) => {
+                console.log(res);
                 res = JSON.parse(res);
-                
+
                 if (res.code === 200) {
                     alert('Grades saved successfully!');
+                    this.updateCreatedObjects(res.body.created_objects);
                     resolve(true);
                 } else {
                     alert('Failed to save grades. Please try again .');
                     resolve(false);
                 }
+            });
+        });
+    }
+
+    updateCreatedObjects(created_objects) {
+        // Update category IDs and data
+        created_objects.categories.forEach(mapping => {
+            this.categories.forEach(category => {
+                if (category.category_id === mapping.previous_id) {
+                    // Delete old category data
+                    delete this.columnStructure[category.category_id];
+                    delete this.passingScores.scores[category.category_id];
+                    
+                    // Update with new data
+                    category.category_id = mapping.latest_id;
+                    Object.assign(category, {
+                        name: mapping.object.name,
+                        percentage: mapping.object.percentage,
+                        status: 'original'
+                    });
+                }
+            });
+        });
+
+        // Update column IDs and passing scores
+        created_objects.columns.forEach(mapping => {
+            Object.keys(this.columnStructure).forEach(categoryId => {
+                const columnIndex = this.columnStructure[categoryId].columnIds.indexOf(mapping.previous_id);
+                if (columnIndex !== -1) {
+                    // Delete old column data
+                    delete this.passingScores.scores[`${categoryId}-${mapping.previous_id}`];
+                    delete this.passingScores.status[`${categoryId}-${mapping.previous_id}`];
+                    
+                    // Update with new data
+                    this.columnStructure[categoryId].columnIds[columnIndex] = mapping.latest_id;
+                    this.passingScores.scores[`${categoryId}-${mapping.latest_id}`] = mapping.object.passing_score;
+                    this.passingScores.status[`${categoryId}-${mapping.latest_id}`] = 'original';
+                }
+            });
+        });
+
+        // Update score IDs and values
+        created_objects.scores.forEach(mapping => {
+            Object.values(this.studentScores).forEach(student => {
+                Object.keys(student.scoreIds || {}).forEach(categoryId => {
+                    Object.keys(student.scoreIds[categoryId]).forEach(columnId => {
+                        if (student.scoreIds[categoryId][columnId] === mapping.previous_id) {
+                            // Delete old score data
+                            delete student.scores[categoryId][mapping.previous_id];
+                            delete student.status[`${student.student_id}-${categoryId}-${mapping.previous_id}`];
+                            
+                            // Update with new data
+                            student.scoreIds[categoryId][columnId] = mapping.latest_id;
+                            student.scores[categoryId][columnId] = mapping.object.score;
+                            student.status[`${student.student_id}-${categoryId}-${columnId}`] = 'original';
+                        }
+                    });
+                });
             });
         });
     }
@@ -321,17 +393,19 @@ export default class GradingPlatformEditor {
 
     showPassingScoreEditor(header, category, column) {
         const existingContainer = document.querySelector('.floating-container');
-
         if (existingContainer) existingContainer.remove();
-
-        const columnId = header.dataset.columnId;
-        const scoreKey = `${category}-${columnId}`;
 
         const container = document.createElement('div');
         container.className = 'floating-container';
         container.innerHTML = `
-            <input type="number" value="${this.passingScores.scores[scoreKey] || 100}" min="0" max="100">
-            <button>Save</button>
+            <h3>Edit Passing Score</h3>
+            <label for="passingScore">Passing Score</label>
+            <input type="number" 
+                   id="passingScore" 
+                   value="${this.passingScores.scores[`${category}-${header.dataset.columnId}`] || 100}" 
+                   min="0" 
+                   max="100">
+            <button>Save Changes</button>
         `;
 
         const rect = header.getBoundingClientRect();
@@ -339,7 +413,20 @@ export default class GradingPlatformEditor {
         container.style.left = `${rect.left + window.scrollX}px`;
         document.body.appendChild(container);
 
-        this.setupPassingScoreEvents(container, category, columnId);
+        // Add click event listener to document
+        const handleClickOutside = (e) => {
+            if (!container.contains(e.target) && !header.contains(e.target)) {
+                container.remove();
+                document.removeEventListener('click', handleClickOutside);
+            }
+        };
+
+        // Use setTimeout to prevent immediate triggering
+        setTimeout(() => {
+            document.addEventListener('click', handleClickOutside);
+        }, 0);
+
+        this.setupPassingScoreEvents(container, category, header.dataset.columnId);
     }
 
     setupPassingScoreEvents(container, category, columnId) {
@@ -402,8 +489,11 @@ export default class GradingPlatformEditor {
         const container = document.createElement('div');
         container.className = 'floating-container';
         container.innerHTML = `
-            <input type="text" placeholder="Category Name">
-            <input type="number" placeholder="Percentage" min="0" max="100">
+            <h3>Add New Category</h3>
+            <label for="categoryName">Category Name</label>
+            <input type="text" id="categoryName" placeholder="Enter category name">
+            <label for="categoryPercentage">Percentage Weight</label>
+            <input type="number" id="categoryPercentage" placeholder="Enter percentage" min="0" max="100">
             <button>Add Category</button>
         `;
 
@@ -412,27 +502,33 @@ export default class GradingPlatformEditor {
         container.style.left = `${rect.left + window.scrollX}px`;
         document.body.appendChild(container);
 
+        // Add click event listener to document
+        const handleClickOutside = (e) => {
+            if (!container.contains(e.target) && !button.contains(e.target)) {
+                container.remove();
+                document.removeEventListener('click', handleClickOutside);
+            }
+        };
+
+        // Use setTimeout to prevent immediate triggering
+        setTimeout(() => {
+            document.addEventListener('click', handleClickOutside);
+        }, 0);
+
         container.querySelector('button').addEventListener('click', () => {
-            const name = container.querySelector('input[type="text"]').value;
-            const percentage = parseInt(container.querySelector('input[type="number"]').value);
+            const name = container.querySelector('#categoryName').value;
+            const percentage = parseInt(container.querySelector('#categoryPercentage').value);
 
             if (name && !isNaN(percentage)) {
                 this.addNewCategory(name, percentage);
                 container.remove();
             }
         });
-
-        document.addEventListener('click', (e) => {
-            if (!container.contains(e.target) && !e.target.classList.contains('add-category')) {
-                container.remove();
-                document.removeEventListener('click', this.closeContainer);
-            }
-        });
     }
 
     addNewCategory(name, percentage, category_id = null) {
-        category_id = category_id ?? MakeID(10);
         let status = category_id ? 'original' : 'created';
+        category_id = category_id ?? MakeID(10);
 
         this.categories.push({ name, percentage, status, category_id });
 
@@ -501,16 +597,46 @@ export default class GradingPlatformEditor {
         const existingContainer = document.querySelector('.floating-container');
         if (existingContainer) existingContainer.remove();
 
-        // Convert categoryId to string for consistent comparison
         const category = this.categories.find(cat => cat.category_id.toString() === categoryId.toString());
         if (!category) return;
 
-        const container = this.createFloatingEditor(
-            header,
-            category.name,
-            category.percentage,
-            (newName, newPercentage) => {
-                // Update the found category
+        const container = document.createElement('div');
+        container.className = 'floating-container';
+        container.innerHTML = `
+            <h3>Edit Category</h3>
+            <label for="editCategoryName">Category Name</label>
+            <input type="text" id="editCategoryName" value="${category.name}">
+            <label for="editCategoryPercentage">Percentage Weight</label>
+            <input type="number" id="editCategoryPercentage" value="${category.percentage}" min="0" max="100">
+            <button class="save-category">Save Changes</button>
+            <div class="button-divider"></div>
+            <button class="delete-category">Delete Category</button>
+        `;
+
+        const rect = header.getBoundingClientRect();
+        container.style.top = `${rect.bottom + window.scrollY}px`;
+        container.style.left = `${rect.left + window.scrollX}px`;
+        document.body.appendChild(container);
+
+        // Add click event listener to document
+        const handleClickOutside = (e) => {
+            if (!container.contains(e.target) && !header.contains(e.target)) {
+                container.remove();
+                document.removeEventListener('click', handleClickOutside);
+            }
+        };
+
+        // Use setTimeout to prevent immediate triggering
+        setTimeout(() => {
+            document.addEventListener('click', handleClickOutside);
+        }, 0);
+
+        // Setup event listeners
+        container.querySelector('.save-category').addEventListener('click', () => {
+            const newName = container.querySelector('#editCategoryName').value;
+            const newPercentage = parseInt(container.querySelector('#editCategoryPercentage').value);
+
+            if (newName && !isNaN(newPercentage)) {
                 category.name = newName;
                 category.percentage = newPercentage;
                 category.status = category.status === 'original' ? 'edited' : category.status;
@@ -520,42 +646,16 @@ export default class GradingPlatformEditor {
                     this.recalculateGrades(row);
                 });
                 this.setUnsavedChanges(true);
-            }
-        );
-        document.body.appendChild(container);
-
-        document.addEventListener('click', (e) => {
-            if (!container.contains(e.target) && !e.target.classList.contains('edit-header')) {
                 container.remove();
-                document.removeEventListener('click', this.closeContainer);
             }
         });
-    }
 
-    createFloatingEditor(element, defaultName, defaultPercentage, onSave) {
-        const container = document.createElement('div');
-        container.className = 'floating-container';
-        container.innerHTML = `
-            <input type="text" value="${defaultName}" placeholder="Category Name">
-            <input type="number" value="${defaultPercentage}" min="0" max="100" placeholder="Percentage">
-            <button>Save</button>
-        `;
-
-        const rect = element.getBoundingClientRect();
-        container.style.top = `${rect.bottom + window.scrollY}px`;
-        container.style.left = `${rect.left + window.scrollX}px`;
-
-        container.querySelector('button').addEventListener('click', () => {
-            const newName = container.querySelector('input[type="text"]').value;
-            const newPercentage = parseInt(container.querySelector('input[type="number"]').value);
-
-            if (newName && !isNaN(newPercentage)) {
-                onSave(newName, newPercentage);
+        container.querySelector('.delete-category').addEventListener('click', () => {
+            if (confirm(`Are you sure you want to delete the category "${category.name}"?`)) {
+                this.removeCategory(categoryId);
+                container.remove();
             }
-            container.remove();
         });
-
-        return container;
     }
 
     addColumn(category, column = null) {
@@ -614,8 +714,17 @@ export default class GradingPlatformEditor {
     }
 
     removeColumn(category, column) {
-        const columnId = this.table.querySelector(`th.score-header[data-category="${category}"][data-column="${column}"]`)
-            .dataset.columnId;
+        const header = this.table.querySelector(`th.score-header[data-category="${category}"][data-column="${column}"]`);
+        const columnId = header.dataset.columnId;
+        const columnStatus = this.columnStructure[category].columnStatus[columnId];
+
+        // Only track removed columns that were original
+        if (columnStatus === 'original') {
+            if (!this.removedColumns[category]) {
+                this.removedColumns[category] = [];
+            }
+            this.removedColumns[category].push(columnId);
+        }
 
         // Update column structure
         const columnIndex = this.columnStructure[category].columns.indexOf(parseInt(column));
@@ -690,6 +799,61 @@ export default class GradingPlatformEditor {
         });
     }
 
+    removeCategory(categoryId) {
+        const category = this.categories.find(cat => cat.category_id.toString() === categoryId.toString());
+
+        if (!category) return;
+
+        // If it was an original category, track it for deletion
+        if (category.status === 'original') {
+            this.removedCategories.push(categoryId);
+        }
+
+
+        // Remove category header and all related columns
+        const categoryHeader = this.table.querySelector(`thead tr:first-child th[data-category="${categoryId}"]`);
+        if (categoryHeader) {
+            categoryHeader.remove();
+        } else {
+            console.log('Category header not found');
+        }
+
+        // Remove all score headers for this category
+        const scoreHeaders = this.table.querySelectorAll(`thead tr:last-child th[data-category="${categoryId}"]`);
+        scoreHeaders.forEach(el => el.remove());
+
+        // Remove all data cells and weighted score cells
+        this.table.querySelectorAll('tbody tr').forEach(row => {
+            // Remove grade input cells
+            const inputCells = row.querySelectorAll(`td .grade-input[data-category="${categoryId}"]`);
+            inputCells.forEach(input => input.closest('td').remove());
+            
+            // Remove weighted score cell
+            const wsCell = row.querySelector(`td.ws[data-category="${categoryId}"]`);
+            if (wsCell) {
+                wsCell.remove();
+            }
+        });
+
+        // Remove from internal data structures
+        this.categories = this.categories.filter(cat => cat.category_id !== categoryId);
+        delete this.columnStructure[categoryId];
+
+        // Clean up student scores
+        Object.values(this.studentScores).forEach(student => {
+            delete student.scores[categoryId];
+            delete student.weightedScores[categoryId];
+            delete student.scoreIds?.[categoryId];
+        });
+
+        // Recalculate grades for all students
+        this.table.querySelectorAll('tbody tr').forEach(row => {
+            this.recalculateGrades(row);
+        });
+
+        this.setUnsavedChanges(true);
+    }
+
     addEventListeners() {
         this.table.addEventListener('input', (e) => {
             if (e.target.classList.contains('grade-input')) {
@@ -750,6 +914,7 @@ export default class GradingPlatformEditor {
         if (this.saveGradesBtn) {
             this.saveGradesBtn.addEventListener('click', () => {
                 this.saveGrades().then((res) => {
+
                     if (res) {
                         this.initializeOriginalGrades(); // Initialize original grades after loading
                         this.setUnsavedChanges(false); // Set initial state of save changes

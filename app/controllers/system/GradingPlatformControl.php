@@ -19,30 +19,44 @@ class GradingPlatformControl extends ControlDefaultFunctions
         global $APPLICATION, $CONNECTION;
 
         try {
+            $created_objects = [
+                'columns' => [],
+                'categories' => [], 
+                'scores' => []
+            ];
+            
             $CONNECTION->NewTransaction();
 
             $grading_platform_id = $this->GetOrCreateGradingPlatform($data['section_subject_id']);
             
+            // Handle removed categories first
+            if (!empty($data['removed_categories'])) {
+                foreach ($data['removed_categories'] as $category_id) {
+                    $this->removeCategory($category_id);
+                }
+            }
+
             // Process categories and get updated mappings
             $category_mappings = [];
             
             foreach ($data['categories'] as $category) {
-                $category_id = $this->processCategory($grading_platform_id, $category);
+                $category_id = $this->processCategory($grading_platform_id, $category, $created_objects);
                 if ($category_id) {
                     $category_mappings[$category['id']] = [
                         'category_id' => $category_id,
-                        'columns' => $this->processCategoryColumns($category_id, $category['columns'])
+                        'columns' => $this->processCategoryColumns($category_id, $category['columns'], $category['removed_columns'], $created_objects)
                     ];
                 }
             }
 
             // Process student grades using category mappings
             foreach ($data['student_grades'] as $student_grade) {
-                $this->processStudentGrades($student_grade, $category_mappings);
+                $this->processStudentGrades($student_grade, $category_mappings, $created_objects);
             }
 
             $CONNECTION->Commit();
-            return new Response(200, "Grades saved successfully!");
+            
+            return new Response(200, "Grades saved successfully!", ['created_objects' => $created_objects]);
 
         } catch (\Throwable $th) {
             $CONNECTION->RollBack();
@@ -60,7 +74,34 @@ class GradingPlatformControl extends ControlDefaultFunctions
         return $platform['grading_platform_id'];
     }
 
-    private function processCategory($grading_platform_id, $category)
+    private function removeCategory($category_id) {
+        global $APPLICATION;
+        $category_control = $APPLICATION->FUNCTIONS->GRADING_CATEGORY_CONTROL;
+        $column_control = $APPLICATION->FUNCTIONS->GRADING_SCORE_COLUMN_CONTROL;
+        $score_control = $APPLICATION->FUNCTIONS->GRADING_SCORE_CONTROL;
+
+        // Get all columns for this category
+        $columns = $column_control->filterRecords(["grading_category_id" => $category_id], false);
+
+        if ($columns) {
+            foreach ($columns as $column) {
+                // Get and remove all scores for each column
+                $scores = $score_control->filterRecords(["grading_score_column_id" => $column['grading_score_column_id']], false);
+                if ($scores) {
+                    foreach ($scores as $score) {
+                        $score_control->removeRecord($score['grading_score_id']);
+                    }
+                }
+                // Remove the column
+                $column_control->removeRecord($column['grading_score_column_id']);
+            }
+        }
+
+        // Finally remove the category
+        $category_control->removeRecord($category_id);
+    }
+
+    private function processCategory($grading_platform_id, $category, &$created_objects)
     {
         global $APPLICATION;
         $control = $APPLICATION->FUNCTIONS->GRADING_CATEGORY_CONTROL;
@@ -74,6 +115,11 @@ class GradingPlatformControl extends ControlDefaultFunctions
         switch ($category['status']) {
             case 'created':
                 $result = $control->addRecord($category_data);
+                $created_objects['categories'][] = [
+                    'previous_id' => $category['id'],
+                    'latest_id' => $result->body['id'],
+                    'object' => $control->get($result->body['id'], false)
+                ];
                 return $result->body['id'];
 
             case 'edited':
@@ -81,7 +127,7 @@ class GradingPlatformControl extends ControlDefaultFunctions
                 return $category['id'];
 
             case 'deleted':
-                $control->removeRecord($category['id']);
+                $this->removeCategory($category['id']);
                 return null;
 
             default:
@@ -89,11 +135,29 @@ class GradingPlatformControl extends ControlDefaultFunctions
         }
     }
 
-    private function processCategoryColumns($category_id, $columns) 
+    private function processCategoryColumns($category_id, $columns, $removed_columns = [], &$created_objects) 
     {
         global $APPLICATION;
         $column_control = $APPLICATION->FUNCTIONS->GRADING_SCORE_COLUMN_CONTROL;
+        $score_control = $APPLICATION->FUNCTIONS->GRADING_SCORE_CONTROL;
         $column_mappings = [];
+
+        // First handle removed columns
+        if (!empty($removed_columns)) {
+            foreach ($removed_columns as $column_id) {
+                // Get all scores for this column
+                $scores = $score_control->filterRecords(["grading_score_column_id" => $column_id], false);
+                
+                if ($scores) {
+                    foreach ($scores as $score) {
+                        $score_control->removeRecord($score['grading_score_id']);
+                    }
+                }   
+                
+                // Then remove the column
+                $column_control->removeRecord($column_id);
+            }
+        }
 
         foreach ($columns as $column) {
             $column_data = [
@@ -106,6 +170,11 @@ class GradingPlatformControl extends ControlDefaultFunctions
                 case 'created':
                     $result = $column_control->addRecord($column_data);
                     $column_mappings[$column['id']] = $result->body['id'];
+                    $created_objects['columns'][] = [
+                        'previous_id' => $column['id'],
+                        'latest_id' => $result->body['id'],
+                        'object' => $column_control->get($result->body['id'], false)
+                    ];
                     break;
 
                 case 'edited':
@@ -114,6 +183,15 @@ class GradingPlatformControl extends ControlDefaultFunctions
                     break;
 
                 case 'deleted':
+                    // Get all scores for this column
+                    $scores = $score_control->getBy("grading_score_column_id", $column['id'], true);
+                    
+                    // Remove all scores first
+                    foreach ($scores as $score) {
+                        $score_control->removeRecord($score['grading_score_id']);
+                    }
+                    
+                    // Then remove the column
                     $column_control->removeRecord($column['id']);
                     break;
 
@@ -125,7 +203,7 @@ class GradingPlatformControl extends ControlDefaultFunctions
         return $column_mappings;
     }
 
-    private function processStudentGrades($student_grade, $category_mappings) 
+    private function processStudentGrades($student_grade, $category_mappings, &$created_objects) 
     {
         global $APPLICATION;
         $control = $APPLICATION->FUNCTIONS->GRADING_SCORE_CONTROL;
@@ -152,14 +230,24 @@ class GradingPlatformControl extends ControlDefaultFunctions
 
                 switch ($score['status']) {
                     case 'created':
-                        $control->addRecord($score_data);
+                        $result = $control->addRecord($score_data);
+                        $created_objects['scores'][] = [
+                            'previous_id' => $score['id'],
+                            'latest_id' => $result->body['id'],
+                            'object' => $control->get($result->body['id'], false)
+                        ];
                         break;
 
                     case 'edited':
                         if ($mainScore) {
                             $control->editRecord($score['id'], $score_data);
                         } else {
-                            $control->addRecord($score_data);
+                            $result = $control->addRecord($score_data);
+                            $created_objects['scores'][] = [
+                                'previous_id' => $score['id'],
+                                'latest_id' => $result->body['id'],
+                                'object' => $control->get($result->body['id'], false)
+                            ];
                         }
                         break;
 

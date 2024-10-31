@@ -18,6 +18,8 @@ abstract class ActivityAbstract extends ModelDefaultFunctions
 
     public $file;
 
+    public $passing_type;
+
     public $activity_status;
 
     public $date_created;
