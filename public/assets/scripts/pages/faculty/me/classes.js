@@ -51,12 +51,35 @@ function NewExam(section_id) {
     });
 }
 
+// Handle viewing exam
+function ViewExam(id) {
+    const popup = new Popup(`${"exams"}/view_exam`, {id}, {
+        backgroundDismiss: false
+    });
+
+    popup.Create().then(() => {
+        popup.Show();
+
+        ManageComboBoxes();
+    });
+}
+
 // Handle exam functionality
 function Exams() {
     const addExamBtn = document.querySelector(".add-exam-btn");
+    const examItems = document.querySelectorAll(".exam-item");
     if (addExamBtn) {
         addExamBtn.addEventListener("click", () => {
             NewExam(addExamBtn.dataset.section_id);
+        });
+    }
+
+    if (examItems) {
+        examItems.forEach(item => {
+            const viewBtn = item.querySelector(".view-exam-btn");
+            viewBtn.addEventListener("click", () => {
+                ViewExam(item.dataset.id);
+            });
         });
     }
 }
@@ -152,12 +175,39 @@ function NewActivity(section_id, professor_id) {
     });
 }
 
+// Handle viewing activity
+function ViewActivity(id) {
+    const popup = new Popup(`${"activities"}/view_activity`, {id}, {
+        backgroundDismiss: false
+    });
+
+    popup.Create().then(() => {
+        popup.Show();
+
+        ManageComboBoxes();
+    });
+}
+
 // Handle activities functionality
 function Activities() {
     const addActivityBtn = document.querySelector(".add-activity-btn");
+    const activities = document.querySelectorAll(".activity-item");
     if (addActivityBtn) {
         addActivityBtn.addEventListener("click", () => {
             NewActivity(addActivityBtn.dataset.section_id, addActivityBtn.dataset.professor_id);
+        });
+    }
+
+
+    if (activities) {
+        activities.forEach(activity => {
+            const viewBtn = activity.querySelector(".view-activity-btn");
+
+            if (viewBtn) {
+                viewBtn.addEventListener("click", () => {
+                    ViewActivity(activity.dataset.id);
+                });
+            }
         });
     }
 }

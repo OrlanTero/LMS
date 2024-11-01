@@ -6,7 +6,6 @@ $professor = $SESSION->getAsProfessor();
 
 $classes = $professor->getClasses();
 
-
 function f($year) {
     return array_reduce($year, function($store, $sectionSubject) {
         if (!isset($store[$sectionSubject->section_id])) {
@@ -104,12 +103,13 @@ $fourthYears = f(array_filter($classes, function ($section) {
                                                 <?php
                                                 $section = $sectionSubject->getSection();
                                                 $students = $section->getAllStudents();
+                                                $subjects = $section->getSubjectForProfessor($sectionSubject->professor_id);
                                                 ?>
                                                 <div class="card-flex-container" data-id="<?= $section->section_id ?>" data-professor_id="<?= $sectionSubject->professor_id ?>">
                                                     <div class="title">
                                                         <h2><?= $section->section_name ?></h2>
                                                         <p><?= count($students) ?> Students</p>
-                                                        <small><?= count($section->subjects) ?> Subjects</small>
+                                                        <small><?= count($subjects) > 1 ? count($subjects) . ' Subjects' : $subjects[0]->subject->subject_name ?></small>
                                                     </div>
                                                 </div>
                                             <?php endforeach; ?>

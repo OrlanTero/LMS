@@ -182,6 +182,7 @@ class Routes
                     "/exams" => ["EXAM_CONTROL", "addRecord", "editRecord", "removeRecords"],
                     "/sticky_notes" => ["STICKY_NOTE_CONTROL", "add", "editRecord", "removeRecords"],
                     "/post_likes" => ["POST_LIKE_CONTROL", "add", "editRecord", "removeRecords"],
+                    "/post_comments" => ["POST_COMMENT_CONTROL", "add", "editRecord", "removeRecords"],
                 ];
 
                 foreach ($routes as $path => [$control, $addMethod, $editMethod, $removeMethod]) {

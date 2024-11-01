@@ -3,6 +3,48 @@
 
 global $APPLICATION, $SESSION;
 
+
+$dashboardCards = [
+    [
+        "title" => "Users",
+        "value" => $APPLICATION->FUNCTIONS->USER_CONTROL->countRecords(),
+    ],
+    [
+        "title" => "Faculty Members", 
+        "value" => $APPLICATION->FUNCTIONS->USER_CONTROL->countRecords(['user_type' => 2]),
+    ],
+    [
+        "title" => "Professors",
+        "value" => $APPLICATION->FUNCTIONS->USER_CONTROL->countRecords(['user_type' => 2]),
+    ],
+    [
+        "title" => "Staffs",
+        "value" => $APPLICATION->FUNCTIONS->USER_CONTROL->countRecords(['user_type' => 2]),
+    ],
+    [
+        "title" => "Students",
+        "value" => $APPLICATION->FUNCTIONS->USER_CONTROL->countRecords(['user_type' => 1]),
+    ],
+];
+
+$maintenanceCards = [
+    [
+        "title" => "Classrooms",
+        "value" => $APPLICATION->FUNCTIONS->CLASSROOM_CONTROL->countRecords(),
+    ],
+    [
+        "title" => "Sections",
+        "value" => $APPLICATION->FUNCTIONS->SECTION_CONTROL->countRecords(),
+    ],
+    [
+        "title" => "Courses",
+        "value" => $APPLICATION->FUNCTIONS->COURSE_CONTROL->countRecords(),
+    ],
+    [
+        "title" => "Subjects",
+        "value" => $APPLICATION->FUNCTIONS->SUBJECT_CONTROL->countRecords(),
+    ],
+];
 ?>
 
 <?php include "public/views/pages/structures/html_headings.phtml" ?>
@@ -19,22 +61,125 @@ global $APPLICATION, $SESSION;
 
     <?php include "public/views/pages/structures/html_navbar.phtml" ?>
 
-    <?php include "public/views/pages/structures/html_right_heading.phtml" ?>
 </div>
 
 <div class="right-content">
+
+    <?php include "public/views/pages/structures/html_right_heading.phtml" ?>
+
     <div class="right-body">
+        <div class="dashboard-header">
+            <div class="header-container">
+                <div class="text-container">
+                    <h1>Good Day, <?= $SESSION->displayName ?></h1>
+                    <p>What a beautiful day is it.</p>
+                </div>
 
+                <div class="framed-container">
+                    <?= UseImage('/img/welcome.svg', true) ?>
+                </div>
+            </div>
+        </div>
+        <div class="dashboard-body">
+            <div class="dashboard-grid">
+                <div class="left-right">
+                    <div class="left-grid">
+                        <div class="first">
+                            <div class="dash-title">
+                                <h2>System</h2>
+                            </div>
+                            <div class="dashboard-cards">
+                                <?php foreach($dashboardCards as $card): ?>
+                                    <div class="dashboard-card">
+                                        <div class="main">
+                                            <p><?= $card['title'] ?></p>
+                                            <h1><?= $card['value'] ?></h1>
+                                        </div>
+                                    </div>
+                                <?php endforeach ?>
+                            </div>
+                        </div>
+                        <div class="first">
+                            <div class="dash-title">
+                                <h2>Maintenance</h2>
+                            </div>
+                            <div class="dashboard-cards">
+                                <?php foreach($maintenanceCards as $card): ?>
+                                    <div class="dashboard-card">
+                                        <div class="main">
+                                            <p><?= $card['title'] ?></p>
+                                            <h1><?= $card['value'] ?></h1>
+                                        </div>
+                                    </div>
+                                <?php endforeach ?>
+                            </div>
+                        </div>
+                        <div class="first">
+                            <div class="dash-title">
+                                <h2>Items</h2>
+                            </div>
+                            <div class="dashboard-cards">
+                                <div class="flex-dashboard-cards">
+                                    <div class="flex-card">
+                                        <h1>0</h1>
+                                        <p>Item 1</p>
+                                    </div>
+                                    <div class="flex-card">
+                                        <h1>0</h1>
+                                        <p>Item 2</p>
+                                    </div>
+                                    <div class="flex-card">
+                                        <h1>0</h1>
+                                        <p>Item 3</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="right-grid">
+                        <section>
+                            <div class="dash-title">
+                                <h2>Average Report</h2>
+                            </div>
 
+                            <div class="image-container">
+                                <?= UseImage('/img/no_data.svg', true) ?>
+                            </div>
+
+                        </section>
+                        <section>
+                            <div class="dash-title">
+                                <h2>Label Title</h2>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+                <div class="full-grid">
+                    <div class="min-full-right-grid">
+                        <div class="dash-title">
+                            <h2>Container 1</h2>
+                        </div>
+
+                        <div class="item-lists">
+
+                        </div>
+                    </div>
+                    <div class="half-full-right-grid">
+                        <div class="dash-title">
+                            <h2>Container 2</h2>
+                        </div>
+                        <div class="item-lists">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script type="module">
 
 
-    </script>
     <?php include "public/views/pages/structures/html_pipes.phtml" ?>
-
-    <!--<script type="module" src="/public/assets/scripts/pages/main/dashboard.js"></script>-->
 
     <?php include "public/views/pages/structures/html_closing_parent.phtml" ?>
 

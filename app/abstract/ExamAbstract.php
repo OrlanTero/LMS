@@ -9,6 +9,7 @@ abstract class ExamAbstract extends ModelDefaultFunctions
     public $exam_id;
 
     public $section_subject_id;
+    public $section_id;
 
     public $title;
 

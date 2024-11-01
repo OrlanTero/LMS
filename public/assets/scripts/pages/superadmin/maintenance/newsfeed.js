@@ -51,10 +51,10 @@ function PublishAnnouncement(data) {
     return new Promise((resolve) => {
         AddRecord("announcements", {data: JSON.stringify(data)}).then((res) => {
             console.log(data)
-            // NewNotification({
-            //     title: res.code === 200 ? 'Success' : 'Failed',
-            //     message: res.code === 200 ? 'Successfully Added' : 'Task Failed to perform!'
-            // }, 3000, res.code === 200 ? NotificationType.SUCCESS : NotificationType.ERROR)
+            NewNotification({
+                title: res.code === 200 ? 'Success' : 'Failed',
+                message: res.code === 200 ? 'Successfully Added' : 'Task Failed to perform!'
+            }, 3000, res.code === 200 ? NotificationType.SUCCESS : NotificationType.ERROR)
         })
     })
 }
@@ -159,6 +159,12 @@ function LikeAPost(post_id) {
     })
 }
 
+function CreateNewComment(post_id, comment) {
+    return new Promise((resolve) => {
+        AddRecord("post_comments", {data: JSON.stringify({post_id, comment})}).then(resolve);
+    })
+}
+
 function ManageAllPosts() {
     const posts = document.querySelectorAll(".post-container");
     const creator = document.querySelector(".announcement-creator");
@@ -169,6 +175,9 @@ function ManageAllPosts() {
         const postMedia = post.querySelector(".post-media");
         const likeButton = post.querySelector(".like-button");
         const likeCount = post.querySelector(".reaction-content-result span");
+        const commentButton = post.querySelector(".comment-button");
+        const commentInput = post.querySelector(".comment-input input");
+        const commentsContainer = post.querySelector(".comments-container");
 
         if (splide && postMedia) {
             const ss = new Splide(splide);
@@ -176,12 +185,29 @@ function ManageAllPosts() {
             ss.mount();
         }
 
+
+
         function UpdateLikeButton(code) {
             if (code == 200) {
                 likeButton.classList.add("active");
             } else {
                 likeButton.classList.remove("active");
             }
+        }
+
+        if (commentButton) {
+            commentButton.addEventListener("click", function () {
+                commentInput.focus();
+            })
+        }
+
+        if (commentInput) {
+            commentInput.addEventListener("keypress", function (ev) {
+                if (ev.key == "Enter") {
+                    CreateNewComment(post.dataset.id, commentInput.value);
+                    commentInput.value = "";
+                }
+            })
         }
 
         if (likeButton) {

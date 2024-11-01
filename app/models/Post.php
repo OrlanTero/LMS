@@ -15,6 +15,9 @@ class Post extends PostAbstract
     public $isLiked;
 
     public $likes;
+
+    public $comments;
+
     public function __construct($data = [])
     {
         $this->applyData($data, PostAbstract::class);
@@ -32,5 +35,6 @@ class Post extends PostAbstract
             "user_id" => $SESSION->user_id
         ])->code == 200;
         $this->likes = $APPLICATION->FUNCTIONS->POST_LIKE_CONTROL->getPostLikes($this->post_id);
+        $this->comments = $APPLICATION->FUNCTIONS->POST_COMMENT_CONTROL->filterRecords(['post_id' => $this->post_id], true);
     }
 }

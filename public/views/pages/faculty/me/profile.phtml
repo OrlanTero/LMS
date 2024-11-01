@@ -1,1 +1,203 @@
 <?php
+
+global $APPLICATION, $COURSE_HEADER_BODY, $SESSION;
+
+
+?>
+
+<?php include "public/views/pages/structures/html_headings.phtml" ?>
+
+<title>Classes</title>
+
+<?php include "public/views/pages/structures/html_heading_closing.phtml" ?>
+
+<?php include "public/views/pages/structures/html_body_open.phtml" ?>
+
+<?php include "public/views/pages/structures/html_opening_parent.phtml" ?>
+
+<div class="left-content">
+
+    <?php include "public/views/pages/structures/html_navbar.phtml" ?>
+
+    <?php include "public/views/pages/structures/html_right_heading.phtml" ?>
+
+</div>
+
+<div class="right-content">
+
+    <div class="right-body">
+        <div class="main-body-content-parent">
+            <div class="main-content">
+                <div class="main-body-body">
+                <div class="profile-container">
+            <div class="profile-header">
+                <div class="cover-photo">
+                    <img src="/public/assets/media/img/cover.jfif" alt="Cover Photo">
+                </div>
+                <div class="profile-info">
+                    <div class="profile-photo">
+                        <img src="<?= $SESSION->getPhotoURL() ?>" alt="Profile Photo">
+                    </div>
+                    <div class="profile-text">
+                        <h1><?= ucwords($SESSION->displayName) ?></h1>
+                        <p class="user-type">
+                            <?php
+                            switch($SESSION->user_type) {
+                                case 1:
+                                    echo "Student";
+                                    break;
+                                case 2:
+                                    echo "Faculty Member";
+                                    break;
+                                case 3:
+                                    echo "Administrator";
+                                    break;
+                                case 4:
+                                    echo "Super Administrator";
+                                    break;
+                            }
+                            ?>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-body">
+                <div class="info-section">
+                    <h2>Personal Information</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Email</label>
+                            <p><?= $SESSION->email ?></p>
+                        </div>
+                        <div class="info-item">
+                            <label>Contact Number</label>
+                            <p><?= $SESSION->contact_number ?? 'Not set' ?></p>
+                        </div>
+                        <div class="info-item">
+                            <label>Date Joined</label>
+                            <p><?= date('F j, Y', strtotime($SESSION->date_created)) ?></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            .profile-container {
+                background: #fff;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                overflow: hidden;
+            }
+
+            .profile-header {
+                position: relative;
+            }
+
+            .cover-photo {
+                height: 200px;
+                overflow: hidden;
+            }
+
+            .cover-photo img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .profile-info {
+                padding: 20px;
+                margin-top: -60px;
+                position: relative;
+                display: flex;
+                align-items: flex-end;
+                gap: 20px;
+            }
+
+            .profile-photo {
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                border: 4px solid #fff;
+                overflow: hidden;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .profile-photo img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .profile-text {
+                flex: 1;
+            }
+
+            .profile-text h1 {
+                margin: 0;
+                color: #333;
+                font-size: 24px;
+            }
+
+            .user-type {
+                margin: 5px 0 0;
+                color: #666;
+                font-size: 14px;
+            }
+
+            .profile-body {
+                padding: 20px;
+            }
+
+            .info-section {
+                background: #f8f9fa;
+                padding: 20px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+            }
+
+            .info-section h2 {
+                margin: 0 0 20px;
+                color: #333;
+                font-size: 18px;
+            }
+
+            .info-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+            }
+
+            .info-item {
+                background: #fff;
+                padding: 15px;
+                border-radius: 6px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            }
+
+            .info-item label {
+                display: block;
+                color: #666;
+                font-size: 12px;
+                margin-bottom: 5px;
+            }
+
+            .info-item p {
+                margin: 0;
+                color: #333;
+                font-size: 14px;
+            }
+        </style>
+    </div>
+
+    <?php include "public/views/pages/structures/html_pipes.phtml" ?>
+
+    <scrsipt type="module" src="/public/assets/scripts/pages/faculty/me/profile.js"></scrsipt>
+
+    <?php include "public/views/pages/structures/html_closing_parent.phtml" ?>
+
+    <?php include "public/views/pages/structures/html_body_closing.phtml" ?>

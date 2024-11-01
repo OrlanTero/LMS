@@ -12,6 +12,106 @@ $ANNOUNCEMENTS = $APPLICATION->FUNCTIONS->ANNOUNCEMENT_CONTROL->getAllRecords(tr
 
 ?>
 
+<style>
+.comments-section {
+    padding: 10px;
+}
+
+.comments-section .comment-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.comments-section .comment-input .photo {
+    width: 40px;
+    height: 40px;
+}
+
+.comments-section .comment-input .photo .image {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.comments-section .comment-input .photo .image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.comments-section .comment-input .input-container {
+    flex: 1;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.comments-section .comment-input .input-container input {
+    flex: 1;
+    padding: 8px 15px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+}
+
+.comments-section .comment-input .input-container button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #1877f2;
+}
+
+.comments-section .comments-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.comments-section .comment-item {
+    display: flex;
+    gap: 10px;
+}
+
+.comments-section .comment-item .photo {
+    width: 32px;
+    height: 32px;
+}
+
+.comments-section .comment-item .photo .image {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.comments-section .comment-item .photo .image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.comments-section .comment-item .comment-content {
+    background: #f0f2f5;
+    padding: 8px 12px;
+    border-radius: 15px;
+}
+
+.comments-section .comment-item .comment-header {
+    margin-bottom: 4px;
+}
+
+.comments-section .comment-item .author-name {
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+.comments-section .comment-item .comment-time {
+    font-size: 12px;
+    color: #65676b;
+}
+</style>
+
 <div class="newsfeed-flex">
     <div class="newsfeed-main-container">
 
@@ -79,10 +179,57 @@ $ANNOUNCEMENTS = $APPLICATION->FUNCTIONS->ANNOUNCEMENT_CONTROL->getAllRecords(tr
                                     <span>Like</span>
                                 </div>
                             </div>
+                            <div class="icon-button comment-button">
+                                <div class="icon">
+                                    <?= UseIcon('chat-thin') ?>
+                                </div>
+                                <div class="text">
+                                    <span><?= count($POST->comments) == 0 ? 'Comment' : count($POST->comments) . ' Comments' ?></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="reaction-content-result <?= count($POST->likes) == 0 ? 'hide-component' : '' ?>">
                         <span><?= count($POST->likes) ?> People like this</span>
+                    </div>
+                    
+                    <div class="comments-section">
+                        <div class="comment-input">
+                            <div class="photo">
+                                <div class="image">
+                                    <img src="<?= $SESSION->getPhotoURL()?>" alt="">
+                                </div>
+                            </div>
+                            <div class="input-container">
+                                <input type="text" placeholder="Write a comment..." class="comment-text">
+                                <button class="submit-comment">
+                                    <?= UseIcon('send') ?>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="comments-container">
+                            <?php if(isset($POST->comments) && count($POST->comments) > 0): ?>
+                                <?php foreach($POST->comments as $comment): ?>
+                                    <div class="comment-item">
+                                        <div class="photo">
+                                            <div class="image">
+                                                <img src="<?= $comment->author->photoURL ?>" alt="">
+                                            </div>
+                                        </div>
+                                        <div class="comment-content">
+                                            <div class="comment-header">
+                                                <span class="author-name"><?= ucwords($comment->author->displayName) ?></span>
+                                                <span class="comment-time"><?= date('F j, Y \a\t g:i A', strtotime($comment->date_created)) ?></span>
+                                            </div>
+                                            <div class="comment-text">
+                                                <?= $comment->comment ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -76,7 +76,6 @@ foreach ($SUBJECTS as $subject) {
                         <li class="tab-item" data-tab="exams">EXAMS</li>
                         <li class="tab-item" data-tab="notes">NOTES</li>
                         <li class="tab-item" data-tab="grades">GRADES</li>
-                        <li class="tab-item" data-tab="options">OPTIONS</li>
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane active" id="students">
@@ -244,7 +243,7 @@ foreach ($SUBJECTS as $subject) {
                                             <div class="subject-exams <?= $subject === array_key_first($EXAMS) ? 'active' : '' ?>" data-subject="<?= $subject ?>">
                                                 <h3><?= $subject ?> Exams</h3>
                                                 <?php foreach ($subjectExams as $exam): ?>
-                                                    <div class="exam-item">
+                                                    <div class="exam-item" data-id="<?= $exam['exam_id'] ?>">
                                                         <div class="exam-info">
                                                             <h4><?= $exam['title'] ?></h4>
                                                             <p><?= $exam['description'] ?></p>
@@ -255,15 +254,7 @@ foreach ($SUBJECTS as $subject) {
                                                             </small>
                                                         </div>
                                                         <div class="exam-actions">
-                                                            <div class="icon-button" title="Edit">
-                                                                <div class="icon">
-                                                                    <?= UseIcon("pencil-thin") ?>
-                                                                </div>
-                                                                <div class="text">
-                                                                    <span>Edit</span>
-                                                                </div>
-                                                            </div>
-                                                            <div class="icon-button" title="View">
+                                                            <div class="icon-button view-exam-btn" title="View">
                                                                 <div class="icon">
                                                                     <?= UseIcon("eye-thin") ?>
                                                                 </div>
@@ -315,55 +306,6 @@ foreach ($SUBJECTS as $subject) {
                             </div>
                         </div>
                         <?php endif ?>
-                        </div>
-
-                        <div class="tab-pane" id="options">
-                            <div class="options-container">
-                                <h3>Class Options</h3>
-                                <div class="option-group">
-                                    <h4>Notifications</h4>
-                                    <div class="option-item">
-                                        <label for="email-notifications">
-                                            <input type="checkbox" id="email-notifications" name="email-notifications">
-                                            Receive email notifications
-                                        </label>
-                                    </div>
-                                    <div class="option-item">
-                                        <label for="push-notifications">
-                                            <input type="checkbox" id="push-notifications" name="push-notifications">
-                                            Receive push notifications
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="option-group">
-                                    <h4>Display Settings</h4>
-                                    <div class="option-item">
-                                        <label for="theme-select">Theme:</label>
-                                        <select id="theme-select" name="theme">
-                                            <option value="light">Light</option>
-                                            <option value="dark">Dark</option>
-                                            <option value="high-contrast">High Contrast</option>
-                                        </select>
-                                    </div>
-                                    <div class="option-item">
-                                        <label for="font-size">Font Size:</label>
-                                        <input type="range" id="font-size" name="font-size" min="12" max="24" step="2">
-                                    </div>
-                                </div>
-                                <div class="option-group">
-                                    <h4>Privacy</h4>
-                                    <div class="option-item">
-                                        <label for="profile-visibility">
-                                            <input type="checkbox" id="profile-visibility" name="profile-visibility">
-                                            Make profile visible to classmates
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="option-actions">
-                                    <button class="btn btn-primary" id="save-options">Save Changes</button>
-                                    <button class="btn btn-secondary" id="reset-options">Reset to Default</button>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>

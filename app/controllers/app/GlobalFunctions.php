@@ -25,6 +25,7 @@ use Application\controllers\system\ActivityControl;
 use Application\controllers\system\ExamControl;
 use Application\controllers\system\StickyNoteControl;
 use Application\controllers\system\PostLikeControl;
+use Application\controllers\system\PostCommentControl;
 use Application\controllers\system\GradingCategoryControl;
 use Application\controllers\system\GradingScoreControl;
 use Application\controllers\system\GradingScoreColumnControl;
@@ -95,6 +96,8 @@ class GlobalFunctions
 
     public $GRADING_PLATFORM_CONTROL;
 
+    public $POST_COMMENT_CONTROL;
+
     public function __construct($SESSION)
     {
         global $CONNECTION;
@@ -160,5 +163,7 @@ class GlobalFunctions
         $this->GRADING_SCORE_COLUMN_CONTROL = new GradingScoreColumnControl();
 
         $this->GRADING_PLATFORM_CONTROL = new GradingPlatformControl();
+
+        $this->POST_COMMENT_CONTROL = new PostCommentControl();
     }
 }

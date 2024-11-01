@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 31, 2024 at 09:52 AM
+-- Generation Time: Nov 01, 2024 at 04:37 AM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.1.12
 
@@ -156,9 +156,9 @@ CREATE TABLE `email_verifications` (
 
 INSERT INTO `email_verifications` (`verification_id`, `user_id`, `verification`, `date_created`) VALUES
 (6, '1', '529649', '2024-09-22 21:34:47'),
-(21, '5', '960728', '2024-10-27 00:45:41'),
 (22, '3', '935804', '2024-10-27 13:25:45'),
-(24, '4', '235723', '2024-10-30 13:47:25');
+(24, '4', '235723', '2024-10-30 13:47:25'),
+(25, '5', '314801', '2024-11-01 03:34:34');
 
 -- --------------------------------------------------------
 
@@ -255,8 +255,7 @@ CREATE TABLE `grading_scores` (
 INSERT INTO `grading_scores` (`grading_score_id`, `grading_score_column_id`, `student_id`, `score`, `status`, `date_created`) VALUES
 (3, 2, 5, 100, 0, '2024-10-29 13:10:13'),
 (4, 3, 5, 100, 0, '2024-10-31 01:38:27'),
-(9, 14, 5, 50, 0, '2024-10-31 02:20:39'),
-(10, 15, 5, 100, 0, '2024-10-31 05:18:46');
+(9, 14, 5, 50, 0, '2024-10-31 02:20:39');
 
 -- --------------------------------------------------------
 
@@ -281,8 +280,7 @@ INSERT INTO `grading_score_columns` (`grading_score_column_id`, `grading_categor
 (1, 1, '1', 100, 0, '2024-10-29 09:49:21'),
 (2, 2, '1', 100, 0, '2024-10-29 09:49:21'),
 (3, 1, '2', 100, 0, '2024-10-31 01:38:27'),
-(14, 1, '3', 100, 0, '2024-10-31 02:20:39'),
-(15, 1, '4', 100, 0, '2024-10-31 05:18:46');
+(14, 1, '3', 100, 0, '2024-10-31 02:20:39');
 
 -- --------------------------------------------------------
 
@@ -312,6 +310,28 @@ INSERT INTO `posts` (`post_id`, `user_id`, `post_type`, `content`, `status`, `da
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `post_comments`
+--
+
+CREATE TABLE `post_comments` (
+  `post_comment_id` int(11) NOT NULL,
+  `post_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `comment` text NOT NULL,
+  `status` int(11) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `post_comments`
+--
+
+INSERT INTO `post_comments` (`post_comment_id`, `post_id`, `user_id`, `comment`, `status`, `date_created`) VALUES
+(2, 2, 4, 'This is my comment', 0, '2024-10-31 17:25:25');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `post_likes`
 --
 
@@ -327,9 +347,9 @@ CREATE TABLE `post_likes` (
 --
 
 INSERT INTO `post_likes` (`post_like_id`, `post_id`, `user_id`, `date_created`) VALUES
-(13, 2, 4, '2024-10-23 06:03:00'),
 (14, 4, 4, '2024-10-23 06:03:02'),
-(16, 2, 3, '2024-10-23 06:04:26');
+(16, 2, 3, '2024-10-23 06:04:26'),
+(22, 2, 4, '2024-10-31 09:17:28');
 
 -- --------------------------------------------------------
 
@@ -739,6 +759,12 @@ ALTER TABLE `posts`
   ADD PRIMARY KEY (`post_id`);
 
 --
+-- Indexes for table `post_comments`
+--
+ALTER TABLE `post_comments`
+  ADD PRIMARY KEY (`post_comment_id`);
+
+--
 -- Indexes for table `post_likes`
 --
 ALTER TABLE `post_likes`
@@ -860,7 +886,7 @@ ALTER TABLE `departments`
 -- AUTO_INCREMENT for table `email_verifications`
 --
 ALTER TABLE `email_verifications`
-  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `exams`
@@ -899,10 +925,16 @@ ALTER TABLE `posts`
   MODIFY `post_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
+-- AUTO_INCREMENT for table `post_comments`
+--
+ALTER TABLE `post_comments`
+  MODIFY `post_comment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `post_likes`
 --
 ALTER TABLE `post_likes`
-  MODIFY `post_like_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `post_like_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `post_medias`
