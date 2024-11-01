@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 01, 2024 at 04:37 AM
+-- Generation Time: Nov 01, 2024 at 02:29 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.1.12
 
@@ -49,6 +49,30 @@ INSERT INTO `activities` (`activity_id`, `section_subject_id`, `title`, `descrip
 (2, 1, 'Activity 2', 'Nanaman?', NULL, NULL, 'Link', 'On Going', 0, '2024-10-31 06:46:03'),
 (3, 1, 'Activity 3', 'Text lang naman to', '0000-00-00', NULL, 'Text', 'On Going', 0, '2024-10-31 06:49:44'),
 (4, 1, 'A', 'aw', NULL, NULL, 'Link', 'On Going', 0, '2024-10-31 06:52:08');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `activities_complied`
+--
+
+CREATE TABLE `activities_complied` (
+  `comply_id` int(11) NOT NULL,
+  `activity_id` int(11) NOT NULL,
+  `student_id` int(11) NOT NULL,
+  `text` text NOT NULL,
+  `link` varchar(255) NOT NULL,
+  `file` varchar(255) NOT NULL,
+  `status` int(11) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `activities_complied`
+--
+
+INSERT INTO `activities_complied` (`comply_id`, `activity_id`, `student_id`, `text`, `link`, `file`, `status`, `date_created`) VALUES
+(2, 2, 5, '', 'https://www.chess.com/home', '', 0, '2024-11-01 13:14:04');
 
 -- --------------------------------------------------------
 
@@ -157,8 +181,8 @@ CREATE TABLE `email_verifications` (
 INSERT INTO `email_verifications` (`verification_id`, `user_id`, `verification`, `date_created`) VALUES
 (6, '1', '529649', '2024-09-22 21:34:47'),
 (22, '3', '935804', '2024-10-27 13:25:45'),
-(24, '4', '235723', '2024-10-30 13:47:25'),
-(25, '5', '314801', '2024-11-01 03:34:34');
+(26, '5', '479302', '2024-11-01 12:46:35'),
+(27, '4', '275240', '2024-11-01 13:25:12');
 
 -- --------------------------------------------------------
 
@@ -693,6 +717,12 @@ ALTER TABLE `activities`
   ADD PRIMARY KEY (`activity_id`);
 
 --
+-- Indexes for table `activities_complied`
+--
+ALTER TABLE `activities_complied`
+  ADD PRIMARY KEY (`comply_id`);
+
+--
 -- Indexes for table `announcements`
 --
 ALTER TABLE `announcements`
@@ -859,6 +889,12 @@ ALTER TABLE `activities`
   MODIFY `activity_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
+-- AUTO_INCREMENT for table `activities_complied`
+--
+ALTER TABLE `activities_complied`
+  MODIFY `comply_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `announcements`
 --
 ALTER TABLE `announcements`
@@ -886,7 +922,7 @@ ALTER TABLE `departments`
 -- AUTO_INCREMENT for table `email_verifications`
 --
 ALTER TABLE `email_verifications`
-  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `exams`

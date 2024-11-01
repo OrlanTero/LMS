@@ -37,6 +37,7 @@ include_once "abstract/grading/GradingScoreColumnAbstract.php";
 include_once "abstract/grading/GradingPlatformAbstract.php";
 include_once "abstract/grading/GradingCategoriesAbstract.php";
 include_once "abstract/PostCommentAbstract.php";
+include_once "abstract/ActivityComplyAbstract.php";
 // ALL MODELS
 include_once "models/User.php";
 include_once "models/UserProfile.php";
@@ -62,6 +63,7 @@ include_once "models/Exam.php";
 include_once "models/StickyNote.php";
 include_once "models/PostLike.php";
 include_once "models/PostComment.php";
+include_once "models/ActivityComply.php";
 include_once "models/GradingCategory.php";
 include_once "models/GradingScore.php";
 include_once "models/GradingScoreColumn.php";
@@ -100,6 +102,7 @@ include_once "controllers/system/GradingScoreControl.php";
 include_once "controllers/system/GradingScoreColumnControl.php";
 include_once "controllers/system/GradingPlatformControl.php";
 include_once "controllers/system/PostCommentControl.php";
+include_once "controllers/system/ActivityComplyControl.php";
 // SYSTEM CONTROLLERS
 
 // APPLICATION CORE

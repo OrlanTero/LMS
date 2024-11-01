@@ -8,7 +8,8 @@ import {
     SetComboValue, 
     GetComboValue, 
     MakeID, 
-    SetNewComboItems
+    SetNewComboItems,
+    ApplyError
 } from "../../../modules/component/Tool.js";
 import Popup from "../../../classes/components/Popup.js";
 import {AddRecord, PostRequest, UploadFileFromFile} from "../../../modules/app/SystemFunctions.js";
@@ -188,10 +189,66 @@ function ViewActivity(id) {
     });
 }
 
+function ViewCompliedActivity(id) {
+    const popup = new Popup(`${"activities"}/view_complied_activity`, {id}, {
+        backgroundDismiss: false
+    });
+
+    popup.Create().then(() => {
+        popup.Show();
+    });
+}
+
+// Handle complying activity
+function ComplyActivity(id) {
+    const popup = new Popup(`${"activities"}/comply_activity`, {id}, {
+        backgroundDismiss: false
+    });
+
+    popup.Create().then(() => {
+        popup.Show();
+
+        const form = popup.ELEMENT.querySelector("form");
+
+        ListenToForm(form, (data) => {
+            new Promise((resolve) => {
+                if ( data.file && data.file.name) {
+                    UploadFileFromFile(data.file, data.file.name, "public/assets/media/uploads/activities_complied/")
+                        .then(resolve);
+                }
+
+                resolve({code: 300, body: {path: null}});
+            }).then((res) => {
+                if (res.code === 200) {
+                    data.file = res.body.path;
+                } else {
+                    delete data.file;
+                }
+
+                if (data.link) {
+                    if (!data.link.match(/^(http|https):\/\/[^ "]+$/)) {
+                        alert("Please enter a valid URL starting with http:// or https://");
+                       return;
+                    }
+                }
+
+                data.activity_id = id;
+
+                AddRecord("activities_complied", {data: JSON.stringify(data)}).then(() => {
+                    popup.Remove();
+                });
+            });
+        }, ['link', 'text', 'file']);
+
+        ManageComboBoxes();
+    });
+}
+
 // Handle activities functionality
 function Activities() {
     const addActivityBtn = document.querySelector(".add-activity-btn");
     const activities = document.querySelectorAll(".activity-item");
+
     if (addActivityBtn) {
         addActivityBtn.addEventListener("click", () => {
             NewActivity(addActivityBtn.dataset.section_id, addActivityBtn.dataset.professor_id);
@@ -202,10 +259,23 @@ function Activities() {
     if (activities) {
         activities.forEach(activity => {
             const viewBtn = activity.querySelector(".view-activity-btn");
-
+            const complyBtn = activity.querySelector(".comply-btn");
+            const viewCompliedBtn = activity.querySelector(".view-complied-btn");
             if (viewBtn) {
                 viewBtn.addEventListener("click", () => {
                     ViewActivity(activity.dataset.id);
+                });
+            }
+
+            if (complyBtn) {
+                complyBtn.addEventListener("click", () => {
+                    ComplyActivity(activity.dataset.id);
+                });
+            }
+
+            if (viewCompliedBtn) {
+                viewCompliedBtn.addEventListener("click", () => {
+                    ViewCompliedActivity(activity.dataset.id);
                 });
             }
         });

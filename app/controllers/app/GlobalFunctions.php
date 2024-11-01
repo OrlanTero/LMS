@@ -30,6 +30,7 @@ use Application\controllers\system\GradingCategoryControl;
 use Application\controllers\system\GradingScoreControl;
 use Application\controllers\system\GradingScoreColumnControl;
 use Application\controllers\system\GradingPlatformControl;
+use Application\controllers\system\ActivityComplyControl;
 use Application\models\Professor;
 use Application\models\Section;
 
@@ -98,6 +99,8 @@ class GlobalFunctions
 
     public $POST_COMMENT_CONTROL;
 
+    public $ACTIVITY_COMPLY_CONTROL;
+
     public function __construct($SESSION)
     {
         global $CONNECTION;
@@ -165,5 +168,7 @@ class GlobalFunctions
         $this->GRADING_PLATFORM_CONTROL = new GradingPlatformControl();
 
         $this->POST_COMMENT_CONTROL = new PostCommentControl();
+
+        $this->ACTIVITY_COMPLY_CONTROL = new ActivityComplyControl();
     }
 }

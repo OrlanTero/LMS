@@ -34,7 +34,7 @@ foreach ($SUBJECTS as $subject) {
         'contents' => $APPLICATION->FUNCTIONS->RESOURCES_CONTROL->filterRecords(['resources_group_id' => $resource['resources_group_id']], false)
     ], $RESOURCES[$subject->subject_name]);
 
-    $ACTIVITIES[$subject->subject_name] = $APPLICATION->FUNCTIONS->ACTIVITY_CONTROL->filterRecords(['section_subject_id' => $subject->section_subject_id], false);
+    $ACTIVITIES[$subject->subject_name] = $APPLICATION->FUNCTIONS->ACTIVITY_CONTROL->filterRecords(['section_subject_id' => $subject->section_subject_id], true);
     $EXAMS[$subject->subject_name] = $APPLICATION->FUNCTIONS->EXAM_CONTROL->filterRecords(['section_subject_id' => $subject->section_subject_id], false);
 }
 
@@ -191,20 +191,31 @@ foreach ($SUBJECTS as $subject) {
                                                     </div>
                                                 <?php else: ?>
                                                     <?php foreach ($subjectActivities as $activity): ?>
-                                                        <div class="activity-item" data-id="<?= $activity['activity_id'] ?>">
+                                                        <div class="activity-item" data-id="<?= $activity->activity_id ?>">
                                                             <div class="activity-info">
-                                                                <h4><?= htmlspecialchars($activity['title']) ?></h4>
-                                                                <p><?= htmlspecialchars($activity['description']) ?></p>
+                                                                <h4><?= htmlspecialchars($activity->title) ?></h4>
+                                                                <p><?= htmlspecialchars($activity->description) ?></p>
                                                                 <small>
-                                                                    <?php if (!empty($activity['due_date']) && strtotime($activity['due_date'])): ?>
-                                                                        Due: <?= date('F j, Y \a\t h:i A', strtotime($activity['due_date'])) ?> | 
+                                                                    <?php if (!empty($activity->due_date) && strtotime($activity->due_date)): ?>
+                                                                        Due: <?= date('F j, Y \a\t h:i A', strtotime($activity->due_date)) ?> | 
                                                                     <?php endif; ?>
-                                                                    Type: <?= ucwords(strtolower($activity['passing_type'])) ?> |
-                                                                    Status: <span class="status-badge <?= strtolower($activity['activity_status']) ?>"><?= $activity['activity_status'] ?></span>
+                                                                    Type: <?= ucwords(strtolower($activity->passing_type)) ?> |
+                                                                    Status: <span class="status-badge <?= strtolower($activity->activity_status) ?>"><?= $activity->activity_status ?></span>
                                                                 </small>
+                                                                <?php if ($SESSION->user_type == 2): ?>
+                                                                    <?php 
+                                                                        $total_students = count($RECORDS);
+                                                                        $complied_students = count($activity->complies);
+                                                                        $completion_percentage = $total_students > 0 ? ($complied_students / $total_students) * 100 : 0;
+                                                                    ?>
+                                                                    <div class="completion-bar">
+                                                                        <div class="progress" style="width: <?= $completion_percentage ?>%"></div>
+                                                                        <span class="completion-text"><?= $complied_students ?>/<?= $total_students ?> students completed</span>
+                                                                    </div>
+                                                                <?php endif; ?>
                                                             </div>
                                                             <div class="activity-actions">
-                                                                <div class="icon-button view-activity-btn" title="View" data-activity-id="<?= $activity['activity_id'] ?>">
+                                                                <div class="icon-button view-activity-btn" title="View" data-activity-id="<?= $activity->activity_id ?>">
                                                                     <div class="icon">
                                                                         <?= UseIcon("eye-thin") ?>
                                                                     </div>
@@ -212,6 +223,28 @@ foreach ($SUBJECTS as $subject) {
                                                                         <span>View</span>
                                                                     </div>
                                                                 </div>
+
+                                                                <?php if ($SESSION->user_type == 1): ?>
+                                                                    <?php if (!$activity->isStudentComplied($SESSION->user_id)): ?>
+                                                                        <div class="icon-button comply-btn" title="Comply" data-activity-id="<?= $activity->activity_id ?>">
+                                                                            <div class="icon">
+                                                                                <?= UseIcon("check-thin") ?>
+                                                                            </div>
+                                                                            <div class="text">
+                                                                                <span>Comply</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    <?php else: ?>
+                                                                        <div class="icon-button view-complied-btn" title="View Complied" data-activity-id="<?= $activity->activity_id ?>">
+                                                                            <div class="icon">
+                                                                                <?= UseIcon("eye-thin") ?>
+                                                                            </div>
+                                                                            <div class="text">
+                                                                                <span>View Complied</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    <?php endif; ?>
+                                                                <?php endif; ?>
                                                             </div>
                                                         </div>
                                                     <?php endforeach; ?>
@@ -316,6 +349,30 @@ foreach ($SUBJECTS as $subject) {
 </div>
 
 <style>
+
+    .completion-bar {
+        width: 100%;
+        height: 8px;
+        background-color: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 5px 0;
+    }
+
+    .completion-bar .progress {
+        height: 100%;
+        background-color: #28a745;
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+
+    .completion-bar.warning .progress {
+        background-color: #ffc107;
+    }
+
+    .completion-bar.danger .progress {
+        background-color: #dc3545;
+    }
     .grading-platform-container {
         width: 100%;
         overflow-x: auto;

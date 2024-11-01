@@ -184,7 +184,7 @@ $ANNOUNCEMENTS = $APPLICATION->FUNCTIONS->ANNOUNCEMENT_CONTROL->getAllRecords(tr
                                     <?= UseIcon('chat-thin') ?>
                                 </div>
                                 <div class="text">
-                                    <span><?= count($POST->comments) == 0 ? 'Comment' : count($POST->comments) . ' Comments' ?></span>
+                                    <span><?= count($POST->comments) == 0 ? 'Comment' : ( count($POST->comments) > 1 ? count($POST->comments) . ' Comments' :  count($POST->comments) .  ' Comment' ) ?></span>
                                 </div>
                             </div>
                         </div>
