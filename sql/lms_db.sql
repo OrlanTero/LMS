@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 01, 2024 at 02:29 PM
+-- Generation Time: Nov 05, 2024 at 04:20 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.1.12
 
@@ -45,7 +45,7 @@ CREATE TABLE `activities` (
 --
 
 INSERT INTO `activities` (`activity_id`, `section_subject_id`, `title`, `description`, `due_date`, `file`, `passing_type`, `activity_status`, `status`, `date_created`) VALUES
-(1, 1, 'Activity 1', 'This is sample activity description', NULL, NULL, 'File', 'On Going', 0, '2024-10-23 01:45:05'),
+(1, 1, 'Activity 11', 'This is sample activity description', '2024-11-07', NULL, 'File', 'On Going', 0, '2024-10-23 01:45:05'),
 (2, 1, 'Activity 2', 'Nanaman?', NULL, NULL, 'Link', 'On Going', 0, '2024-10-31 06:46:03'),
 (3, 1, 'Activity 3', 'Text lang naman to', '0000-00-00', NULL, 'Text', 'On Going', 0, '2024-10-31 06:49:44'),
 (4, 1, 'A', 'aw', NULL, NULL, 'Link', 'On Going', 0, '2024-10-31 06:52:08');
@@ -72,7 +72,8 @@ CREATE TABLE `activities_complied` (
 --
 
 INSERT INTO `activities_complied` (`comply_id`, `activity_id`, `student_id`, `text`, `link`, `file`, `status`, `date_created`) VALUES
-(2, 2, 5, '', 'https://www.chess.com/home', '', 0, '2024-11-01 13:14:04');
+(2, 2, 5, '', 'https://www.chess.com/home', '', 0, '2024-11-01 13:14:04'),
+(3, 1, 5, '', '', '', 0, '2024-11-05 14:37:45');
 
 -- --------------------------------------------------------
 
@@ -181,8 +182,26 @@ CREATE TABLE `email_verifications` (
 INSERT INTO `email_verifications` (`verification_id`, `user_id`, `verification`, `date_created`) VALUES
 (6, '1', '529649', '2024-09-22 21:34:47'),
 (22, '3', '935804', '2024-10-27 13:25:45'),
-(26, '5', '479302', '2024-11-01 12:46:35'),
-(27, '4', '275240', '2024-11-01 13:25:12');
+(28, '5', '588162', '2024-11-05 13:44:24'),
+(29, '4', '824401', '2024-11-05 15:04:03');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `events`
+--
+
+CREATE TABLE `events` (
+  `event_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `date_start` datetime NOT NULL,
+  `date_end` datetime NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `poster` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `status` int(11) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -448,7 +467,8 @@ CREATE TABLE `resources` (
 --
 
 INSERT INTO `resources` (`resources_id`, `ref`, `resources_group_id`, `section_id`, `section_subject_id`, `title`, `description`, `file_size`, `file_type`, `file_name`, `file_path`, `status`, `date_created`) VALUES
-(5, 'GRP-1729645498-7DJESWB4', 9, 1, 1, 'Resources 1', '...', 22479, 'sql', 'cmdc.sql', 'public/assets/media/resources/GRP-1729645498-7DJESWB4/cmdc.sql', 0, '2024-10-23 01:04:58');
+(5, 'GRP-1729645498-7DJESWB4', 9, 1, 1, 'Resources 1', '...', 22479, 'sql', 'cmdc.sql', 'public/assets/media/resources/GRP-1729645498-7DJESWB4/cmdc.sql', 0, '2024-10-23 01:04:58'),
+(6, 'GRP-1729645498-7DJESWB4', 9, 1, 1, 'a', 'awa', 1147, 'png', 'Screenshot 2024-09-09 064320.png', 'public/assets/media/resources/GRP-1729645498-7DJESWB4/Screenshot 2024-09-09 064320.png', 0, '2024-11-05 15:15:57');
 
 -- --------------------------------------------------------
 
@@ -753,6 +773,12 @@ ALTER TABLE `email_verifications`
   ADD PRIMARY KEY (`verification_id`);
 
 --
+-- Indexes for table `events`
+--
+ALTER TABLE `events`
+  ADD PRIMARY KEY (`event_id`);
+
+--
 -- Indexes for table `exams`
 --
 ALTER TABLE `exams`
@@ -892,7 +918,7 @@ ALTER TABLE `activities`
 -- AUTO_INCREMENT for table `activities_complied`
 --
 ALTER TABLE `activities_complied`
-  MODIFY `comply_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `comply_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `announcements`
@@ -922,7 +948,13 @@ ALTER TABLE `departments`
 -- AUTO_INCREMENT for table `email_verifications`
 --
 ALTER TABLE `email_verifications`
-  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+
+--
+-- AUTO_INCREMENT for table `events`
+--
+ALTER TABLE `events`
+  MODIFY `event_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `exams`
@@ -988,7 +1020,7 @@ ALTER TABLE `professors`
 -- AUTO_INCREMENT for table `resources`
 --
 ALTER TABLE `resources`
-  MODIFY `resources_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `resources_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `resources_groups`
