@@ -5275,6 +5275,16 @@ table.no-check-box td:first-child, table.no-check-box th:first-child {
   padding: 0;
 }
 
+.announcement-container .announcement-poster {
+  margin-top: 15px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 200px;
+  border-radius: 4px;
+}
+
 .second-navbar {
   width: 100%;
   height: 60px;

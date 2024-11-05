@@ -10,6 +10,8 @@ $POSTS = $postControl->getLatestRecords(false, true, null, "date_created ");
 
 $ANNOUNCEMENTS = $APPLICATION->FUNCTIONS->ANNOUNCEMENT_CONTROL->getAllRecords(true);
 
+$EVENTS = $APPLICATION->FUNCTIONS->EVENT_CONTROL->getAllRecords(true);
+
 ?>
 
 <style>
@@ -257,8 +259,9 @@ $ANNOUNCEMENTS = $APPLICATION->FUNCTIONS->ANNOUNCEMENT_CONTROL->getAllRecords(tr
 
 
         <div class="announcement-contents">
-            <?php foreach ($ANNOUNCEMENTS as $ANNOUNCEMENT): ?>
-                <div class="announcement-container">
+            <?php if(isset($ANNOUNCEMENTS) && count($ANNOUNCEMENTS) > 0): ?>
+                <?php foreach ($ANNOUNCEMENTS as $ANNOUNCEMENT): ?>
+                    <div class="announcement-container">
                     <div class="announcement-header">
                         <div class="title">
                             <p class="primary"><?= $ANNOUNCEMENT->title ?></p>
@@ -268,8 +271,63 @@ $ANNOUNCEMENTS = $APPLICATION->FUNCTIONS->ANNOUNCEMENT_CONTROL->getAllRecords(tr
                     <div class="announcement-body">
                         <?= $ANNOUNCEMENT->content ?>
                     </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="announcement-container">
+                    <div class="announcement-body">
+                        <p>No Announcements</p>
+                    </div>
                 </div>
-            <?php endforeach; ?>
+        <?php endif; ?>
+        </div>
+
+
+        <div class="announcement-title">
+            <h2>Events</h2>
+        </div>
+
+        <?php if ($SESSION->user_type == 3 || $SESSION->user_type == 4): ?>
+            <div class="announcement-creator event-creator">
+                <div class="photo">
+                    <div class="circle">
+                        <?= UseIcon('plus-thin') ?>
+                    </div>
+                </div>
+                <div class="text">
+                    <p> New Event</p>
+                </div>
+            </div>
+        <?php endif ?>
+
+        
+        <div class="announcement-contents">
+            <?php if(isset($EVENTS) && count($EVENTS) > 0): ?>
+                <?php foreach ($EVENTS as $EVENT): ?>
+                    <div class="announcement-container">
+                        <div class="announcement-header">
+                            <div class="title">
+                                <p class="primary"><?= $EVENT->title ?></p>
+                                <p class="secondary"><?= date('F j, Y \a\t g:i A', strtotime($EVENT->date_created)) ?></p>
+                            </div>
+                        </div>
+                        <div class="announcement-body">
+                            <?= $EVENT->description ?>
+                        </div>
+                            <?php if($EVENT->poster): ?>
+                                <div class="announcement-poster" style="background-image: url(/<?= $EVENT->poster ?>);">
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+
+                <?php else: ?>
+                    <div class="announcement-container">
+                        <div class="announcement-body">
+                            <p>No Events</p>
+                        </div>
+                    </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>

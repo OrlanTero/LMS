@@ -184,6 +184,7 @@ class Routes
                     "/post_likes" => ["POST_LIKE_CONTROL", "add", "editRecord", "removeRecords"],
                     "/post_comments" => ["POST_COMMENT_CONTROL", "add", "editRecord", "removeRecords"],
                     "/activities_complied" => ["ACTIVITY_COMPLY_CONTROL", "add", "editRecord", "removeRecords"],
+                    "/events" => ["EVENT_CONTROL", "add", "editRecord", "removeRecords"],
                 ];
 
                 foreach ($routes as $path => [$control, $addMethod, $editMethod, $removeMethod]) {
@@ -193,7 +194,7 @@ class Routes
                         });
 
                         $KLEIN->respond("POST", "/editRecord", function () use ($APPLICATION, $control, $editMethod) {
-                            $args = ($control === "USER_CONTROL") ? [$_POST['id'], json_decode($_POST["data"], true)] : [json_decode($_POST["data"], true)];
+                            $args = ($control === "USER_CONTROL") ? [$_POST['id'], json_decode($_POST["data"], true)] : [$_POST['id'], json_decode($_POST["data"], true)];
                             return json_encode($APPLICATION->FUNCTIONS->$control->$editMethod(...$args));
                         });
 

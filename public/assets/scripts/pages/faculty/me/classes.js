@@ -185,7 +185,32 @@ function ViewActivity(id) {
     popup.Create().then(() => {
         popup.Show();
 
+        const form = popup.ELEMENT.querySelector("form");
+        const section_subject_id = form.querySelector(".section_subject_id");
+
+        ListenToForm(form, (data) => {
+            new Promise((resolve) => {
+                if (data.file && data.file.name) {
+                    UploadFileFromFile(data.file, data.file.name, "public/assets/media/uploads/activities/")
+                        .then(resolve);
+                } else {
+                    resolve({code: 300, body: {path: null}});
+                }
+            }).then((res) => {
+                if (res.code === 200) {
+                    data.file = res.body.path;
+                }
+
+                data.section_subject_id = GetComboValue(section_subject_id).value;
+
+                EditRecord("activities", {id, data: JSON.stringify(data)}).then(() => {
+                    popup.Remove();
+                });
+            });
+        }, ['description', 'due_date', 'file']);
+
         ManageComboBoxes();
+        
     });
 }
 
@@ -328,7 +353,7 @@ function NewResource(section_id, professor_id) {
                 data.section_id = section_id;
                 data.section_subject_id = GetComboValue(section_subject_id).value;
 
-                AddRecord(TARGET, {data: JSON.stringify(data), file: data.file}).then(() => {
+                AddRecord("resources", {data: JSON.stringify(data), file: data.file}).then(() => {
                     popup.Remove();
                 });
             }, ['description', 'group_id']);

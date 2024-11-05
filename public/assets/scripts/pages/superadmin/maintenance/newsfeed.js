@@ -59,6 +59,18 @@ function PublishAnnouncement(data) {
     })
 }
 
+function PublishEvent(data) {
+    return new Promise((resolve) => {
+        AddRecord("events", {data: JSON.stringify(data)}).then((res) => {
+            console.log(res);
+            NewNotification({
+                title: res.code === 200 ? 'Success' : 'Failed',
+                message: res.code === 200 ? 'Successfully Added' : 'Task Failed to perform!'
+            }, 3000, res.code === 200 ? NotificationType.SUCCESS : NotificationType.ERROR)
+        })
+    })
+}
+
 function CreateNewPost() {
     const popup = new Popup(`${TARGET}/create_new_${MINI_TARGET}`, null, {
         backgroundDismiss: false,
@@ -79,7 +91,6 @@ function CreateNewPost() {
 
         sp.mount();
 
-       
         ClassicEditor
             .create( editor )
             .catch( error => {
@@ -130,6 +141,44 @@ function CreateNewPost() {
     }));
 }
 
+function CreateNewEvent() {
+    const popup = new Popup(`events/add_new_event`, null, {
+        backgroundDismiss: false,
+    });
+
+    popup.Create().then(((pop) => {
+        popup.Show();
+
+        const editor = popup.ELEMENT.querySelector("#editor");
+        const form = popup.ELEMENT.querySelector("form.form-control");
+
+        ClassicEditor
+            .create( editor )
+            .catch( error => {
+                console.error( error );
+            } );
+
+        ListenToForm(form, function (data) {
+            new Promise((resolve) => {
+                if (data.poster.name) {
+                    UploadFileFromFile(data.poster, MakeID(), "public/assets/media/uploads/").then((res) => {
+                        data.poster = res.body.path;
+
+                        resolve();
+                    })
+                } else {
+                    delete data.poster;
+
+                    resolve();
+                }
+
+            }).then(() => {
+                PublishEvent(data).then(() => popup.Remove());
+            })
+        }, ['poster'])
+    }))
+}
+
 function CreateNewAnnouncement() {
     const popup = new Popup(`announcement/add_new_announcement`, null, {
         backgroundDismiss: false,
@@ -148,7 +197,7 @@ function CreateNewAnnouncement() {
             } );
 
         ListenToForm(form, function (data) {
-            PublishAnnouncement(data);
+            PublishAnnouncement(data).then(() => popup.Remove());
         })
     }));
 }
@@ -168,6 +217,7 @@ function CreateNewComment(post_id, comment) {
 function ManageAllPosts() {
     const posts = document.querySelectorAll(".post-container");
     const creator = document.querySelector(".announcement-creator");
+    const eventCreator = document.querySelector(".event-creator");
     // const announcement 
 
     for (const post of posts) {
@@ -184,8 +234,6 @@ function ManageAllPosts() {
 
             ss.mount();
         }
-
-
 
         function UpdateLikeButton(code) {
             if (code == 200) {
@@ -230,6 +278,12 @@ function ManageAllPosts() {
     if (creator) {
         creator.addEventListener("click", function () {
             CreateNewAnnouncement();
+        })
+    }
+
+    if (eventCreator) {
+        eventCreator.addEventListener("click", function () {
+            CreateNewEvent();
         })
     }
 }
