@@ -976,21 +976,35 @@ export default class GradingPlatformEditor {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Grading Sheet');
 
-        // Add title
+        // Add title with better spacing
         worksheet.mergeCells('A1:H1');
         const titleCell = worksheet.getCell('A1');
         titleCell.value = 'GRADING SHEET';
         titleCell.font = { bold: true, size: 16 };
         titleCell.alignment = { horizontal: 'center' };
 
-        // Add category weights
-        const weightRow = worksheet.addRow(['CATEGORY WEIGHTS:']);
-        weightRow.font = { bold: true };
-        this.categories.forEach(category => {
-            weightRow.getCell(weightRow.cellCount + 1).value = `${category.name} - ${category.percentage}%`;
+        // Add category weights with better layout
+        worksheet.addRow([]); // Add spacing
+        const weightLabelCell = worksheet.getCell('A3');
+        weightLabelCell.value = 'CATEGORY WEIGHTS:';
+        weightLabelCell.font = { bold: true };
+
+        // Split category weights into multiple rows if needed
+        let currentRow = 3;
+        let currentCol = 2;
+        this.categories.forEach((category, index) => {
+            const cell = worksheet.getCell(currentRow, currentCol);
+            cell.value = `${category.name} - ${category.percentage}%`;
+            cell.alignment = { wrapText: true };
+            
+            currentCol++;
+            if (currentCol > 5) { // Start new row after 4 categories
+                currentRow++;
+                currentCol = 2;
+            }
         });
 
-        // Add empty row
+        // Add empty row for spacing
         worksheet.addRow([]);
 
         // Add headers
@@ -1116,21 +1130,64 @@ export default class GradingPlatformEditor {
                 return getExcelColumn(categoryStartCol);
             });
             
-            const finalGradeFormula = `IF(A${actualRow}="","",SUM(${wsCols.map(col => `${col}${actualRow}`).join(',')}))`;
-            worksheet.getCell(`${getExcelColumn(currentCol)}${actualRow}`).value = {
-                formula: finalGradeFormula
-            };
+            const finalGradeFormula = `IF(A${actualRow}="","",ROUND(SUM(${wsCols.map(col => `${col}${actualRow}`).join(',')}),2))`;
+            const finalGradeCell = worksheet.getCell(`${getExcelColumn(currentCol)}${actualRow}`);
+            finalGradeCell.value = { formula: finalGradeFormula };
+            finalGradeCell.numFmt = '0.00'; // Format as decimal
             rowData.push(null);
             currentCol++;
 
-            // Add equivalent grade formula for all rows
+            // Updated equivalent grade formula with more precise ranges
             const finalGradeCol = getExcelColumn(currentCol - 1);
-            const equivalentFormula = `IF(A${actualRow}="","",IF(${finalGradeCol}${actualRow}>=95,1,IF(${finalGradeCol}${actualRow}>=90,1.5,IF(${finalGradeCol}${actualRow}>=85,2,IF(${finalGradeCol}${actualRow}>=80,2.5,IF(${finalGradeCol}${actualRow}>=75,3,5))))))`;
-            worksheet.getCell(`${getExcelColumn(currentCol)}${actualRow}`).value = {
-                formula: equivalentFormula
-            };
-            rowData.push(null);
+            const equivalentFormula = `IF(A${actualRow}="","",
+                IF(${finalGradeCol}${actualRow}>=95,1.00,
+                IF(${finalGradeCol}${actualRow}>=91.5,1.25,
+                IF(${finalGradeCol}${actualRow}>=88,1.50,
+                IF(${finalGradeCol}${actualRow}>=84.5,1.75,
+                IF(${finalGradeCol}${actualRow}>=81,2.00,
+                IF(${finalGradeCol}${actualRow}>=77.5,2.25,
+                IF(${finalGradeCol}${actualRow}>=74,2.50,
+                IF(${finalGradeCol}${actualRow}>=70.5,2.75,
+                IF(${finalGradeCol}${actualRow}>=67,3.00,5.00))))))))))`;
             
+            const equivalentCell = worksheet.getCell(`${getExcelColumn(currentCol)}${actualRow}`);
+            equivalentCell.value = { formula: equivalentFormula };
+            equivalentCell.numFmt = '0.00'; // Format as decimal
+
+            // Add conditional formatting for pass/fail
+            worksheet.addConditionalFormatting({
+                ref: `${getExcelColumn(currentCol)}${6}:${getExcelColumn(currentCol)}${totalRows + 5}`,
+                rules: [
+                    {
+                        type: 'cellIs',
+                        operator: 'equal',
+                        formulae: ['5.00'],
+                        style: {
+                            fill: {
+                                type: 'pattern',
+                                pattern: 'solid',
+                                bgColor: { argb: 'FFFF0000' } // Red for failed
+                            },
+                            font: {
+                                color: { argb: 'FFFFFFFF' }
+                            }
+                        }
+                    },
+                    {
+                        type: 'cellIs',
+                        operator: 'lessThan',
+                        formulae: ['5.00'],
+                        style: {
+                            fill: {
+                                type: 'pattern',
+                                pattern: 'solid',
+                                bgColor: { argb: 'FF92D050' } // Green for passed
+                            }
+                        }
+                    }
+                ]
+            });
+
             // Add the row data
             const dataRow = worksheet.addRow(rowData);
             
