@@ -3,11 +3,9 @@ global $APPLICATION, $ALL_USER_TYPES,$SESSION;
 
 $data = json_decode($_POST['data'], true);
 
-$activity = $APPLICATION->FUNCTIONS->ACTIVITY_CONTROL->get($data['id'], true);
+$complied = $APPLICATION->FUNCTIONS->ACTIVITY_COMPLY_CONTROL->get($data['id'], false);
 
-$complied = array_filter($activity->complies, function($comply) use ($SESSION) {
-    return $comply['student_id'] == $SESSION->user_id;
-})[0] ?? null;
+$activity = $APPLICATION->FUNCTIONS->ACTIVITY_CONTROL->get($complied['activity_id'], false);
 
 $passing_types = array_map(function($passing_type) {
     return [
@@ -23,10 +21,10 @@ $passing_types = array_map(function($passing_type) {
         <div class="main-popup-content">
             <div class="popup-top">
                 <div class="headline">
-                    <h1>Comply Activity</h1>
+                    <h1>View Complied Activity</h1>
                 </div>
                 <div class="paragraph">
-                    <p>Provide Information</p>
+                    <p>View Complied </p>
                 </div>
 
                 <div class="floating-button">
@@ -46,12 +44,12 @@ $passing_types = array_map(function($passing_type) {
                             </div>
                             <label for=""><span>Title</span></label>
                             <div class="error-container">
-                                <input type="text" placeholder="Title" value="<?= $activity->title ?>" readonly>
+                                <input type="text" placeholder="Title" value="<?= $activity['title'] ?>" readonly>
                             </div>
                         </div>
                     </div>
 
-                    <?php if($activity->passing_type == "Link"): ?>
+                    <?php if($activity['passing_type'] == "Link"): ?>
                         <div class="form-group-container flex">
                             <div class="form-group tooltip">
                                 <div class="tooltiptext">
@@ -63,7 +61,7 @@ $passing_types = array_map(function($passing_type) {
                                 </div>
                             </div>
                         </div>
-                        <?php elseif ($activity->passing_type == "Text"): ?>
+                        <?php elseif ($activity['passing_type'] == "Text"): ?>
                             <div class="form-group-container flex">
                                 <div class="form-group tooltip">
                                     <div class="tooltiptext">
@@ -77,7 +75,7 @@ $passing_types = array_map(function($passing_type) {
                                 </div>
                             </div>
 
-                        <?php elseif ($activity->passing_type == "File"): ?>
+                        <?php elseif ($activity['passing_type'] == "File"): ?>
                             <div class="form-group-container flex">
                                 <div class="form-group tooltip">
                                     <div class="tooltiptext">
@@ -85,7 +83,15 @@ $passing_types = array_map(function($passing_type) {
                                     </div>
                                     <label for=""><span>File</span></label>
                                     <div class="error-container">
-                                        <input type="file" name="file" placeholder="File" value="<?= $complied['file'] ?>" readonly>
+                                        <?php if($complied['file']): ?>
+                                            <div class="file-info">
+                                                <span>Filename: <?= basename($complied['file']) ?></span>
+                                                <br>
+                                                <span>Size: <?= filesize($complied['file']) ?> bytes</span>
+                                            </div>
+                                        <?php else: ?>
+                                            <p>No file uploaded</p>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>

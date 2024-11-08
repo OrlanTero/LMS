@@ -1,0 +1,181 @@
+<?php
+global $APPLICATION, $ALL_USER_TYPES,$SESSION;
+
+$data = json_decode($_POST['data'], true);
+
+$activity = $APPLICATION->FUNCTIONS->ACTIVITY_CONTROL->get($data['id'], true);
+
+$complies = $activity->getCompliedActivities();
+
+$passing_types = array_map(function($passing_type) {
+    return [
+        "value" => $passing_type->name,
+        "text" => $passing_type->value
+    ];
+}, PassingTypes::cases());
+
+$sectionSubject = $APPLICATION->FUNCTIONS->SECTION_SUBJECT_CONTROL->get($activity->section_subject_id, true);
+$section = $sectionSubject->getSection();
+// Get all students
+
+$all_students = $section->students;
+$total_students = count($all_students);
+
+// Calculate statistics
+$late_submissions = 0;
+$on_time_submissions = 0;
+$not_complied = 0;
+
+foreach($all_students as $student) {
+    if($activity->isStudentComplied($student['student_id'])) {
+        // Find the student's submission
+        foreach($complies as $comply) {
+            if($comply->student_id == $student['student_id']) {
+                // Check if submission is late based on activity deadline
+                if(strtotime($comply->date_created) > strtotime($activity->due_date)) {
+                    $late_submissions++;
+                } else {
+                    $on_time_submissions++;
+                }
+                break;
+            }
+        }
+    } else {
+        $not_complied++;
+    }
+}
+
+?>
+<style>
+    .flex-container {
+        display: flex;
+    }
+    .left-column, .right-column {
+        flex: 1;
+        padding: 10px;
+    }
+    .comply-item {
+        margin: 10px 0;
+        padding: 10px;
+        border: 1px solid #eee;
+        border-radius: 4px;
+    }
+    .comply-item > div {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .view-comply-btn {
+        padding: 5px 10px;
+        background: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .stats-container {
+        margin-top: 20px;
+    }
+    .stat-item {
+        margin: 15px 0;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+    .stat-item h4 {
+        margin: 0 0 5px 0;
+    }
+    .stat-item p {
+        font-size: 24px;
+        margin: 0;
+    }
+    .stat-item.late h4 {
+        color: #dc3545;
+    }
+    .stat-item.ontime h4 {
+        color: #28a745;
+    }
+    .stat-item.pending h4 {
+        color: #6c757d;
+    }
+    .comply-item.late {
+        border-left: 4px solid #dc3545;
+    }
+    .comply-item.ontime {
+        border-left: 4px solid #28a745;
+    }
+</style>
+<div class="main-popup-container">
+    <div class="popup-background"></div>
+    <div class="popup-content">
+        <div class="main-popup-table">
+            <div class="popup-top">
+                <div class="headline">
+                    <h1>Complied Activities</h1>
+                </div>
+                <div class="paragraph">
+                    <p>View Complied Activities</p>
+                </div>
+
+                <div class="floating-button">
+                    <div class="close-popup popup-button">
+                        <?= UseIcon('close') ?>
+                    </div>
+                </div>
+            </div>
+            
+            <form action="" class="form-control">
+                <div class="popup-bot">
+                    <div class="flex-container">
+                        <div class="left-column">
+                            <h3>Student Submissions</h3>
+                            <?php if(!empty($complies)): ?>
+                                <?php foreach($complies as $comply): ?>
+                                    <?php 
+                                        $isLate = strtotime($comply->date_created) > strtotime($activity->due_date);
+                                        $submissionClass = $isLate ? 'late' : 'ontime';
+                                    ?>
+                                    <div class="comply-item <?= $submissionClass ?>" data-id="<?= $comply->comply_id ?>">
+                                        <div>
+                                            <div>
+                                                <strong>Student:</strong> <?= $comply->student['displayName'] ?>
+                                                <br>
+                                                <small>Submitted: <?= date('M d, Y h:i A', strtotime($comply->date_created)) ?></small>
+                                                <br>
+                                                <small style="color: <?= $isLate ? '#dc3545' : '#28a745' ?>">
+                                                    <?= $isLate ? 'Late Submission' : 'On-time Submission' ?>
+                                                </small>
+                                            </div>
+                                            <button type="button" class="view-comply-btn" data-id="<?= $comply->comply_id ?>">
+                                                View
+                                            </button>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <p>No submissions yet.</p>
+                            <?php endif; ?>
+                        </div>
+                        <div class="right-column">
+                            <h3>Submission Statistics</h3>
+                            <div class="stats-container">
+                                <div class="stat-item late">
+                                    <h4>Late Submissions</h4>
+                                    <p><?= $late_submissions ?></p>
+                                </div>
+                                <div class="stat-item ontime">
+                                    <h4>On-time Submissions</h4>
+                                    <p><?= $on_time_submissions ?></p>
+                                </div>
+                                <div class="stat-item pending">
+                                    <h4>Not Yet Submitted</h4>
+                                    <p><?= $not_complied ?></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

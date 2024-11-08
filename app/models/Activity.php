@@ -26,4 +26,17 @@ class Activity extends ActivityAbstract
     {
         return in_array($student_id, array_column($this->complies, "student_id"));
     }
+
+    public function getCompliedActivity(int $student_id): array
+    {
+        return array_filter($this->complies, function($comply) use ($student_id) {
+            return $comply['student_id'] == $student_id;
+        })[0] ?? null;
+    }
+
+    public function getCompliedActivities(): array
+    {
+        global $APPLICATION;
+        return $APPLICATION->FUNCTIONS->ACTIVITY_COMPLY_CONTROL->filterRecords(['activity_id' => $this->activity_id], true);
+    }
 }

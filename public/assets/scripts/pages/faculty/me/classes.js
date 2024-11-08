@@ -269,6 +269,23 @@ function ComplyActivity(id) {
     });
 }
 
+function ViewCompliedActivities(id) {
+    const popup = new Popup(`${"activities"}/view_complied_activities`, {id}, {
+        backgroundDismiss: false
+    });
+
+    popup.Create().then(() => {
+        popup.Show();
+
+        const complyItems = popup.ELEMENT.querySelectorAll(".comply-item");
+        complyItems.forEach(item => {
+            item.addEventListener("click", () => {
+                ViewCompliedActivity(item.dataset.id);
+            });
+        });
+    });
+}
+
 // Handle activities functionality
 function Activities() {
     const addActivityBtn = document.querySelector(".add-activity-btn");
@@ -280,12 +297,13 @@ function Activities() {
         });
     }
 
-
     if (activities) {
         activities.forEach(activity => {
             const viewBtn = activity.querySelector(".view-activity-btn");
             const complyBtn = activity.querySelector(".comply-btn");
             const viewCompliedBtn = activity.querySelector(".view-complied-btn");
+            const viewCompliedActivitiesBtn = activity.querySelector(".view-complied-activities-btn");
+
             if (viewBtn) {
                 viewBtn.addEventListener("click", () => {
                     ViewActivity(activity.dataset.id);
@@ -300,7 +318,13 @@ function Activities() {
 
             if (viewCompliedBtn) {
                 viewCompliedBtn.addEventListener("click", () => {
-                    ViewCompliedActivity(activity.dataset.id);
+                    ViewCompliedActivity(viewCompliedBtn.dataset.id);
+                });
+            }
+
+                    if (viewCompliedActivitiesBtn) {
+                viewCompliedActivitiesBtn.addEventListener("click", () => {
+                    ViewCompliedActivities(activity.dataset.id);
                 });
             }
         });
