@@ -1051,10 +1051,17 @@ export default class GradingPlatformEditor {
         const passingScoreRow = worksheet.addRow(passingScores);
         passingScoreRow.getCell(1).font = { bold: true };
 
-        // Add student data
-        this.table.querySelectorAll('tbody tr').forEach((row, rowIndex) => {
-            const actualRow = rowIndex + 6; // Updated from 7 to 6 since we removed one row
-            const rowData = [row.querySelector('td').textContent];
+        // Get the number of actual students
+        const studentCount = this.table.querySelectorAll('tbody tr').length;
+        const totalRows = studentCount + 100; // Extend formulas 100 rows beyond
+
+        // Add student data and extend formulas
+        for (let rowIndex = 0; rowIndex < totalRows; rowIndex++) {
+            const actualRow = rowIndex + 6; // Starting from row 6
+            const studentRow = this.table.querySelectorAll('tbody tr')[rowIndex];
+            
+            // Initialize row data with student name or empty string
+            const rowData = [studentRow ? studentRow.querySelector('td').textContent : ''];
             let currentCol = 2; // Start from column B
             
             this.categories.forEach(category => {
@@ -1063,33 +1070,45 @@ export default class GradingPlatformEditor {
                 
                 // Add individual scores if there are columns
                 if (columnCount > 0) {
-                    row.querySelectorAll(`.grade-input[data-category="${categoryId}"]`)
-                        .forEach(input => {
-                            const value = parseFloat(input.textContent) || 0;
-                            rowData.push(value);
+                    // Add actual scores for existing students, empty cells for extended rows
+                    if (studentRow) {
+                        studentRow.querySelectorAll(`.grade-input[data-category="${categoryId}"]`)
+                            .forEach(input => {
+                                const value = parseFloat(input.textContent) || 0;
+                                rowData.push(value);
+                                currentCol++;
+                            });
+                    } else {
+                        // Add empty cells for score columns in extended rows
+                        for (let i = 0; i < columnCount; i++) {
+                            rowData.push(null);
                             currentCol++;
-                        });
+                        }
+                    }
                     
-                    // Add weighted score formula for categories with columns
+                    // Add weighted score formula for all rows
                     const startCol = currentCol - columnCount;
                     const endCol = currentCol - 1;
                     const startLetter = getExcelColumn(startCol);
                     const endLetter = getExcelColumn(endCol);
                     
-                    const wsFormula = `IF(COUNTA(${startLetter}${actualRow}:${endLetter}${actualRow})=0,${category.percentage},AVERAGE(${startLetter}${actualRow}:${endLetter}${actualRow}))*${category.percentage/100}`;
+                    const wsFormula = `IF(A${actualRow}="","",IF(COUNTA(${startLetter}${actualRow}:${endLetter}${actualRow})=0,${category.percentage},AVERAGE(${startLetter}${actualRow}:${endLetter}${actualRow}))*${category.percentage/100})`;
                     worksheet.getCell(`${getExcelColumn(currentCol)}${actualRow}`).value = {
                         formula: wsFormula
                     };
                 } else {
-                    // If category has no columns, weighted score is the full percentage
-                    worksheet.getCell(`${getExcelColumn(currentCol)}${actualRow}`).value = category.percentage;
+                    // If category has no columns, weighted score is the full percentage, but only if there's a student name
+                    const wsFormula = `IF(A${actualRow}="","",${category.percentage})`;
+                    worksheet.getCell(`${getExcelColumn(currentCol)}${actualRow}`).value = {
+                        formula: wsFormula
+                    };
                 }
                 
                 rowData.push(null); // Placeholder for weighted score cell
                 currentCol++;
             });
 
-            // Add final grade formula
+            // Add final grade formula for all rows
             const wsCols = this.categories.map((_, index) => {
                 const categoryStartCol = 2 + this.categories.slice(0, index).reduce((acc, cat) => 
                     acc + this.columnStructure[cat.category_id].totalColumns + 1, 0) + 
@@ -1097,16 +1116,16 @@ export default class GradingPlatformEditor {
                 return getExcelColumn(categoryStartCol);
             });
             
-            const finalGradeFormula = `SUM(${wsCols.map(col => `${col}${actualRow}`).join(',')})`;
+            const finalGradeFormula = `IF(A${actualRow}="","",SUM(${wsCols.map(col => `${col}${actualRow}`).join(',')}))`;
             worksheet.getCell(`${getExcelColumn(currentCol)}${actualRow}`).value = {
                 formula: finalGradeFormula
             };
             rowData.push(null);
             currentCol++;
 
-            // Add equivalent grade formula
+            // Add equivalent grade formula for all rows
             const finalGradeCol = getExcelColumn(currentCol - 1);
-            const equivalentFormula = `IF(${finalGradeCol}${actualRow}>=95,1,IF(${finalGradeCol}${actualRow}>=90,1.5,IF(${finalGradeCol}${actualRow}>=85,2,IF(${finalGradeCol}${actualRow}>=80,2.5,IF(${finalGradeCol}${actualRow}>=75,3,5)))))`;
+            const equivalentFormula = `IF(A${actualRow}="","",IF(${finalGradeCol}${actualRow}>=95,1,IF(${finalGradeCol}${actualRow}>=90,1.5,IF(${finalGradeCol}${actualRow}>=85,2,IF(${finalGradeCol}${actualRow}>=80,2.5,IF(${finalGradeCol}${actualRow}>=75,3,5))))))`;
             worksheet.getCell(`${getExcelColumn(currentCol)}${actualRow}`).value = {
                 formula: equivalentFormula
             };
@@ -1121,7 +1140,7 @@ export default class GradingPlatformEditor {
                     cell.alignment = { horizontal: 'center' };
                 }
             });
-        });
+        }
 
         // Set column widths
         worksheet.columns = [
