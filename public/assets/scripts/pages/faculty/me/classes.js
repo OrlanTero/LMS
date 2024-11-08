@@ -109,6 +109,7 @@ function Grades() {
 
         const saveBtn = container.querySelector('.save-grades');
         const discardBtn = container.querySelector('.discard-grades');
+        const exportBtn = container.querySelector('.export-grades');
         const sectionSubjectId = platformContainer.dataset.sectionSubjectId;
         
         SelectModel(sectionSubjectId, "SECTION_SUBJECT_CONTROL").then((res) => {
@@ -120,7 +121,7 @@ function Grades() {
                             user_id: student.user_id,
                             displayName: student.displayName
                         })),
-                        buttons: {save: saveBtn, discard: discardBtn}
+                        buttons: {save: saveBtn, discard: discardBtn, export: exportBtn}
                     });
                 
                     gradingEditor.Load(sectionSubjectId);

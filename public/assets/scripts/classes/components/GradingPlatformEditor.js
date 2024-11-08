@@ -3,12 +3,13 @@ import { PostRequest } from "./../../modules/app/SystemFunctions.js";
 import { addHtml, append, CreateElement, MakeID } from "../../modules/component/Tool.js";
 
 export default class GradingPlatformEditor {
-    constructor({ container, students = [], buttons = { save: null, discard: null } }) {
+    constructor({ container, students = [], buttons = { save: null, discard: null, export: null } }) {
         this.container = container;
         this.students = students;
         this.table = this.reconstructTable(container, students);
         this.saveGradesBtn = buttons.save;
         this.discardGradesBtn = buttons.discard;
+        this.exportBtn = buttons.export;
 
         this.passingScores = { scores: {}, status: {} };
         this.categories = [];
@@ -19,6 +20,13 @@ export default class GradingPlatformEditor {
         this.sectionSubjectId = null;
         this.removedColumns = {};
         this.removedCategories = [];
+
+        // Add event listener if export button exists
+        if (this.exportBtn) {
+            this.exportBtn.addEventListener('click', () => {
+                this.exportToExcel();
+            });
+        }
     }
 
     Load(section_subject_id) {
@@ -146,6 +154,17 @@ export default class GradingPlatformEditor {
         grading_platform.categories?.forEach(category => {
             const categoryId = category.grading_category_id;
             this.addNewCategory(category.name, category.percentage, categoryId);
+            
+            // Initialize column structure even if there are no columns
+            if (!this.columnStructure[categoryId]) {
+                this.columnStructure[categoryId] = {
+                    columns: [],
+                    columnIds: [],
+                    columnStatus: {},
+                    totalColumns: 0
+                };
+            }
+            
             category.columns?.forEach(col => this.addColumn(categoryId, col));
         });
 
@@ -164,10 +183,17 @@ export default class GradingPlatformEditor {
             this.originalGrades[userId] = this.studentScores[userId] ? 
                 JSON.parse(JSON.stringify(this.studentScores[userId])) : 
                 { scores: {}, weightedScores: {}, finalGrade: 0, collegeGrade: 0, status: {} };
-            this.categories.forEach((_, index) => {
-                const categoryIndex = index + 1;
-                this.originalGrades[userId].scores[categoryIndex] = {};
-                this.originalGrades[userId].weightedScores[categoryIndex] = 0;
+            
+            this.categories.forEach(category => {
+                const categoryId = category.category_id;
+                // Initialize scores only if category has columns
+                if (this.columnStructure[categoryId].totalColumns > 0) {
+                    this.originalGrades[userId].scores[categoryId] = {};
+                }
+                // Always initialize weighted scores
+                this.originalGrades[userId].weightedScores[categoryId] = 
+                    this.columnStructure[categoryId].totalColumns === 0 ? 
+                    category.percentage : 0;
             });
         });
     }
@@ -292,15 +318,21 @@ export default class GradingPlatformEditor {
 
     discardGrades() {
         this.table.querySelectorAll('tbody tr').forEach(row => {
-            const userId = row.querySelector('.grade-input').dataset.student;
+            const userId = row.dataset.student;
             this.studentScores[userId] = JSON.parse(JSON.stringify(this.originalGrades[userId]));
+            
+            // Only reset inputs for categories with columns
             row.querySelectorAll('.grade-input').forEach(input => {
                 const category = input.dataset.category;
                 const column = input.dataset.column;
                 const scoreKey = `${userId}-${category}-${column}`;
-                this.studentScores[userId].status[scoreKey] = 'original';
-                input.textContent = this.studentScores[userId].scores[category][column] || '0';
+                
+                if (this.columnStructure[category].totalColumns > 0) {
+                    this.studentScores[userId].status[scoreKey] = 'original';
+                    input.textContent = this.studentScores[userId].scores[category][column] || '0';
+                }
             });
+            
             this.recalculateGrades(row);
         });
         this.setUnsavedChanges(false);
@@ -317,25 +349,34 @@ export default class GradingPlatformEditor {
         this.categories.forEach(category => {
             const category_id = category.category_id;
             const inputs = row.querySelectorAll(`.grade-input[data-category="${category_id}"]`);
-            let total = 0;
-            let validInputs = 0;
-
-            inputs.forEach(input => {
-                const columnId = input.dataset.columnId;
-                const score = parseFloat(this.studentScores[userId].scores[category_id][columnId]);
-                const passingScore = this.passingScores.scores[`${category_id}-${columnId}`];
-                
-                if (!isNaN(score) && passingScore > 0) {
-                    // Calculate percentage based on passing score
-                    const percentage = (score / passingScore) * 100;
-                    total += percentage;
-                    validInputs++;
-                }
-            });
-
             const wsCell = row.querySelector(`.ws[data-category="${category_id}"]`);
-            const average = validInputs > 0 ? total / validInputs : 0;
-            const weightedScore = average * (category.percentage / 100);
+            let weightedScore = 0;
+
+            // If category has no columns, weighted score is the full percentage
+            if (inputs.length === 0) {
+                weightedScore = category.percentage;
+            } else {
+                let total = 0;
+                let validInputs = 0;
+
+                inputs.forEach(input => {
+                    const columnId = input.dataset.columnId;
+                    const score = parseFloat(this.studentScores[userId].scores[category_id][columnId]);
+                    const passingScore = this.passingScores.scores[`${category_id}-${columnId}`];
+                    
+                    if (!isNaN(score) && passingScore > 0) {
+                        // Calculate percentage based on passing score
+                        const percentage = (score / passingScore) * 100;
+                        total += percentage;
+                        validInputs++;
+                    }
+                });
+
+                // If no valid inputs, use full percentage, otherwise calculate average
+                weightedScore = validInputs === 0 ? 
+                    category.percentage : 
+                    (total / validInputs) * (category.percentage / 100);
+            }
 
             if (wsCell) {
                 wsCell.textContent = weightedScore.toFixed(2);
@@ -930,4 +971,198 @@ export default class GradingPlatformEditor {
             }
         });
     }
+
+    async exportToExcel() {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Grading Sheet');
+
+        // Add title
+        worksheet.mergeCells('A1:H1');
+        const titleCell = worksheet.getCell('A1');
+        titleCell.value = 'GRADING SHEET';
+        titleCell.font = { bold: true, size: 16 };
+        titleCell.alignment = { horizontal: 'center' };
+
+        // Add category weights
+        const weightRow = worksheet.addRow(['CATEGORY WEIGHTS:']);
+        weightRow.font = { bold: true };
+        this.categories.forEach(category => {
+            weightRow.getCell(weightRow.cellCount + 1).value = `${category.name} - ${category.percentage}%`;
+        });
+
+        // Add empty row
+        worksheet.addRow([]);
+
+        // Add headers
+        const headers = ['STUDENT NAME'];
+        this.categories.forEach(category => {
+            const columnCount = this.columnStructure[category.category_id].totalColumns;
+            headers.push(category.name);
+            for (let i = 1; i < columnCount + 1; i++) {
+                headers.push('');
+            }
+        });
+        headers.push('FINAL GRADE', 'EQUIVALENT');
+
+        const headerRow = worksheet.addRow(headers);
+        headerRow.eachCell((cell) => {
+            cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: '4472C4' }
+            };
+            cell.font = { bold: true, color: { argb: 'FFFFFF' } };
+            cell.alignment = { horizontal: 'center' };
+        });
+
+        // Add subheaders
+        const subHeaders = [''];
+        this.categories.forEach(category => {
+            const columnCount = this.columnStructure[category.category_id].totalColumns;
+            for (let i = 1; i <= columnCount; i++) {
+                subHeaders.push(`Score ${i}`);
+            }
+            subHeaders.push('WS');
+        });
+        subHeaders.push('', '');
+        
+        const subHeaderRow = worksheet.addRow(subHeaders);
+        subHeaderRow.eachCell((cell) => {
+            cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'D9E1F2' }
+            };
+            cell.font = { bold: true };
+            cell.alignment = { horizontal: 'center' };
+        });
+
+        // Add passing scores
+        const passingScores = ['PASSING SCORES:'];
+        this.categories.forEach(category => {
+            const categoryId = category.category_id;
+            this.columnStructure[categoryId].columnIds.forEach(columnId => {
+                passingScores.push(this.passingScores.scores[`${categoryId}-${columnId}`] || 100);
+            });
+            passingScores.push('');
+        });
+        passingScores.push('', '');
+        
+        const passingScoreRow = worksheet.addRow(passingScores);
+        passingScoreRow.getCell(1).font = { bold: true };
+
+        // Add student data
+        this.table.querySelectorAll('tbody tr').forEach((row, rowIndex) => {
+            const actualRow = rowIndex + 6; // Updated from 7 to 6 since we removed one row
+            const rowData = [row.querySelector('td').textContent];
+            let currentCol = 2; // Start from column B
+            
+            this.categories.forEach(category => {
+                const categoryId = category.category_id;
+                const columnCount = this.columnStructure[category.category_id].totalColumns;
+                
+                // Add individual scores if there are columns
+                if (columnCount > 0) {
+                    row.querySelectorAll(`.grade-input[data-category="${categoryId}"]`)
+                        .forEach(input => {
+                            const value = parseFloat(input.textContent) || 0;
+                            rowData.push(value);
+                            currentCol++;
+                        });
+                    
+                    // Add weighted score formula for categories with columns
+                    const startCol = currentCol - columnCount;
+                    const endCol = currentCol - 1;
+                    const startLetter = getExcelColumn(startCol);
+                    const endLetter = getExcelColumn(endCol);
+                    
+                    const wsFormula = `IF(COUNTA(${startLetter}${actualRow}:${endLetter}${actualRow})=0,${category.percentage},AVERAGE(${startLetter}${actualRow}:${endLetter}${actualRow}))*${category.percentage/100}`;
+                    worksheet.getCell(`${getExcelColumn(currentCol)}${actualRow}`).value = {
+                        formula: wsFormula
+                    };
+                } else {
+                    // If category has no columns, weighted score is the full percentage
+                    worksheet.getCell(`${getExcelColumn(currentCol)}${actualRow}`).value = category.percentage;
+                }
+                
+                rowData.push(null); // Placeholder for weighted score cell
+                currentCol++;
+            });
+
+            // Add final grade formula
+            const wsCols = this.categories.map((_, index) => {
+                const categoryStartCol = 2 + this.categories.slice(0, index).reduce((acc, cat) => 
+                    acc + this.columnStructure[cat.category_id].totalColumns + 1, 0) + 
+                    this.columnStructure[this.categories[index].category_id].totalColumns;
+                return getExcelColumn(categoryStartCol);
+            });
+            
+            const finalGradeFormula = `SUM(${wsCols.map(col => `${col}${actualRow}`).join(',')})`;
+            worksheet.getCell(`${getExcelColumn(currentCol)}${actualRow}`).value = {
+                formula: finalGradeFormula
+            };
+            rowData.push(null);
+            currentCol++;
+
+            // Add equivalent grade formula
+            const finalGradeCol = getExcelColumn(currentCol - 1);
+            const equivalentFormula = `IF(${finalGradeCol}${actualRow}>=95,1,IF(${finalGradeCol}${actualRow}>=90,1.5,IF(${finalGradeCol}${actualRow}>=85,2,IF(${finalGradeCol}${actualRow}>=80,2.5,IF(${finalGradeCol}${actualRow}>=75,3,5)))))`;
+            worksheet.getCell(`${getExcelColumn(currentCol)}${actualRow}`).value = {
+                formula: equivalentFormula
+            };
+            rowData.push(null);
+            
+            // Add the row data
+            const dataRow = worksheet.addRow(rowData);
+            
+            // Set alignment for all cells in the row
+            dataRow.eachCell((cell, colNumber) => {
+                if (colNumber > 1) { // Skip student name column
+                    cell.alignment = { horizontal: 'center' };
+                }
+            });
+        });
+
+        // Set column widths
+        worksheet.columns = [
+            { width: 35 }, // Student Name
+            ...Array(headers.length - 1).fill({ width: 12 }) // Other columns
+        ];
+
+        // Add category header merges
+        let startCol = 2; // Start from B column (1-based)
+        this.categories.forEach(category => {
+            const columnCount = this.columnStructure[category.category_id].totalColumns;
+            const endCol = startCol + columnCount;
+            const startCell = worksheet.getCell(4, startCol);
+            worksheet.mergeCells(4, startCol, 4, endCol);
+            startCell.alignment = { horizontal: 'center' };
+            startCol = endCol + 1;
+        });
+
+        // Generate filename
+        const date = new Date();
+        const filename = `Grading_Sheet_${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}.xlsx`;
+
+        // Save file
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = window.URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = filename;
+        anchor.click();
+        window.URL.revokeObjectURL(url);
+    }
+}
+
+// Helper function to convert column number to Excel column letter
+function getExcelColumn(column) {
+    let temp, letter = '';
+    while (column > 0) {
+        temp = (column - 1) % 26;
+        letter = String.fromCharCode(temp + 65) + letter;
+        column = (column - temp - 1) / 26;
+    }
+    return letter;
 }
