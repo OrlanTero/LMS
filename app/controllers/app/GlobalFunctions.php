@@ -32,6 +32,7 @@ use Application\controllers\system\GradingScoreColumnControl;
 use Application\controllers\system\GradingPlatformControl;
 use Application\controllers\system\ActivityComplyControl;
 use Application\controllers\system\EventControl;
+use Application\controllers\system\GradeScoreControl;
 use Application\models\Professor;
 use Application\models\Section;
 
@@ -104,6 +105,8 @@ class GlobalFunctions
 
     public $EVENT_CONTROL;
 
+    public $GRADE_SCORE_CONTROL;
+
     public function __construct($SESSION)
     {
         global $CONNECTION;
@@ -175,5 +178,7 @@ class GlobalFunctions
         $this->ACTIVITY_COMPLY_CONTROL = new ActivityComplyControl();
 
         $this->EVENT_CONTROL = new EventControl();
+
+        $this->GRADE_SCORE_CONTROL = new GradeScoreControl();
     }
 }

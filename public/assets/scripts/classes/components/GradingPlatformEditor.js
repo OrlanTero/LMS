@@ -1,9 +1,11 @@
 import { SelectModelByFilter } from "./../../modules/app/Administrator.js";
 import { PostRequest } from "./../../modules/app/SystemFunctions.js";
-import { addHtml, append, CreateElement, MakeID } from "../../modules/component/Tool.js";
+import { addHtml, append, CreateElement, MakeID, ManageComboBoxes, ListenToCombo, SetNewComboItems, HideShowComponent } from "../../modules/component/Tool.js";
+import Popup from "./Popup.js";
 
 export default class GradingPlatformEditor {
     constructor({ container, students = [], buttons = { save: null, discard: null, export: null } }) {
+        this.grading_platform_id = null;
         this.container = container;
         this.students = students;
         this.table = this.reconstructTable(container, students);
@@ -133,6 +135,7 @@ export default class GradingPlatformEditor {
     LoadGradingPlatform(grading_platform) {
         if (!grading_platform) return;
 
+        this.grading_platform_id = grading_platform.grading_platform_id;
         this.categories = [];
         this.studentScores = {};
         this.columnStructure = {};
@@ -239,7 +242,6 @@ export default class GradingPlatformEditor {
                 })).filter(student => student.category_scores.length > 0)
         };
 
-        console.log(gradesData);
         return new Promise((resolve, reject) => {
             PostRequest("SaveGrades", { data: JSON.stringify(gradesData) })
             .then((res) => {
@@ -447,6 +449,8 @@ export default class GradingPlatformEditor {
                    min="0" 
                    max="100">
             <button>Save Changes</button>
+            <button class="import-data">Import Data</button>
+            
         `;
 
         const rect = header.getBoundingClientRect();
@@ -515,11 +519,65 @@ export default class GradingPlatformEditor {
             this.setUnsavedChanges(true);
         });
 
+        container.querySelector('.import-data').addEventListener('click', () => {
+            this.showImportDataModal(category, columnId, this.grading_platform_id);
+        });
+
         document.addEventListener('click', (e) => {
             if (!container.contains(e.target) && !e.target.classList.contains('score-header')) {
                 container.remove();
                 document.removeEventListener('click', this.closeContainer);
             }
+        });
+    }
+
+    showImportDataModal(categoryIndex, columnId, grading_platform_id) {
+        const popup = new Popup(`${"classes"}/import_grade_score_data`, {
+            grading_platform_id
+        }, {
+            backgroundDismiss: false
+        });
+    
+        popup.Create().then(() => {
+            popup.Show();
+
+            const category = popup.ELEMENT.querySelector('.category');
+            const data = popup.ELEMENT.querySelector('.data');
+            const mainContent = popup.ELEMENT.querySelector('.data-main-content');
+            const sectionSubjectId = this.section_subject_id;
+
+            ListenToCombo(category, (cat) => {
+                SelectModelByFilter(JSON.stringify({
+                    section_subject_id: sectionSubjectId
+                }), cat == "Activity" ? "ACTIVITY_CONTROL" : "EXAM_CONTROL")
+                .then(res => {
+                    const newData = res.map((item) => {
+                        return {
+                            value: cat == "Activity" ? item.activity_id : item.exam_id,
+                            text: item.title
+                        }
+                    });
+
+                    SetNewComboItems(data, newData, function(value) {
+                        console.log({
+                            category: cat,
+                            parent_id: value
+                        });
+                        SelectModelByFilter(JSON.stringify({
+                            category: cat,
+                            parent_id: value
+                        }), "GRADE_SCORE_CONTROL")
+                        .then(res => {
+                            
+                        });
+                    });
+
+                    mainContent.classList.remove("hide-component");
+                });
+
+            });
+
+            ManageComboBoxes();
         });
     }
 

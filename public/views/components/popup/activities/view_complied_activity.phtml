@@ -3,9 +3,9 @@ global $APPLICATION, $ALL_USER_TYPES,$SESSION;
 
 $data = json_decode($_POST['data'], true);
 
-$complied = $APPLICATION->FUNCTIONS->ACTIVITY_COMPLY_CONTROL->get($data['id'], false);
+$complied = $APPLICATION->FUNCTIONS->ACTIVITY_COMPLY_CONTROL->get($data['id'], true);
 
-$activity = $APPLICATION->FUNCTIONS->ACTIVITY_CONTROL->get($complied['activity_id'], false);
+$activity = $APPLICATION->FUNCTIONS->ACTIVITY_CONTROL->get($complied->activity_id, false);
 
 $passing_types = array_map(function($passing_type) {
     return [
@@ -37,6 +37,20 @@ $passing_types = array_map(function($passing_type) {
             <form action="" class="form-control">
                     <div class="popup-bot">
 
+                    
+                    <?php if($complied->grade_score): ?>
+                        <div class="form-group-container flex">
+                            <div class="form-group tooltip">
+                                <div class="tooltiptext">
+                                    <span>Grade</span>
+                                </div>
+                                <label for=""><span>Grade</span></label>
+                                <div class="error-container">
+                                    <input type="text" placeholder="Grade" value="<?= $complied->grade_score['grade']?>" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                     <div class="form-group-container flex">
                         <div class="form-group tooltip">
                             <div class="tooltiptext">
@@ -57,7 +71,7 @@ $passing_types = array_map(function($passing_type) {
                                 </div>
                                 <label for=""><span>Link</span></label>
                                 <div class="error-container">
-                                    <input type="text" name="link" placeholder="Link" value="<?= $complied['link'] ?>" readonly>
+                                    <input type="text" name="link" placeholder="Link" value="<?= $complied->link ?>" readonly>
                                 </div>
                             </div>
                         </div>
@@ -70,7 +84,7 @@ $passing_types = array_map(function($passing_type) {
                                     <label for=""><span>Text </span></label>
 
                                     <div class="error-container">
-                                        <textarea name="text" placeholder="Text" readonly><?= $complied['text'] ?></textarea>
+                                        <textarea name="text" placeholder="Text" readonly><?= $complied->text ?></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -83,11 +97,11 @@ $passing_types = array_map(function($passing_type) {
                                     </div>
                                     <label for=""><span>File</span></label>
                                     <div class="error-container">
-                                        <?php if($complied['file']): ?>
+                                        <?php if($complied->file): ?>
                                             <div class="file-info">
-                                                <span>Filename: <?= basename($complied['file']) ?></span>
+                                                <span>Filename: <?= basename($complied->file) ?></span>
                                                 <br>
-                                                <span>Size: <?= filesize($complied['file']) ?> bytes</span>
+                                                <span>Size: <?= filesize($complied->file) ?> bytes</span>
                                             </div>
                                         <?php else: ?>
                                             <p>No file uploaded</p>
@@ -96,6 +110,22 @@ $passing_types = array_map(function($passing_type) {
                                 </div>
                             </div>
                     <?php endif ?>
+
+                </div>
+                <div class="popup-footer">
+                    <div class="form-group-container submit-group right-side">
+                        <div class="form-group">
+                            <?php if ($complied->grade_score): ?>
+                                <div class="link edit-btn" data-category="<?= GradeScoreCategories::ACTIVITY->value ?>" data-comply-id="<?= $complied->comply_id ?>" data-id="<?= $complied->grade_score['grade_score_id'] ?>">
+                                    <span>Edit Grade</span>
+                                </div>
+                            <?php else: ?>
+                                <div class="link grade-btn" data-category="<?= GradeScoreCategories::ACTIVITY->value ?>" data-id="<?= $complied->comply_id ?>">
+                                    <span>Grade Activity</span>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>

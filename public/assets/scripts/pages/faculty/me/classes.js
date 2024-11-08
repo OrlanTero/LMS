@@ -12,7 +12,7 @@ import {
     ApplyError
 } from "../../../modules/component/Tool.js";
 import Popup from "../../../classes/components/Popup.js";
-import {AddRecord, PostRequest, UploadFileFromFile} from "../../../modules/app/SystemFunctions.js";
+import {AddRecord, EditRecord,PostRequest, UploadFileFromFile} from "../../../modules/app/SystemFunctions.js";
 import {SelectModels, SelectModel, SelectModelByFilter} from "../../../modules/app/Administrator.js";
 import GradingPlatformEditor from "../../../classes/components/GradingPlatformEditor.js";
 import StickyNoteEditor from "../../../classes/components/StickyNoteEditor.js";
@@ -215,13 +215,72 @@ function ViewActivity(id) {
     });
 }
 
-function ViewCompliedActivity(id) {
-    const popup = new Popup(`${"activities"}/view_complied_activity`, {id}, {
+function NewGradeScore(activity_id, category, id) {
+    return new Promise((resolve) => {
+        const popup = new Popup(`${"grade_scores"}/add_new_grade_score`, {category, id}, {
+            backgroundDismiss: false
+        });
+    
+        popup.Create().then(() => {
+            popup.Show();
+    
+            const form = popup.ELEMENT.querySelector("form");
+    
+            ListenToForm(form, (data) => {
+                data.category = category;
+                data.id = id;
+                data.parent_id = activity_id;
+                
+                AddRecord("grade_scores", {data: JSON.stringify(data)}).then(() => {
+                    popup.Remove();
+
+                    resolve();
+                });
+            });
+        });
+    });
+}
+
+function EditGradeScore(id) {
+    const popup = new Popup(`${"grade_scores"}/view_grade_score`, {id}, {
         backgroundDismiss: false
     });
 
     popup.Create().then(() => {
         popup.Show();
+
+        const form = popup.ELEMENT.querySelector("form");   
+        ListenToForm(form, (data) => {
+            EditRecord("grade_scores", {id, data: JSON.stringify(data)}).then(() => {
+                popup.Remove();
+            });
+        });
+    });
+}
+
+function ViewCompliedActivity(activity_id, id) {
+    const popup = new Popup(`${"activities"}/view_complied_activity`, {id}, {
+        backgroundDismiss: false
+    });
+    popup.Create().then(() => {
+        popup.Show();
+
+        const gradeBtn = popup.ELEMENT.querySelector(".grade-btn");
+        const editBtn = popup.ELEMENT.querySelector(".edit-btn");
+
+        if (gradeBtn) {
+            gradeBtn.addEventListener("click", () => {
+                NewGradeScore(activity_id, gradeBtn.dataset.category, gradeBtn.dataset.id).then(() => {
+                    popup.Remove();
+                });
+            });
+        }
+
+        if (editBtn) {
+            editBtn.addEventListener("click", () => {
+                EditGradeScore(editBtn.dataset.id);
+            });
+        }
     });
 }
 
@@ -281,7 +340,7 @@ function ViewCompliedActivities(id) {
         const complyItems = popup.ELEMENT.querySelectorAll(".comply-item");
         complyItems.forEach(item => {
             item.addEventListener("click", () => {
-                ViewCompliedActivity(item.dataset.id);
+                ViewCompliedActivity(id, item.dataset.id);
             });
         });
     });

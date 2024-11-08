@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 05, 2024 at 04:20 PM
+-- Generation Time: Nov 08, 2024 at 12:10 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.1.12
 
@@ -183,7 +183,7 @@ INSERT INTO `email_verifications` (`verification_id`, `user_id`, `verification`,
 (6, '1', '529649', '2024-09-22 21:34:47'),
 (22, '3', '935804', '2024-10-27 13:25:45'),
 (28, '5', '588162', '2024-11-05 13:44:24'),
-(29, '4', '824401', '2024-11-05 15:04:03');
+(30, '4', '358643', '2024-11-08 05:26:44');
 
 -- --------------------------------------------------------
 
@@ -231,6 +231,29 @@ CREATE TABLE `exams` (
 
 INSERT INTO `exams` (`exam_id`, `section_id`, `section_subject_id`, `title`, `description`, `count_items`, `duration`, `date_start`, `due_date`, `file`, `exam_status`, `status`, `date_created`) VALUES
 (1, 1, 1, 'Exam 1', '', 100, '30 Minutes', '2024-10-24 11:25:48', '2024-10-25', 'public/assets/media/uploads/exams/cmdc.sql.sql', 0, 0, '2024-10-23 03:21:56');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `grade_scores`
+--
+
+CREATE TABLE `grade_scores` (
+  `grade_score_id` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
+  `parent_id` int(11) NOT NULL,
+  `category` varchar(255) NOT NULL,
+  `grade` float NOT NULL,
+  `status` int(11) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `grade_scores`
+--
+
+INSERT INTO `grade_scores` (`grade_score_id`, `id`, `parent_id`, `category`, `grade`, `status`, `date_created`) VALUES
+(1, 3, 1, 'Activity', 100, 0, '2024-11-08 09:30:25');
 
 -- --------------------------------------------------------
 
@@ -785,6 +808,12 @@ ALTER TABLE `exams`
   ADD PRIMARY KEY (`exam_id`);
 
 --
+-- Indexes for table `grade_scores`
+--
+ALTER TABLE `grade_scores`
+  ADD PRIMARY KEY (`grade_score_id`);
+
+--
 -- Indexes for table `grading_categories`
 --
 ALTER TABLE `grading_categories`
@@ -948,7 +977,7 @@ ALTER TABLE `departments`
 -- AUTO_INCREMENT for table `email_verifications`
 --
 ALTER TABLE `email_verifications`
-  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `verification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `events`
@@ -961,6 +990,12 @@ ALTER TABLE `events`
 --
 ALTER TABLE `exams`
   MODIFY `exam_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `grade_scores`
+--
+ALTER TABLE `grade_scores`
+  MODIFY `grade_score_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `grading_categories`

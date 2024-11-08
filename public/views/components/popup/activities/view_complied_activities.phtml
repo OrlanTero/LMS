@@ -59,6 +59,7 @@ foreach($all_students as $student) {
         padding: 10px;
         border: 1px solid #eee;
         border-radius: 4px;
+        position: relative;
     }
     .comply-item > div {
         display: flex;
@@ -72,6 +73,8 @@ foreach($all_students as $student) {
         border: none;
         border-radius: 4px;
         cursor: pointer;
+        z-index: 2; /* Added z-index to ensure button stays above grade stamp */
+        position: relative; /* Added position relative */
     }
     .stats-container {
         margin-top: 20px;
@@ -103,6 +106,39 @@ foreach($all_students as $student) {
     }
     .comply-item.ontime {
         border-left: 4px solid #28a745;
+    }
+    .grade-stamp {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 80px;
+        padding: 8px;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        z-index: 1; /* Added z-index to place behind button */
+    }
+    .grade-stamp .grade {
+        font-size: 24px;
+        font-weight: 600;
+        color: #212529;
+        margin: 0;
+        line-height: 1.2;
+        padding: 0;
+    }
+    .grade-stamp .label {
+        font-size: 12px;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 2px 0 0;
+        padding: 0;
+        line-height: 1;
     }
 </style>
 <div class="main-popup-container">
@@ -136,6 +172,12 @@ foreach($all_students as $student) {
                                         $submissionClass = $isLate ? 'late' : 'ontime';
                                     ?>
                                     <div class="comply-item <?= $submissionClass ?>" data-id="<?= $comply->comply_id ?>">
+                                        <?php if($comply->grade_score): ?>
+                                        <div class="grade-stamp">
+                                            <p class="grade"><?= $comply->grade_score['grade'] ?></p>
+                                            <p class="label">Grade</p>
+                                        </div>
+                                        <?php endif; ?>
                                         <div>
                                             <div>
                                                 <strong>Student:</strong> <?= $comply->student['displayName'] ?>
@@ -146,9 +188,6 @@ foreach($all_students as $student) {
                                                     <?= $isLate ? 'Late Submission' : 'On-time Submission' ?>
                                                 </small>
                                             </div>
-                                            <button type="button" class="view-comply-btn" data-id="<?= $comply->comply_id ?>">
-                                                View
-                                            </button>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>

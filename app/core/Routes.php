@@ -185,6 +185,7 @@ class Routes
                     "/post_comments" => ["POST_COMMENT_CONTROL", "add", "editRecord", "removeRecords"],
                     "/activities_complied" => ["ACTIVITY_COMPLY_CONTROL", "add", "editRecord", "removeRecords"],
                     "/events" => ["EVENT_CONTROL", "add", "editRecord", "removeRecords"],
+                    "/grade_scores" => ["GRADE_SCORE_CONTROL", "addRecord", "editRecord", "removeRecords"],
                 ];
 
                 foreach ($routes as $path => [$control, $addMethod, $editMethod, $removeMethod]) {

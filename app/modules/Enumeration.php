@@ -95,6 +95,12 @@ enum UserTypesMini : string
     case ADMIN = "admin";
     case SUPER_ADMIN = "super";
 }
+enum GradeScoreCategories : string
+{
+    case ACTIVITY = "Activity";
+    case EXAM = "Exam";
+}
+
 enum ActivityLogCategories : int
 {
 
