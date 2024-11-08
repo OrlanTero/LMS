@@ -1,6 +1,6 @@
 import { SelectModelByFilter } from "./../../modules/app/Administrator.js";
 import { PostRequest } from "./../../modules/app/SystemFunctions.js";
-import { addHtml, append, CreateElement, MakeID, ManageComboBoxes, ListenToCombo, SetNewComboItems, HideShowComponent } from "../../modules/component/Tool.js";
+import { addHtml, append, CreateElement, MakeID, ManageComboBoxes, ListenToCombo, SetNewComboItems, ListenToForm } from "../../modules/component/Tool.js";
 import Popup from "./Popup.js";
 
 export default class GradingPlatformEditor {
@@ -545,6 +545,17 @@ export default class GradingPlatformEditor {
             const data = popup.ELEMENT.querySelector('.data');
             const mainContent = popup.ELEMENT.querySelector('.data-main-content');
             const sectionSubjectId = this.section_subject_id;
+            const obj = this;
+            const form = popup.ELEMENT.querySelector('form');
+            let importedData = null;
+
+            const check = ListenToForm(form, (data) => {
+                if (importedData) {
+                    obj.applyImportedData(importedData);
+                    popup.Remove();
+                }
+            });
+
 
             ListenToCombo(category, (cat) => {
                 SelectModelByFilter(JSON.stringify({
@@ -568,7 +579,18 @@ export default class GradingPlatformEditor {
                             parent_id: value
                         }), "GRADE_SCORE_CONTROL")
                         .then(res => {
-                            
+                            importedData = {
+                                category: categoryIndex,
+                                columnId: columnId,
+                                data: res.map(item => {
+                                    return {
+                                        student_id: item.student_id,
+                                        score: item.grade
+                                    }
+                                })
+                            }
+
+                            check(true);
                         });
                     });
 
@@ -579,6 +601,44 @@ export default class GradingPlatformEditor {
 
             ManageComboBoxes();
         });
+    }
+    applyImportedData(data) {
+        // Apply imported scores to the selected category and column
+        data.data.forEach(studentScore => {
+            if (!this.studentScores[studentScore.student_id]) {
+                this.studentScores[studentScore.student_id] = {};
+            }
+            if (!this.studentScores[studentScore.student_id][data.category]) {
+                this.studentScores[studentScore.student_id][data.category] = {};
+            }
+            
+            this.studentScores[studentScore.student_id][data.category][data.columnId] = studentScore.score;
+
+            // Update the cell in the table - Changed from input to span.grade-input
+            const cell = this.table.querySelector(`span.grade-input[data-student="${studentScore.student_id}"][data-category="${data.category}"][data-column-id="${data.columnId}"]`);
+            if (cell) {
+                // Use textContent instead of value for span elements
+                cell.textContent = studentScore.score;
+                
+                // Update the status to mark as edited
+                const scoreKey = `${studentScore.student_id}-${data.category}-${data.columnId}`;
+                this.studentScores[studentScore.student_id].status[scoreKey] = 'edited';
+            } else {
+                console.error(`Cell not found for student ${studentScore.student_id}, category ${data.category}, column ${data.columnId}`);
+            }
+        });
+
+        // Recalculate grades after importing
+        const inputs = this.table.querySelectorAll(
+            `span.grade-input[data-category="${data.category}"][data-column-id="${data.columnId}"]`
+        );
+
+        // Update each input and recalculate
+        inputs.forEach(input => {
+            this.recalculateGrades(input.closest('tr'));
+        });
+
+        this.setUnsavedChanges(true);
     }
 
     showNewCategoryEditor(button) {
